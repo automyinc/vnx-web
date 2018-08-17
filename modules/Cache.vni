@@ -1,0 +1,14 @@
+package vnx.web;
+
+module Cache {
+	
+	Path path;
+	
+	string domain;
+	
+	int memory;				// maximum memory [MB]
+	
+	
+	void purge();
+	
+}

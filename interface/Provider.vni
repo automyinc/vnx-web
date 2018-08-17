@@ -1,0 +1,15 @@
+package vnx.web;
+
+import vnx.Hash64;
+
+class Provider {
+	
+	Hash64 id;
+	
+	Path path;
+	
+	string channel;
+	
+	long timeout;			// until when provider is online
+	
+}

@@ -1,0 +1,16 @@
+package vnx.web;
+
+module FileSystem {
+	
+	Path path;				// where to mount
+	
+	string domain;
+	
+	string source;			// source root directory
+	
+	int scan_interval_ms = 10000;
+	
+	
+	void update();
+	
+}

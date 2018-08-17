@@ -1,0 +1,9 @@
+package vnx.web;
+
+class FileInfo {
+	
+	string name;
+	
+	string type;		// MIME type
+	
+}

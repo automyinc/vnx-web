@@ -1,0 +1,16 @@
+package vnx.web;
+
+import vnx.Hash64;
+import vnx.Object;
+
+class Content {
+	
+	Hash64 key;					// unique identifier
+	
+	Path path;					// file path
+	
+	long num_bytes;				// size in bytes
+	
+	long time_to_live_ms;		// how long to cache, zero means no caching [ms]
+	
+}

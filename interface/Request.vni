@@ -1,0 +1,18 @@
+package vnx.web;
+
+import vnx.Hash64;
+import vnx.Object;
+
+class Request {
+	
+	Hash64 id;
+	
+	Path path;
+	
+	Object param;
+	
+	string channel;
+	
+	long sequence;
+	
+}

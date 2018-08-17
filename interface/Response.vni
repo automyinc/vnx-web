@@ -1,0 +1,11 @@
+package vnx.web;
+
+import vnx.Hash64;
+
+class Response {
+	
+	Hash64 id;
+	
+	Content* content;
+	
+}
