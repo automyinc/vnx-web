@@ -64,7 +64,10 @@ protected:
 			for(size_t N = path.size(); N > 0; --N) {
 				auto iter = provider_map.find(path.to_string(N));
 				if(iter != provider_map.end()) {
-					forward_request(request, iter->second);
+					std::shared_ptr<Request> forward = vnx::clone(request);
+					forward->channel = channel;
+					publish(forward, iter->second->channel);
+					pending_requests[request->id] = request;
 					return;
 				}
 			}
@@ -78,27 +81,9 @@ protected:
 	void handle(std::shared_ptr<const ::vnx::web::Response> response) override {
 		auto iter = pending_requests.find(response->id);
 		if(iter != pending_requests.end()) {
-			process_response(iter->second, response);
+			publish(response, iter->second->channel);
 			pending_requests.erase(iter);
 		}
-	}
-	
-	void purge() override {
-		for(CacheEntry& entry : table) {
-			entry = CacheEntry();
-		}
-	}
-	
-private:
-	void forward_request(std::shared_ptr<const Request> request, std::shared_ptr<const Provider> provider) {
-		std::shared_ptr<Request> forward = vnx::clone(request);
-		forward->channel = channel;
-		publish(forward, provider->channel);
-		pending_requests[request->id] = request;
-	}
-	
-	void process_response(std::shared_ptr<const Request> request, std::shared_ptr<const Response> response) {
-		publish(response, request->channel);
 		if(!response->is_dynamic) {
 			CacheEntry& entry = cache_lookup(response->content->path);
 			if(entry.content) {
@@ -111,6 +96,13 @@ private:
 		}
 	}
 	
+	void purge() override {
+		for(CacheEntry& entry : table) {
+			entry = CacheEntry();
+		}
+	}
+	
+private:
 	CacheEntry& cache_lookup(const Path& path) {
 		return table[path.get_hash() % num_entries];
 	}
