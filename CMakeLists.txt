@@ -8,6 +8,7 @@ file(GLOB GENERATED_SOURCE_FILES generated/src/*.cpp)
 add_library(vnx_web SHARED
 	${GENERATED_SOURCE_FILES}
 	src/Path.cpp
+	src/Cache.cpp
 )
 
 target_include_directories(vnx_web

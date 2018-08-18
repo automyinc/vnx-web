@@ -1,14 +1,23 @@
 package vnx.web;
 
+import vnx.TopicPtr;
+
 module Cache {
 	
-	Path path;
+	TopicPtr domain;
 	
-	string domain;
+	TopicPtr channel;
 	
-	int memory;				// maximum memory [MB]
+	long num_entries = 1024;		// number of cache entries
+	
+	long max_memory;				// maximum memory [bytes]
 	
 	
 	void purge();
+	
+	void handle(Request sample);
+	void handle(Response sample);
+	void handle(Provider sample);
+	void handle(Content sample);
 	
 }

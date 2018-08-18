@@ -1,8 +1,8 @@
 package vnx.web;
 
-class File extends Content {
+class TextFile extends Content {
 	
-	vector<uchar> data;
+	string data;
 	
 	string type;				// MIME type
 	

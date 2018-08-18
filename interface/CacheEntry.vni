@@ -1,0 +1,11 @@
+package vnx.web;
+
+class CacheEntry {
+	
+	Content* content;
+	
+	long time_to_live_ms;
+	
+	long num_hits;
+	
+}

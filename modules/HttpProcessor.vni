@@ -1,0 +1,11 @@
+package vnx.web;
+
+module HttpProcessor {
+	
+	map<string, string> domain_map;
+	
+	
+	void handle(StreamRead sample);
+	void handle(StreamEvent sample);
+	
+}

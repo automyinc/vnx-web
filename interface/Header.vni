@@ -1,0 +1,7 @@
+package vnx.web;
+
+class Header {
+	
+	string data;
+	
+}

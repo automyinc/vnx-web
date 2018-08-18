@@ -3,6 +3,7 @@
 #define INCLUDE_VNX_WEB_PATH_H
 
 #include <vnx/Type.h>
+#include <vnx/Hash64.h>
 
 
 namespace vnx {
@@ -32,7 +33,11 @@ public:
 	
 	void assign(const std::string& path);
 	
+	Hash64 get_hash() const;
+	
 	std::string to_string() const;
+	
+	std::string to_string(size_t N) const;
 	
 	friend std::ostream& operator<<(std::ostream& out, const Path& path);
 	

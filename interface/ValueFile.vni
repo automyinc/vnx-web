@@ -1,0 +1,10 @@
+package vnx.web;
+
+class ValueFile extends Content {
+	
+	vnx.Value* data;
+	
+	
+	long get_num_bytes() const;
+	
+}

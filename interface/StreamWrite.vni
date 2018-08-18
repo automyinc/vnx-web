@@ -1,0 +1,11 @@
+package vnx.web;
+
+import vnx.Hash128;
+
+class StreamWrite {
+	
+	Hash128 stream;
+	
+	vector<vnx.Value*> data;
+	
+}

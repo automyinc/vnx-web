@@ -1,0 +1,14 @@
+package vnx.web;
+
+import vnx.Hash128;
+
+class StreamEvent {
+	
+	static const int CLOSE = 1;
+	static const int EOF = 2;
+	
+	Hash128 stream;
+	
+	int event = 0;
+	
+}

@@ -1,9 +1,0 @@
-package vnx.web;
-
-import vnx.Object;
-
-class Dynamic extends Content {
-	
-	Object param;
-	
-}

@@ -1,11 +1,15 @@
 package vnx.web;
 
-import vnx.Hash64;
+import vnx.Hash128;
 
 class Response {
 	
-	Hash64 id;
+	Hash128 id;
 	
 	Content* content;
+	
+	long time_to_live_ms;		// how long to cache, zero means no caching [ms]
+	
+	bool is_dynamic;
 	
 }

@@ -4,6 +4,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Util.h>
 
 
 namespace vnx {
@@ -29,13 +30,28 @@ bool Path::operator>(const Path& other) const {
 	return other < *this;
 }
 
+Hash64 Path::get_hash() const {
+	CRC64 func;
+	for(const std::string& node : (*this)) {
+		func.update(node);
+	}
+	return Hash64(func.get());
+}
+
 std::string Path::to_string() const {
+	return to_string(size());
+}
+
+std::string Path::to_string(size_t N) const {
+	if(N > size()) {
+		N = size();
+	}
 	std::string path;
-	for(const std::string& node : *this) {
-		if(!path.empty()) {
+	for(size_t i = 0; i < N; ++i) {
+		if(i) {
 			path.push_back('/');
 		}
-		path += node;
+		path += (*this)[i];
 	}
 	return path;
 }

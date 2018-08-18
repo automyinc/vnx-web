@@ -1,0 +1,12 @@
+package vnx.web;
+
+class ErrorCode extends Content {
+	
+	static const int NOT_FOUND = 404;
+	static const int TIMEOUT = 429;
+	
+	int code;
+	
+	static ErrorCode* create(int code_);
+	
+}

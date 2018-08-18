@@ -1,18 +1,23 @@
 package vnx.web;
 
-import vnx.Hash64;
+import vnx.Hash128;
 import vnx.Object;
+import vnx.TopicPtr;
 
 class Request {
 	
-	Hash64 id;
+	Hash128 id;
 	
 	Path path;
 	
-	Object param;
+	Parameter* param;
 	
-	string channel;
+	Content* content;
 	
-	long sequence;
+	TopicPtr channel;
+	
+	long time_stamp_ms;
+	
+	long timeout_ms;
 	
 }
