@@ -10,6 +10,6 @@ class Response {
 	
 	long time_to_live_ms;		// how long to cache, zero means no caching [ms]
 	
-	bool is_dynamic;
+	bool is_dynamic = true;
 	
 }

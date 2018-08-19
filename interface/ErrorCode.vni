@@ -4,6 +4,8 @@ class ErrorCode extends Content {
 	
 	static const int NOT_FOUND = 404;
 	static const int TIMEOUT = 429;
+	static const int INTERNAL_ERROR = 500;
+	static const int OVERLOAD = 503;
 	
 	int code;
 	

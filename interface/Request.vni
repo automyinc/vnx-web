@@ -10,14 +10,14 @@ class Request {
 	
 	Path path;
 	
-	Parameter* param;
+	Parameter* parameter;
 	
 	Content* content;
 	
 	TopicPtr channel;
 	
-	long time_stamp_ms;
+	long time_stamp_ms;				// time when request was sent [ms]
 	
-	long timeout_ms;
+	long timeout_ms = 3000;			// how long to wait until fail [ms]
 	
 }

@@ -1,16 +1,28 @@
 package vnx.web;
 
+import vnx.TopicPtr;
+
 module FileSystem {
 	
-	Path path;				// where to mount
+	TopicPtr domain;
 	
-	string domain;
+	TopicPtr channel;
 	
-	string source;			// source root directory
+	string source_path = ".";			// source root directory
 	
-	int scan_interval_ms = 10000;
+	Path provider_path = "/";			// where to mount
+	
+	int update_interval_ms = 500;
+	
+	int scan_interval_ms = 30000;		// [ms]
+	
+	long time_to_live_ms = 60000;		// how long to cache files [ms]
+	
+	long max_file_size;					// zero means unlimited [bytes]
 	
 	
-	void update();
+	void scan();
+	
+	void handle(Request Sample);
 	
 }

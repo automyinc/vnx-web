@@ -4,8 +4,6 @@ class File extends Content {
 	
 	vector<uchar> data;
 	
-	string type;				// MIME type
-	
 	
 	long get_num_bytes() const;
 	

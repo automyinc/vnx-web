@@ -4,6 +4,6 @@ import vnx.Object;
 
 class Parameter {
 	
-	Object data;
+	Object field;
 	
 }

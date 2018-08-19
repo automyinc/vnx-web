@@ -4,6 +4,8 @@ class CacheEntry {
 	
 	Content* content;
 	
+	long time_stamp_ms;
+	
 	long time_to_live_ms;
 	
 	long num_hits;

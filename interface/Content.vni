@@ -7,6 +7,8 @@ class Content {
 	
 	Path path;					// file path
 	
+	string mime_type;			// MIME type
+	
 	long time_stamp_ms;			// last updated time [ms]
 	
 	

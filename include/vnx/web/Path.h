@@ -13,11 +13,19 @@ class Path : public std::vector<std::string> {
 public:
 	Path() = default;
 	
+	Path(const char path[]) {
+		assign(std::string(path));
+	}
+	
 	Path(const std::string& path) {
 		assign(path);
 	}
 	
 	Path(const Path&) = default;
+	
+	Path& operator=(const char path[]) {
+		assign(std::string(path));
+	}
 	
 	Path& operator=(const std::string& path) {
 		assign(path);
@@ -31,13 +39,19 @@ public:
 	
 	bool operator>(const Path& other) const;
 	
+	Path& operator+=(const Path& other);
+	
+	Path operator+(const Path& other) const;
+	
 	void assign(const std::string& path);
 	
 	Hash64 get_hash() const;
 	
 	std::string to_string() const;
 	
-	std::string to_string(size_t N) const;
+	Path get_base_path(size_t N) const;
+	
+	Path get_sub_path(size_t N) const;
 	
 	friend std::ostream& operator<<(std::ostream& out, const Path& path);
 	
@@ -48,5 +62,14 @@ public:
 
 } // web
 } // vnx
+
+
+namespace std {
+	template<> struct hash<vnx::web::Path> {
+		size_t operator()(const vnx::web::Path& x) const {
+			return x.get_hash();
+		}
+	};
+} // std
 
 #endif // INCLUDE_VNX_WEB_PATH_H

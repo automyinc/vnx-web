@@ -8,9 +8,15 @@ module Cache {
 	
 	TopicPtr channel;
 	
-	long num_entries = 1024;		// number of cache entries
+	long num_entries = 1024;			// number of cache entries
 	
-	long max_memory;				// maximum memory [bytes]
+	long max_entry_size = 4194304;		// maximum size of a single entry [bytes]
+	
+	long max_backlog = 1000;			// maximum number of pending requests per resource
+	
+	int update_interval_ms = 500;
+	
+	int maintain_interval_ms = 5000;
 	
 	
 	void purge();
