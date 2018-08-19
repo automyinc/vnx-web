@@ -11,6 +11,7 @@ Cache::Cache(const std::string& _vnx_name)
 }
 
 void Cache::main() {
+	cache_salt = Hash64::rand();
 	provider_id = Hash128::rand();
 	table.resize(num_entries);
 	
@@ -120,7 +121,7 @@ void Cache::purge() {
 }
 
 CacheEntry& Cache::cache_lookup(const Path& path) {
-	return table[(path.get_hash() xor provider_id.A()) % num_entries];
+	return table[Hash64(path.get_hash(), cache_salt) % num_entries];
 }
 
 std::shared_ptr<const Provider> Cache::find_provider(const Path& path) {

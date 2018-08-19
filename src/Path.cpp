@@ -6,6 +6,7 @@
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
 #include <vnx/Util.h>
+#include <vnx/CRC64.h>
 
 
 namespace vnx {

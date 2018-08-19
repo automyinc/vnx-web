@@ -44,6 +44,7 @@ private:
 	void maintain();
 	
 private:
+	vnx::Hash64 cache_salt;
 	vnx::Hash128 provider_id;
 	std::vector<CacheEntry> table;
 	std::unordered_map<Path, std::shared_ptr<const Provider>> provider_map;
