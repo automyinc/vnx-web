@@ -120,7 +120,7 @@ void Cache::purge() {
 }
 
 CacheEntry& Cache::cache_lookup(const Path& path) {
-	return table[path.get_hash() % num_entries];
+	return table[(path.get_hash() xor provider_id.A()) % num_entries];
 }
 
 std::shared_ptr<const Provider> Cache::find_provider(const Path& path) {
@@ -163,6 +163,7 @@ void Cache::update() {
 		auto provider = vnx::clone(entry.second);
 		provider->id = provider_id;
 		provider->channel = channel;
+		provider->level = entry.second->level + 1;
 		publish(provider, domain);
 	}
 }

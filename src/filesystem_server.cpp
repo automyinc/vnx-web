@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
 		request->channel = "test.channel";
 		request->time_stamp_ms = vnx::get_time_millis();
 		publisher.publish(request, "test.cache");
-//		::usleep(1);
+		::usleep(1);
 	}
 	
 	/*
