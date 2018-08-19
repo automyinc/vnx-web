@@ -8,6 +8,8 @@ class CacheEntry {
 	
 	long time_to_live_ms;
 	
+	long last_request_ms;
+	
 	long num_hits;
 	
 }

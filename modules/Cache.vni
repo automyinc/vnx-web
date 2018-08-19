@@ -12,7 +12,7 @@ module Cache {
 	
 	long max_entry_size = 4194304;		// maximum size of a single entry [bytes]
 	
-	long max_backlog = 1000;			// maximum number of pending requests per resource
+	long max_backlog = 10000;			// maximum number of pending requests per resource
 	
 	int update_interval_ms = 500;
 	

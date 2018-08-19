@@ -12,4 +12,7 @@ class Response {
 	
 	bool is_dynamic = true;
 	
+	
+	static Response* create(Request* request, Content* content);
+	
 }

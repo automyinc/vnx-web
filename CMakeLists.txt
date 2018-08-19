@@ -21,6 +21,7 @@ add_library(vnx_web SHARED
 	src/Content.cpp
 	src/File.cpp
 	src/TextFile.cpp
+	src/Response.cpp
 )
 
 target_include_directories(vnx_web

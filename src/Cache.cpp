@@ -40,39 +40,55 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Provider> provider) {
 }
 
 void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
-	{
+	const int64_t now = vnx::get_time_millis();
+	if(!request->parameter) {
 		CacheEntry& entry = cache_lookup(request->path);
 		if(	entry.content
 			&& request->path == entry.content->path
-			&& request->time_stamp_ms < entry.time_stamp_ms + entry.time_to_live_ms)
+			&& now < entry.time_stamp_ms + entry.time_to_live_ms)
 		{
 			std::shared_ptr<Response> response = Response::create();
 			response->id = request->id;
 			response->content = entry.content;
 			response->time_to_live_ms = entry.time_to_live_ms;
 			publish(response, request->channel);
+			
+			// check if to pre-fetch
+			if(now - entry.last_request_ms > entry.time_to_live_ms / 2) {
+				std::shared_ptr<const Provider> provider = find_provider(request->path);
+				if(provider) {
+					std::shared_ptr<Request> forward = vnx::clone(request);
+					forward->channel = channel;
+					publish(forward, provider->channel);
+					entry.last_request_ms = now;
+				}
+			}
 			entry.num_hits++;
 			return;
 		}
 	}
-	std::shared_ptr<Response> response = Response::create();
-	response->id = request->id;
-	if(resource_backlog[request->path] < max_backlog) {
-		for(size_t N = request->path.size(); N > 0; --N) {
-			auto iter = provider_map.find(request->path.get_base_path(N));
-			if(iter != provider_map.end()) {
-				std::shared_ptr<Request> forward = vnx::clone(request);
-				forward->channel = channel;
-				publish(forward, iter->second->channel);
-				add_request(request);
+	if(now > request->time_stamp_ms + request->timeout_ms) {
+		publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->channel);
+		return;
+	}
+	{
+		auto iter = resource_backlog.find(request->path);
+		if(iter != resource_backlog.end()) {
+			if(iter->second >= max_backlog) {
+				publish(Response::create(request, ErrorCode::create(ErrorCode::OVERLOAD)), request->channel);
 				return;
 			}
 		}
-		response->content = ErrorCode::create(ErrorCode::NOT_FOUND);
-	} else {
-		response->content = ErrorCode::create(ErrorCode::OVERLOAD);
 	}
-	publish(response, request->channel);
+	std::shared_ptr<const Provider> provider = find_provider(request->path);
+	if(provider) {
+		std::shared_ptr<Request> forward = vnx::clone(request);
+		forward->channel = channel;
+		publish(forward, provider->channel);
+		add_request(request);
+		return;
+	}
+	publish(Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND)), request->channel);
 }
 
 void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
@@ -93,6 +109,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 		entry.content = response->content;
 		entry.time_stamp_ms = vnx::get_time_millis();
 		entry.time_to_live_ms = response->time_to_live_ms;
+		entry.last_request_ms = entry.time_stamp_ms;
 	}
 }
 
@@ -104,6 +121,16 @@ void Cache::purge() {
 
 CacheEntry& Cache::cache_lookup(const Path& path) {
 	return table[path.get_hash() % num_entries];
+}
+
+std::shared_ptr<const Provider> Cache::find_provider(const Path& path) {
+	for(size_t N = path.size(); N > 0; --N) {
+		auto iter = provider_map.find(path.get_base_path(N));
+		if(iter != provider_map.end()) {
+			return iter->second;
+		}
+	}
+	return 0;
 }
 
 void Cache::add_request(std::shared_ptr<const Request> request) {
@@ -128,10 +155,7 @@ void Cache::update() {
 			}
 		}
 		for(const auto& request : list) {
-			std::shared_ptr<Response> response = Response::create();
-			response->id = request->id;
-			response->content = ErrorCode::create(ErrorCode::TIMEOUT);
-			publish(response, request->channel);
+			publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->channel);
 			rem_request(request);
 		}
 	}
