@@ -67,14 +67,37 @@ int main(int argc, char** argv) {
 	
 	vnx::Hash128 stream = vnx::Hash128::rand();
 	vnx::Publisher publisher;
+	vnx::Subscriber subscriber;
+	subscriber.subscribe("test.server");
+	int64_t resume_time = 0;
 	while(vnx::do_run()) {
-		std::shared_ptr<vnx::web::StreamRead> sample = vnx::web::StreamRead::create();
-		sample->stream = stream;
-		sample->data.resize(test_request.size());
-		::memcpy(sample->data.data(), test_request.c_str(), test_request.size());
-		sample->channel = "test.server";
-		publisher.publish(sample, "test.stream", vnx::Message::BLOCKING);
-//		::usleep(1);
+		const int64_t now = vnx::get_time_millis();
+		if(now > resume_time) {
+			std::shared_ptr<vnx::web::StreamRead> sample = vnx::web::StreamRead::create();
+			sample->stream = stream;
+			sample->data.resize(test_request.size());
+			::memcpy(sample->data.data(), test_request.c_str(), test_request.size());
+			sample->channel = "test.server";
+			publisher.publish(sample, "test.stream", vnx::Message::BLOCKING);
+		} else {
+			::usleep(1);
+		}
+		::usleep(1);
+//		while(auto msg = subscriber.read()) {
+//			auto sample = std::dynamic_pointer_cast<const vnx::Sample>(msg);
+//			if(sample) {
+//				auto event = std::dynamic_pointer_cast<const vnx::web::StreamEvent>(sample->value);
+//				if(event) {
+//					switch(event->event) {
+//						case vnx::web::StreamEvent::EVENT_PAUSE:
+//							if(now > resume_time) {
+//								resume_time = now + event->value;
+//							}
+//							break;
+//					}
+//				}
+//			}
+//		}
 	}
 	
 	vnx::wait();

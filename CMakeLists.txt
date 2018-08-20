@@ -22,6 +22,7 @@ add_library(vnx_web SHARED
 	src/HttpParser.cpp
 	src/HttpProcessor.cpp
 	src/BinaryData.cpp
+	src/StreamEvent.cpp
 	lib/http-parser/http_parser.c
 )
 

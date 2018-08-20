@@ -35,6 +35,16 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::HttpRequest> reques
 	state_t& state = state_map[request->stream];
 	state.stream = request->stream;
 	process(state, request);
+	
+	if(input_pipe) {
+		const size_t backlog = pending_requests.size();
+		if(backlog >= max_backlog) {
+			if(!input_pipe->get_is_paused()) {
+				log(WARN).out << "Blocked input: backlog = " << backlog << ", size = " << state.response_map.size();
+			}
+			input_pipe->pause();
+		}
+	}
 }
 
 void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::Response> response) {
@@ -42,8 +52,18 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::Response> response)
 	if(iter != pending_requests.end()) {
 		state_t& state = state_map[iter->second];
 		state.response_map[response->id] = response;
-		pending_requests.erase(response->id);
 		process(state);
+		pending_requests.erase(response->id);
+	}
+	
+	if(input_pipe) {
+		const size_t backlog = pending_requests.size();
+		if(backlog <= max_backlog / 2) {
+			if(input_pipe->get_is_paused()) {
+				log(WARN).out << "Resumed input: backlog = " << backlog;
+			}
+			input_pipe->resume();
+		}
 	}
 }
 
@@ -54,27 +74,9 @@ void HttpProcessor::process(state_t& state) {
 		if(iter != state.response_map.end()) {
 			process(state, request, iter->second);
 			state.response_map.erase(request->id);
-		} else if(state.request_queue.size() >= max_queue_size) {
-			pending_requests.erase(request->id);
-			process(state, request, Response::create(request, ErrorCode::create(ErrorCode::OVERLOAD)));
+			state.request_queue.pop();
 		} else {
 			break;
-		}
-		state.request_queue.pop();
-	}
-	if(input_pipe) {
-		const size_t backlog = pending_requests.size();
-		if(backlog >= max_backlog) {
-			if(!input_pipe->get_is_paused()) {
-				log(WARN).out << "Blocked input: backlog = " << backlog << ", state.response_map.size()=" << state.response_map.size();
-			}
-			input_pipe->pause();
-		}
-		if(backlog <= max_backlog / 2) {
-			if(input_pipe->get_is_paused()) {
-				log(WARN).out << "Resumed input: backlog = " << backlog;
-			}
-			input_pipe->resume();
 		}
 	}
 }
@@ -148,6 +150,10 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	
 	state.request_queue.push(request);
 	process(state);
+	
+	if(state.request_queue.size() > max_queue_size) {
+		publish(StreamEvent::create_with_value(request->stream, StreamEvent::EVENT_PAUSE, 50), request->channel);
+	}
 }
 
 void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> request, std::shared_ptr<const Response> response) {

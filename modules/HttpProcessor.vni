@@ -14,7 +14,7 @@ module HttpProcessor {
 	
 	map<string, TopicPtr> domain_map;
 	
-	long max_queue_size = 1000;			// maximum number of pending requests per connection
+	long max_queue_size = 100;			// maximum number of pending requests per connection
 	
 	long max_backlog = 10000;			// maximum number of total pending requests
 	

@@ -10,6 +10,6 @@ class ErrorCode extends Content {
 	
 	int code;
 	
-	static ErrorCode* create(int code_);
+	static ErrorCode* create(int code);
 	
 }
