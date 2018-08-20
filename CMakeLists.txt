@@ -5,9 +5,6 @@ find_package(Boost 1.55.0 REQUIRED COMPONENTS filesystem)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 
-# Always use multi-threaded Boost libraries.
-set(Boost_USE_MULTI_THREADED ON)
-
 file(GLOB GENERATED_SOURCE_FILES generated/src/*.cpp)
 
 add_library(vnx_web SHARED
@@ -22,17 +19,20 @@ add_library(vnx_web SHARED
 	src/File.cpp
 	src/TextFile.cpp
 	src/Response.cpp
+	src/HttpParser.cpp
+	src/HttpProcessor.cpp
+	src/BinaryData.cpp
+	lib/http-parser/http_parser.c
 )
 
 target_include_directories(vnx_web
-	PUBLIC include generated/include
+	PUBLIC include generated/include lib/
 )
 
-target_link_libraries(vnx_web
-	vnx_base
-	${Boost_LIBRARIES}
-	magic
-)
+target_link_libraries(vnx_web vnx_base ${Boost_LIBRARIES} magic)
+
+add_executable(vnxwebserver src/vnxwebserver.cpp)
+target_link_libraries(vnxwebserver vnx_web)
 
 add_executable(filesystem_server src/filesystem_server.cpp)
 target_link_libraries(filesystem_server vnx_web)

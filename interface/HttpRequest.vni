@@ -1,0 +1,19 @@
+package vnx.web;
+
+import vnx.Hash128;
+
+class HttpRequest extends Request {
+	
+	Hash128 stream;
+	
+	long sequence;
+	
+	string method;
+	
+	int version;
+	
+	vector<pair<string, string>> header;
+	
+	BinaryData payload;
+	
+}

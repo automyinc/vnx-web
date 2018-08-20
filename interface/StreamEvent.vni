@@ -4,8 +4,10 @@ import vnx.Hash128;
 
 class StreamEvent {
 	
-	static const int EVENT_CLOSE = 1;
-	static const int EVENT_EOF = 2;
+	static const int EVENT_NEW = 1;				// needs to be BLOCKING
+	static const int EVENT_OPEN = 2;
+	static const int EVENT_CLOSE = 3;
+	static const int EVENT_EOF = 4;				// needs to be BLOCKING
 	
 	Hash128 stream;
 	

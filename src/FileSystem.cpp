@@ -15,7 +15,8 @@ FileSystem::FileSystem(const std::string& _vnx_name)
 }
 
 void FileSystem::main() {
-	if(magic = ::magic_open(MAGIC_MIME_TYPE)) {
+	magic = ::magic_open(MAGIC_MIME_TYPE);
+	if(magic) {
 		if(::magic_load(magic, nullptr) == 0) {
 			if(::magic_compile(magic, nullptr) == 0) {
 				// success
@@ -39,7 +40,7 @@ void FileSystem::main() {
 	
 	scan();
 	
-	subscribe(channel);
+	subscribe(channel, 1000);
 	
 	set_timer_millis(update_interval_ms, std::bind(&FileSystem::update, this));
 	set_timer_millis(scan_interval_ms, std::bind(&FileSystem::scan, this));

@@ -1,11 +1,28 @@
 package vnx.web;
 
+import vnx.TopicPtr;
+
 module HttpProcessor {
 	
-	map<string, string> domain_map;
+	TopicPtr input;
+	
+	TopicPtr channel;
+	
+	TopicPtr output;
+	
+	string default_domain;
+	
+	map<string, TopicPtr> domain_map;
+	
+	long max_queue_size = 1000;			// maximum number of pending requests per connection
+	
+	long max_backlog = 10000;			// maximum number of total pending requests
+	
+	long timeout_ms = 3000;
 	
 	
-	void handle(StreamRead sample);
 	void handle(StreamEvent sample);
+	void handle(HttpRequest sample);
+	void handle(Response sample);
 	
 }

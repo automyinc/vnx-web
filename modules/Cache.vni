@@ -6,13 +6,15 @@ module Cache {
 	
 	TopicPtr domain;
 	
+	TopicPtr input;
+	
 	TopicPtr channel;
 	
 	long num_entries = 1024;			// number of cache entries
 	
 	long max_entry_size = 4194304;		// maximum size of a single entry [bytes]
 	
-	long max_backlog = 10000;			// maximum number of pending requests per resource
+	long max_backlog = 10000;			// maximum number of pending requests
 	
 	int update_interval_ms = 500;
 	

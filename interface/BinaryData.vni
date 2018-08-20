@@ -1,0 +1,14 @@
+package vnx.web;
+
+class BinaryData {
+	
+	vector<vnx.Buffer> chunks;
+	
+	
+	ulong get_size() const;
+	
+	vnx.Buffer as_buffer() const;
+	
+	string as_string() const;
+	
+}

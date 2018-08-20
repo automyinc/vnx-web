@@ -10,13 +10,16 @@ Cache::Cache(const std::string& _vnx_name)
 {
 }
 
+void Cache::init() {
+	input_pipe = subscribe(input);
+	subscribe(domain);
+	subscribe(channel, 0);
+}
+
 void Cache::main() {
 	cache_salt = Hash64::rand();
 	provider_id = Hash128::rand();
 	table.resize(num_entries);
-	
-	subscribe(channel);
-	subscribe(domain);
 	
 	set_timer_millis(update_interval_ms, std::bind(&Cache::update, this));
 	set_timer_millis(maintain_interval_ms, std::bind(&Cache::maintain, this));
@@ -42,7 +45,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Provider> provider) {
 
 void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	const int64_t now = vnx::get_time_millis();
-	if(!request->parameter) {
+	{
 		CacheEntry& entry = cache_lookup(request->path);
 		if(	entry.content
 			&& request->path == entry.content->path
@@ -72,13 +75,13 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->channel);
 		return;
 	}
-	{
-		auto iter = resource_backlog.find(request->path);
-		if(iter != resource_backlog.end()) {
-			if(iter->second >= max_backlog) {
-				publish(Response::create(request, ErrorCode::create(ErrorCode::OVERLOAD)), request->channel);
-				return;
+	if(input_pipe) {
+		const size_t backlog = pending_requests.size();
+		if(backlog >= max_backlog) {
+			if(!input_pipe->get_is_paused()) {
+				log(WARN).out << "Blocked input: backlog = " << backlog;
 			}
+			input_pipe->pause();
 		}
 	}
 	std::shared_ptr<const Provider> provider = find_provider(request->path);
@@ -86,7 +89,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		std::shared_ptr<Request> forward = vnx::clone(request);
 		forward->channel = channel;
 		publish(forward, provider->channel);
-		add_request(request);
+		pending_requests[request->id] = request;
 		return;
 	}
 	publish(Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND)), request->channel);
@@ -96,9 +99,19 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 	auto iter = pending_requests.find(response->id);
 	if(iter != pending_requests.end()) {
 		publish(response, iter->second->channel);
-		rem_request(iter->second);
+		pending_requests.erase(response->id);
+	}
+	if(input_pipe) {
+		const size_t backlog = pending_requests.size();
+		if(backlog <= max_backlog / 2) {
+			if(input_pipe->get_is_paused()) {
+				log(WARN).out << "Resumed input: backlog = " << backlog;
+			}
+			input_pipe->resume();
+		}
 	}
 	if(	!response->is_dynamic
+		&& response->content
 		&& response->content->get_num_bytes() <= max_entry_size)
 	{
 		CacheEntry& entry = cache_lookup(response->content->path);
@@ -136,14 +149,10 @@ std::shared_ptr<const Provider> Cache::find_provider(const Path& path) {
 
 void Cache::add_request(std::shared_ptr<const Request> request) {
 	pending_requests[request->id] = request;
-	resource_backlog[request->path]++;
 }
 
 void Cache::rem_request(std::shared_ptr<const Request> request) {
 	pending_requests.erase(request->id);
-	if(--resource_backlog[request->path] <= 0) {
-		resource_backlog.erase(request->path);
-	}
 }
 
 void Cache::update() {

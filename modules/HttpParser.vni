@@ -1,0 +1,17 @@
+package vnx.web;
+
+import vnx.TopicPtr;
+
+module HttpParser {
+	
+	TopicPtr input;
+	
+	TopicPtr output;
+	
+	long max_request_size = 4194304;
+	
+	
+	void handle(StreamRead sample);
+	void handle(StreamEvent sample);
+	
+}

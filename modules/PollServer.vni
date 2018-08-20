@@ -1,6 +1,6 @@
 package vnx.web;
 
-module Server {
+module PollServer {
 	
 	
 	

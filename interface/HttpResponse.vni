@@ -1,0 +1,15 @@
+package vnx.web;
+
+import vnx.Hash128;
+
+class HttpResponse extends Response {
+	
+	Hash128 stream;
+	
+	long sequence;
+	
+	int status = 500;
+	
+	vector<pair<string, string>> header;
+	
+}

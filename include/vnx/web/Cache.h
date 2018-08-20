@@ -18,6 +18,8 @@ public:
 	Cache(const std::string& _vnx_name);
 	
 protected:
+	void init() override;
+	
 	void main() override;
 	
 	void handle(std::shared_ptr<const ::vnx::web::Content> content) override;
@@ -46,10 +48,10 @@ private:
 private:
 	vnx::Hash64 cache_salt;
 	vnx::Hash128 provider_id;
+	std::shared_ptr<Pipe> input_pipe;
 	std::vector<CacheEntry> table;
 	std::unordered_map<Path, std::shared_ptr<const Provider>> provider_map;
 	std::unordered_map<Hash128, std::shared_ptr<const Request>> pending_requests;
-	std::unordered_map<Path, int64_t> resource_backlog;
 	
 };
 

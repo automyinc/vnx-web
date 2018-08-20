@@ -1,11 +1,14 @@
 package vnx.web;
 
 import vnx.Hash128;
+import vnx.TopicPtr;
 
 class StreamRead {
 	
 	Hash128 stream;
 	
-	vector<uchar> data;
+	vnx.Buffer data;
+	
+	TopicPtr channel;
 	
 }
