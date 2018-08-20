@@ -112,7 +112,9 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 			std::string& str = forward->path.back();
 			for(size_t i = 0; i < str.size(); ++i) {
 				if(str[i] == '?') {
-					parameter = parse_parameter(parameter, &str[i], str.size() - i);
+					if(i + 1 < str.size()) {
+						parameter = parse_parameter(parameter, &str[i + 1], str.size() - i - 1);
+					}
 					str.resize(i);
 					break;
 				}
