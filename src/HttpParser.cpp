@@ -94,41 +94,44 @@ void HttpParser::main() {
 	settings.on_header_value = &HttpParser::on_header_value;
 	settings.on_body = &HttpParser::on_body;
 	
+	set_timer_millis(100, std::bind(&HttpParser::update, this));
+	
 	Super::main();
 }
 
-void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamEvent> event) {
-	switch(event->event) {
-		case StreamEvent::EVENT_EOF:
-			state_map.erase(event->stream);
-			break;
+void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> value) {
+	for(const stream_event_t& event : value->array) {
+		switch(event.event) {
+			case stream_event_t::EVENT_EOF:
+				state_map.erase(event.stream);
+				break;
+		}
 	}
-	publish(event, output);
+	publish(value, output);
 }
 
 void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
 	state_t& state = state_map[input->stream];
+	state.stream = input->stream;
 	state.parser.data = &state;
 	state.size += input->data.size();
 	
-	if(state.is_error || state.size > max_request_size) {
-		send_close(input->stream, input->channel);
+	if(state.is_closed || state.size > max_request_size) {
+		close_stream(state, input->channel);
 		return;
 	}
 	
 	const size_t num_parsed = ::http_parser_execute(&state.parser, &settings, (const char*)input->data.data(), input->data.size());
 	if(num_parsed != input->data.size()) {
-		state.is_error = true;
-		send_close(input->stream, input->channel);
+		close_stream(state, input->channel);
 		return;
 	}
 	if(state.parser.upgrade) {
-		state.is_error = true;
-		send_close(input->stream, input->channel);
+		close_stream(state, input->channel);
 		return;
 	}
 	
-	for(auto request : state.complete) {
+	for(const auto& request : state.complete) {
 		request->stream = input->stream;
 		request->channel = input->channel;
 		publish(request, output, BLOCKING);
@@ -136,11 +139,22 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
 	state.complete.clear();
 }
 
-void HttpParser::send_close(const Hash128& stream, TopicPtr channel) {
-	auto event = StreamEvent::create();
-	event->stream = stream;
-	event->event = StreamEvent::EVENT_CLOSE;
-	publish(event, channel);
+void HttpParser::update() {
+	for(const auto& entry : close_map) {
+		auto event = StreamEventArray::create();
+		for(const auto& stream : entry.second) {
+			event->array.push_back(stream_event_t::create(stream, stream_event_t::EVENT_CLOSE));
+		}
+		publish(event, entry.first);
+	}
+	close_map.clear();
+}
+
+void HttpParser::close_stream(state_t& state, const TopicPtr& channel) {
+	if(!state.is_closed) {
+		close_map[channel].push_back(state.stream);
+	}
+	state.is_closed = true;
 }
 
 

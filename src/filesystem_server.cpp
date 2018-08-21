@@ -13,8 +13,8 @@ int main(int argc, char** argv) {
 	std::map<std::string, std::string> options;
 	options["n"] = "node";
 	options["node"] = "server url";
-	options["domain"] = "server domain";
-	options["channel"] = "server channel";
+	options["domain"] = "server domain topic";
+	options["input"] = "request input topic";
 	
 	vnx::init("filesystem_server", argc, argv, options);
 	
@@ -43,28 +43,29 @@ int main(int argc, char** argv) {
 	
 	{
 		vnx::Handle<vnx::web::Cache> module = new vnx::web::Cache("Cache");
+		vnx::read_config("input", module->input);
 		vnx::read_config("domain", module->domain);
-		vnx::read_config("channel", module->channel);
+		module->channel = "internal.cache";
 		module.start_detached();
 	}
 	
 	{
 		vnx::Handle<vnx::web::FileSystem> module = new vnx::web::FileSystem("FileSystem");
-		vnx::read_config("channel", module->domain);
-		module->channel = "internal.filesystem";
+		vnx::read_config("domain", module->domain);
+		module->input = "internal.filesystem.request";
 		module.start_detached();
 	}
 	
-	vnx::Publisher publisher;
-	while(vnx::do_run()) {
-		std::shared_ptr<vnx::web::Request> request = vnx::web::Request::create();
-		request->id = vnx::Hash128::rand();
-		request->path = "/LICENSE";
-		request->channel = "test.channel";
-		request->time_stamp_ms = vnx::get_time_millis();
-		publisher.publish(request, "test.cache");
-		::usleep(1);
-	}
+//	vnx::Publisher publisher;
+//	while(vnx::do_run()) {
+//		std::shared_ptr<vnx::web::Request> request = vnx::web::Request::create();
+//		request->id = vnx::Hash128::rand();
+//		request->path = "/LICENSE";
+//		request->channel = "test.channel";
+//		request->time_stamp_ms = vnx::get_time_millis();
+//		publisher.publish(request, "internal.filesystem.request");
+//		::usleep(1);
+//	}
 	
 	/*
 	 * Wait until shutdown.

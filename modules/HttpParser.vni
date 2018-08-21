@@ -12,6 +12,6 @@ module HttpParser {
 	
 	
 	void handle(StreamRead sample);
-	void handle(StreamEvent sample);
+	void handle(StreamEventArray sample);
 	
 }

@@ -28,7 +28,7 @@ void Cache::main() {
 }
 
 void Cache::handle(std::shared_ptr<const ::vnx::web::Content> content) {
-	CacheEntry& entry = cache_lookup(content->path);
+	cache_entry_t& entry = cache_lookup(content->path);
 	if(	entry.content
 		&& content->path == entry.content->path
 		&& content->time_stamp_ms >= entry.content->time_stamp_ms)
@@ -44,9 +44,10 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Provider> provider) {
 }
 
 void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
+	request_counter++;
 	const int64_t now = vnx::get_time_millis();
 	{
-		CacheEntry& entry = cache_lookup(request->path);
+		cache_entry_t& entry = cache_lookup(request->path);
 		if(	entry.content
 			&& request->path == entry.content->path
 			&& now < entry.time_stamp_ms + entry.time_to_live_ms)
@@ -68,6 +69,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 				}
 			}
 			entry.num_hits++;
+			hit_counter++;
 			return;
 		}
 	}
@@ -77,9 +79,9 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	}
 	if(input_pipe) {
 		const size_t backlog = pending_requests.size();
-		if(backlog >= max_backlog) {
+		if(backlog >= max_pending) {
 			if(!input_pipe->get_is_paused()) {
-				log(WARN).out << "Blocked input: backlog = " << backlog;
+				log(WARN).out << "Blocked input: pending=" << backlog;
 			}
 			input_pipe->pause();
 		}
@@ -103,9 +105,9 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 	}
 	if(input_pipe) {
 		const size_t backlog = pending_requests.size();
-		if(backlog <= max_backlog / 2) {
+		if(backlog <= max_pending / 2) {
 			if(input_pipe->get_is_paused()) {
-				log(WARN).out << "Resumed input: backlog = " << backlog;
+				log(WARN).out << "Resumed input: pending=" << backlog;
 			}
 			input_pipe->resume();
 		}
@@ -114,10 +116,10 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 		&& response->content
 		&& response->content->get_num_bytes() <= max_entry_size)
 	{
-		CacheEntry& entry = cache_lookup(response->content->path);
+		cache_entry_t& entry = cache_lookup(response->content->path);
 		if(entry.content) {
 			if(response->content->path != entry.content->path) {
-				entry = CacheEntry();
+				entry = cache_entry_t();
 			}
 		}
 		entry.content = response->content;
@@ -128,12 +130,12 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 }
 
 void Cache::purge() {
-	for(CacheEntry& entry : table) {
-		entry = CacheEntry();
+	for(cache_entry_t& entry : table) {
+		entry = cache_entry_t();
 	}
 }
 
-CacheEntry& Cache::cache_lookup(const Path& path) {
+cache_entry_t& Cache::cache_lookup(const Path& path) {
 	return table[Hash64(path.get_hash(), cache_salt) % num_entries];
 }
 
@@ -147,16 +149,9 @@ std::shared_ptr<const Provider> Cache::find_provider(const Path& path) {
 	return 0;
 }
 
-void Cache::add_request(std::shared_ptr<const Request> request) {
-	pending_requests[request->id] = request;
-}
-
-void Cache::rem_request(std::shared_ptr<const Request> request) {
-	pending_requests.erase(request->id);
-}
-
 void Cache::update() {
 	const int64_t now = vnx::get_time_millis();
+	size_t num_timeout = 0;
 	{
 		std::vector<std::shared_ptr<const Request>> list;
 		for(const auto& entry : pending_requests) {
@@ -166,8 +161,9 @@ void Cache::update() {
 		}
 		for(const auto& request : list) {
 			publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->channel);
-			rem_request(request);
+			pending_requests.erase(request->id);
 		}
+		num_timeout += list.size();
 	}
 	for(const auto& entry : provider_map) {
 		auto provider = vnx::clone(entry.second);
@@ -176,14 +172,19 @@ void Cache::update() {
 		provider->level = entry.second->level + 1;
 		publish(provider, domain);
 	}
+	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, hitrate="
+			<< (100 * float(hit_counter) / float(request_counter)) << " %, pending="
+			<< pending_requests.size() << ", num_timeout=" << num_timeout;
+	request_counter = 0;
+	hit_counter = 0;
 }
 
 void Cache::maintain() {
 	const int64_t now = vnx::get_time_millis();
-	for(CacheEntry& entry : table) {
+	for(cache_entry_t& entry : table) {
 		if(entry.content) {
 			if(now > entry.time_stamp_ms + entry.time_to_live_ms) {
-				entry = CacheEntry();
+				entry = cache_entry_t();
 			}
 		}
 	}

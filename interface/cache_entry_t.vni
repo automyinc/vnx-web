@@ -1,6 +1,6 @@
 package vnx.web;
 
-class CacheEntry {
+struct cache_entry_t {
 	
 	Content* content;
 	
@@ -9,6 +9,8 @@ class CacheEntry {
 	long time_to_live_ms;
 	
 	long last_request_ms;
+	
+	long num_pending;
 	
 	long num_hits;
 	

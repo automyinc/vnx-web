@@ -1,0 +1,9 @@
+package vnx.web;
+
+import vnx.Hash128;
+
+class StreamEventArray {
+	
+	vector<stream_event_t> array;
+	
+}

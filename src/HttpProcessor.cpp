@@ -14,33 +14,41 @@ void HttpProcessor::init() {
 }
 
 void HttpProcessor::main() {
+	
+	set_timer_millis(update_interval_ms, std::bind(&HttpProcessor::update, this));
+	
 	Super::main();
 }
 
-void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::StreamEvent> event) {
-	switch(event->event) {
-		case StreamEvent::EVENT_EOF: {
-			state_t& state = state_map[event->stream];
-			while(!state.request_queue.empty()) {
-				pending_requests.erase(state.request_queue.front()->id);
-				state.request_queue.pop();
+void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> value) {
+	for(const stream_event_t& event : value->array) {
+		switch(event.event) {
+			case stream_event_t::EVENT_EOF: {
+				state_t& state = state_map[event.stream];
+				while(!state.request_queue.empty()) {
+					pending_requests.erase(state.request_queue.front()->id);
+					state.request_queue.pop();
+				}
+				state_map.erase(event.stream);
+				break;
 			}
-			state_map.erase(event->stream);
-			break;
 		}
 	}
+	publish(value, output);
 }
 
 void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::HttpRequest> request) {
+	request_counter++;
+	
 	state_t& state = state_map[request->stream];
 	state.stream = request->stream;
 	process(state, request);
 	
 	if(input_pipe) {
 		const size_t backlog = pending_requests.size();
-		if(backlog >= max_backlog) {
+		if(backlog >= max_pending) {
 			if(!input_pipe->get_is_paused()) {
-				log(WARN).out << "Blocked input: backlog = " << backlog << ", size = " << state.response_map.size();
+				log(WARN).out << "Blocked input: pending=" << backlog;
 			}
 			input_pipe->pause();
 		}
@@ -54,13 +62,15 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::Response> response)
 		state.response_map[response->id] = response;
 		process(state);
 		pending_requests.erase(response->id);
+	} else {
+		log(WARN).out << "Unknown response: id=" << response->id;
 	}
 	
 	if(input_pipe) {
 		const size_t backlog = pending_requests.size();
-		if(backlog <= max_backlog / 2) {
+		if(backlog <= max_pending / 2) {
 			if(input_pipe->get_is_paused()) {
-				log(WARN).out << "Resumed input: backlog = " << backlog;
+				log(WARN).out << "Resumed input: pending=" << backlog;
 			}
 			input_pipe->resume();
 		}
@@ -75,6 +85,7 @@ void HttpProcessor::process(state_t& state) {
 			process(state, request, iter->second);
 			state.response_map.erase(request->id);
 			state.request_queue.pop();
+			total_queue_size--;
 		} else {
 			break;
 		}
@@ -92,6 +103,15 @@ std::shared_ptr<Parameter> parse_parameter(std::shared_ptr<Parameter> parameter,
 }
 
 void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> request) {
+	
+	if(request->sequence <= state.sequence) {
+		log(WARN).out << "Duplicate request: sequence=" << request->sequence << ", id=" << request->id;
+		return;
+	}
+	if(request->sequence != state.sequence + 1) {
+		log(WARN).out << "Out of order request: sequence=" << request->sequence << ", id=" << request->id;
+	}
+	state.sequence = request->sequence;
 	
 	std::map<std::string, std::string> header_fields;
 	for(const auto& field : request->header) {
@@ -148,11 +168,12 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		state.response_map[request->id] = Response::create(request, ErrorCode::create(ErrorCode::BAD_REQUEST));
 	}
 	
+	total_queue_size++;
 	state.request_queue.push(request);
 	process(state);
 	
 	if(state.request_queue.size() > max_queue_size) {
-		publish(StreamEvent::create_with_value(request->stream, StreamEvent::EVENT_PAUSE, 50), request->channel);
+		pause_stream(state, request->channel);
 	}
 }
 
@@ -162,10 +183,66 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	out->id = request->id;
 	out->stream = state.stream;
 	out->sequence = request->sequence;
-	out->content = response->content;
+	{
+		auto error = std::dynamic_pointer_cast<const ErrorCode>(response->content);
+		if(error) {
+			switch(error->code) {
+				case ErrorCode::BAD_REQUEST: out->status = 400; break;
+				case ErrorCode::NOT_FOUND: out->status = 404; break;
+				case ErrorCode::TIMEOUT: out->status = 429; break;
+				case ErrorCode::INTERNAL_ERROR: out->status = 500; break;
+				case ErrorCode::OVERLOAD: out->status = 503; break;
+				default: out->status = 500;
+			}
+		} else {
+			out->content = response->content;
+			out->status = 200;
+		}
+	}
 	
 	publish(out, output);
+	
+	if(state.request_queue.size() <= max_queue_size / 2) {
+		resume_stream(state, request->channel);
+	}
 }
+
+void HttpProcessor::update() {
+	size_t num_paused = 0;
+	for(const auto& entry : pause_map) {
+		auto event = StreamEventArray::create();
+		for(const auto& stream : entry.second) {
+			event->array.push_back(stream_event_t::create_with_value(stream, stream_event_t::EVENT_PAUSE, 500));
+		}
+		publish(event, entry.first);
+		num_paused += entry.second.size();
+	}
+	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, pending="
+			<< pending_requests.size() << ", total_queue=" << total_queue_size << ", num_paused=" << num_paused;
+	request_counter = 0;
+}
+
+void HttpProcessor::pause_stream(state_t& state, const TopicPtr& channel) {
+	if(!state.is_paused) {
+		pause_map[channel].insert(state.stream);
+		auto event = StreamEventArray::create();
+		event->array.push_back(stream_event_t::create_with_value(state.stream, stream_event_t::EVENT_PAUSE, 500));
+		publish(event, channel);
+	}
+	state.is_paused = true;
+}
+
+void HttpProcessor::resume_stream(state_t& state, const TopicPtr& channel) {
+	if(state.is_paused) {
+		pause_map[channel].erase(state.stream);
+		auto event = StreamEventArray::create();
+		event->array.push_back(stream_event_t::create(state.stream, stream_event_t::EVENT_RESUME));
+		publish(event, channel);
+	}
+	state.is_paused = false;
+}
+
+
 
 
 } // web

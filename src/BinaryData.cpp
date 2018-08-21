@@ -7,7 +7,16 @@
 namespace vnx {
 namespace web {
 
-::uint64_t BinaryData::get_size() const {
+void BinaryData::append(const BinaryData& data) {
+	chunks.insert(chunks.end(), data.chunks.begin(), data.chunks.end());
+}
+
+void BinaryData::append_string(const std::string& data) {
+	chunks.emplace_back(Buffer(data.size()));
+	::memcpy(chunks.back().data(), data.data(), data.size());
+}
+
+uint64_t BinaryData::get_size() const {
 	uint64_t size = 0;
 	for(const auto& chunk : chunks) {
 		size += chunk.size();

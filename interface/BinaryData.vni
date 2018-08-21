@@ -5,6 +5,10 @@ class BinaryData {
 	vector<vnx.Buffer> chunks;
 	
 	
+	void append(BinaryData data);
+	
+	void append_string(string data);
+	
 	ulong get_size() const;
 	
 	vnx.Buffer as_buffer() const;

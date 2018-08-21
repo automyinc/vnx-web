@@ -8,8 +8,11 @@
 #include <vnx/web/File.hxx>
 #include <vnx/web/Directory.hxx>
 #include <vnx/web/ErrorCode.hxx>
+#include <vnx/web/HistoryCache.h>
 
 #include <boost/filesystem.hpp>
+
+#include <queue>
 #include <unordered_map>
 
 struct magic_set;
@@ -32,7 +35,7 @@ protected:
 private:
 	void update();
 	
-	std::shared_ptr<Content> read_file(const Path& path);
+	std::shared_ptr<const Content> read_file(const Path& path);
 	
 	void scan_tree(const Path& current, const boost::filesystem::path& file_path);
 	
@@ -47,10 +50,14 @@ private:
 		int64_t time_stamp_ms = 0;
 	};
 	
+	std::shared_ptr<HistoryCache> cache;
 	std::shared_ptr<const Provider> provider;
 	std::unordered_map<Path, file_entry_t> file_map;
 	
 	::magic_set* magic = 0;
+	size_t request_counter = 0;
+	size_t num_read_bytes = 0;
+	size_t num_write_bytes = 0;
 	
 };
 

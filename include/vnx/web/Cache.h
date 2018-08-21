@@ -4,7 +4,7 @@
 
 #include <vnx/web/CacheBase.hxx>
 #include <vnx/web/Provider.hxx>
-#include <vnx/web/CacheEntry.hxx>
+#include <vnx/web/cache_entry_t.hxx>
 #include <vnx/web/ErrorCode.hxx>
 
 #include <unordered_map>
@@ -33,13 +33,9 @@ protected:
 	void purge() override;
 	
 private:
-	CacheEntry& cache_lookup(const Path& path);
+	cache_entry_t& cache_lookup(const Path& path);
 	
 	std::shared_ptr<const Provider> find_provider(const Path& path);
-	
-	void add_request(std::shared_ptr<const Request> request);
-	
-	void rem_request(std::shared_ptr<const Request> request);
 	
 	void update();
 	
@@ -49,9 +45,12 @@ private:
 	vnx::Hash64 cache_salt;
 	vnx::Hash128 provider_id;
 	std::shared_ptr<Pipe> input_pipe;
-	std::vector<CacheEntry> table;
+	std::vector<cache_entry_t> table;
 	std::unordered_map<Path, std::shared_ptr<const Provider>> provider_map;
 	std::unordered_map<Hash128, std::shared_ptr<const Request>> pending_requests;
+	
+	size_t request_counter = 0;
+	size_t hit_counter = 0;
 	
 };
 

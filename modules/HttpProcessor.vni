@@ -14,14 +14,16 @@ module HttpProcessor {
 	
 	map<string, TopicPtr> domain_map;
 	
-	long max_queue_size = 100;			// maximum number of pending requests per connection
+	long max_queue_size = 10;			// maximum number of pending requests per connection
 	
-	long max_backlog = 10000;			// maximum number of total pending requests
+	long max_pending = 10000;			// maximum number of total pending requests
 	
 	long timeout_ms = 3000;
 	
+	int update_interval_ms = 200;
 	
-	void handle(StreamEvent sample);
+	
+	void handle(StreamEventArray sample);
 	void handle(HttpRequest sample);
 	void handle(Response sample);
 	

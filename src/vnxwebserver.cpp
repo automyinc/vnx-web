@@ -57,11 +57,11 @@ int main(int argc, char** argv) {
 	{
 		vnx::Handle<vnx::web::FileSystem> module = new vnx::web::FileSystem("FileSystem");
 		module->domain = "test.domain";
-		module->channel = "internal.filesystem";
+		module->input = "internal.filesystem.request";
 		module.start_detached();
 	}
 	
-	std::string test_request =
+	const std::string test_request =
 		"GET /LICENSE HTTP/1.1\r\n\r\n"
 	;
 	
@@ -72,32 +72,34 @@ int main(int argc, char** argv) {
 	int64_t resume_time = 0;
 	while(vnx::do_run()) {
 		const int64_t now = vnx::get_time_millis();
-		if(now > resume_time) {
+		if(now >= resume_time) {
 			std::shared_ptr<vnx::web::StreamRead> sample = vnx::web::StreamRead::create();
 			sample->stream = stream;
-			sample->data.resize(test_request.size());
-			::memcpy(sample->data.data(), test_request.c_str(), test_request.size());
+			sample->data = test_request;
 			sample->channel = "test.server";
 			publisher.publish(sample, "test.stream", vnx::Message::BLOCKING);
 		} else {
 			::usleep(1);
 		}
-		::usleep(1);
-//		while(auto msg = subscriber.read()) {
-//			auto sample = std::dynamic_pointer_cast<const vnx::Sample>(msg);
-//			if(sample) {
-//				auto event = std::dynamic_pointer_cast<const vnx::web::StreamEvent>(sample->value);
-//				if(event) {
-//					switch(event->event) {
-//						case vnx::web::StreamEvent::EVENT_PAUSE:
-//							if(now > resume_time) {
-//								resume_time = now + event->value;
-//							}
-//							break;
-//					}
-//				}
-//			}
-//		}
+//		::usleep(1);
+		while(auto msg = subscriber.read()) {
+			auto sample = std::dynamic_pointer_cast<const vnx::Sample>(msg);
+			if(sample) {
+				auto value = std::dynamic_pointer_cast<const vnx::web::StreamEventArray>(sample->value);
+				if(value) {
+					for(const auto& event : value->array) {
+						switch(event.event) {
+							case vnx::web::stream_event_t::EVENT_PAUSE:
+								resume_time = now + event.value;
+								break;
+							case vnx::web::stream_event_t::EVENT_RESUME:
+								resume_time = now;
+								break;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	vnx::wait();

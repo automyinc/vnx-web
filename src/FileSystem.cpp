@@ -34,13 +34,15 @@ void FileSystem::main() {
 		auto provider = Provider::create();
 		provider->id = Hash128::rand();
 		provider->path = provider_path.get_base_path(provider_path.size() - 1);
-		provider->channel = channel;
+		provider->channel = input;
 		this->provider = provider;
 	}
 	
+	cache = std::make_shared<HistoryCache>(max_history_size);
+	
 	scan();
 	
-	subscribe(channel, 1000);
+	subscribe(input, max_input_queue_ms);
 	
 	set_timer_millis(update_interval_ms, std::bind(&FileSystem::update, this));
 	set_timer_millis(scan_interval_ms, std::bind(&FileSystem::scan, this));
@@ -64,6 +66,7 @@ void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		log(WARN).out << ex.what();
 	}
 	publish(response, request->channel);
+	request_counter++;
 }
 
 void FileSystem::scan() {
@@ -81,9 +84,21 @@ void FileSystem::scan() {
 
 void FileSystem::update() {
 	publish(provider, domain);
+	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, read="
+			<< (float(num_read_bytes / update_interval_ms) * 1e-3) << " MB/s, write="
+			<< (float(num_write_bytes / update_interval_ms) * 1e-3) << " MB/s";
+	request_counter = 0;
+	num_read_bytes = 0;
+	num_write_bytes = 0;
 }
 
-std::shared_ptr<Content> FileSystem::read_file(const Path& path) {
+std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
+	{
+		std::shared_ptr<const Content> content = cache->query(path);
+		if(content) {
+			return content;
+		}
+	}
 	auto entry = file_map.find(path);
 	if(entry != file_map.end()) {
 		const filesystem::path file_path = entry->second.path;
@@ -122,10 +137,12 @@ std::shared_ptr<Content> FileSystem::read_file(const Path& path) {
 			}
 			::fclose(p_file);
 			result = file;
+			num_read_bytes += num_read;
 		}
 		result->path = path;
 		result->mime_type = entry->second.mime_type;
 		result->time_stamp_ms = entry->second.time_stamp_ms;
+		cache->insert(result);
 		return result;
 	} else {
 		return vnx::clone(ErrorCode::create(ErrorCode::NOT_FOUND));
@@ -133,6 +150,7 @@ std::shared_ptr<Content> FileSystem::read_file(const Path& path) {
 }
 
 void FileSystem::scan_tree(const Path& current, const filesystem::path& file_path) {
+	Path path = current;
 	file_entry_t* entry = 0;
 	if(filesystem::is_directory(file_path)) {
 		for(auto it = filesystem::directory_iterator(file_path); it != filesystem::directory_iterator(); ++it) {
@@ -141,14 +159,16 @@ void FileSystem::scan_tree(const Path& current, const filesystem::path& file_pat
 				scan_tree(current + file_name, it->path());
 			}
 		}
-		entry = &file_map[current + "/"];
+		path += "/";
+		entry = &file_map[path];
 	} else if(filesystem::is_regular(file_path)) {
-		entry = &file_map[current];
+		entry = &file_map[path];
 	}
 	if(entry) {
 		const int64_t time = int64_t(filesystem::last_write_time(file_path)) * 1000;
 		if(time > entry->time_stamp_ms) {
 			if(entry->time_stamp_ms) {
+				cache->remove(path);	// clear file from cache
 				log(INFO).out << "UPDATE " << current << " => " << file_path;
 			} else {
 				log(INFO).out << "NEW " << current << " => " << file_path;
