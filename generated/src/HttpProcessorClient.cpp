@@ -56,11 +56,11 @@ void HttpProcessorClient::handle_async(const ::std::shared_ptr<const ::vnx::web:
 	handle(sample);
 }
 
-void HttpProcessorClient::handle(const ::std::shared_ptr<const ::vnx::web::StreamEvent>& sample) {
+void HttpProcessorClient::handle(const ::std::shared_ptr<const ::vnx::web::StreamEventArray>& sample) {
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x63045519a77fbf1bull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x30751ebcba8fcb3full));
 	{
 		vnx::write(_out, sample, _type_code, _type_code->fields[0].code.data());
 	}
@@ -69,7 +69,7 @@ void HttpProcessorClient::handle(const ::std::shared_ptr<const ::vnx::web::Strea
 	vnx_request(_argument_data);
 }
 
-void HttpProcessorClient::handle_async(const ::std::shared_ptr<const ::vnx::web::StreamEvent>& sample) {
+void HttpProcessorClient::handle_async(const ::std::shared_ptr<const ::vnx::web::StreamEventArray>& sample) {
 	vnx_is_async = true;
 	handle(sample);
 }

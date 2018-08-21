@@ -10,7 +10,7 @@
 #include <vnx/web/HttpRequest.hxx>
 #include <vnx/web/HttpResponse.hxx>
 #include <vnx/web/Response.hxx>
-#include <vnx/web/StreamEvent.hxx>
+#include <vnx/web/StreamEventArray.hxx>
 
 
 namespace vnx {
@@ -30,9 +30,9 @@ public:
 	
 	void handle_async(const ::std::shared_ptr<const ::vnx::web::Response>& sample);
 	
-	void handle(const ::std::shared_ptr<const ::vnx::web::StreamEvent>& sample);
+	void handle(const ::std::shared_ptr<const ::vnx::web::StreamEventArray>& sample);
 	
-	void handle_async(const ::std::shared_ptr<const ::vnx::web::StreamEvent>& sample);
+	void handle_async(const ::std::shared_ptr<const ::vnx::web::StreamEventArray>& sample);
 	
 };
 

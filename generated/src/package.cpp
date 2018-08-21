@@ -5,7 +5,6 @@
 
 #include <vnx/web/BinaryData.hxx>
 #include <vnx/web/CacheBase.hxx>
-#include <vnx/web/CacheEntry.hxx>
 #include <vnx/web/Content.hxx>
 #include <vnx/web/Directory.hxx>
 #include <vnx/web/ErrorCode.hxx>
@@ -22,11 +21,13 @@
 #include <vnx/web/Provider.hxx>
 #include <vnx/web/Request.hxx>
 #include <vnx/web/Response.hxx>
-#include <vnx/web/StreamEvent.hxx>
+#include <vnx/web/StreamEventArray.hxx>
 #include <vnx/web/StreamRead.hxx>
 #include <vnx/web/StreamWrite.hxx>
 #include <vnx/web/TextFile.hxx>
 #include <vnx/web/ValueFile.hxx>
+#include <vnx/web/cache_entry_t.hxx>
+#include <vnx/web/stream_event_t.hxx>
 
 
 
@@ -37,7 +38,6 @@ namespace web {
 static void register_all_types() {
 	vnx::register_type_code(vnx::web::BinaryData::create_type_code());
 	vnx::register_type_code(vnx::web::CacheBase::create_type_code());
-	vnx::register_type_code(vnx::web::CacheEntry::create_type_code());
 	vnx::register_type_code(vnx::web::Content::create_type_code());
 	vnx::register_type_code(vnx::web::Directory::create_type_code());
 	vnx::register_type_code(vnx::web::ErrorCode::create_type_code());
@@ -54,11 +54,13 @@ static void register_all_types() {
 	vnx::register_type_code(vnx::web::Provider::create_type_code());
 	vnx::register_type_code(vnx::web::Request::create_type_code());
 	vnx::register_type_code(vnx::web::Response::create_type_code());
-	vnx::register_type_code(vnx::web::StreamEvent::create_type_code());
+	vnx::register_type_code(vnx::web::StreamEventArray::create_type_code());
 	vnx::register_type_code(vnx::web::StreamRead::create_type_code());
 	vnx::register_type_code(vnx::web::StreamWrite::create_type_code());
 	vnx::register_type_code(vnx::web::TextFile::create_type_code());
 	vnx::register_type_code(vnx::web::ValueFile::create_type_code());
+	vnx::register_type_code(vnx::web::cache_entry_t::create_type_code());
+	vnx::register_type_code(vnx::web::stream_event_t::create_type_code());
 }
 
 static struct vnx_static_init {

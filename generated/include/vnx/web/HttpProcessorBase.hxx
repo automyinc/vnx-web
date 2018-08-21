@@ -10,7 +10,7 @@
 #include <vnx/web/HttpRequest.hxx>
 #include <vnx/web/HttpResponse.hxx>
 #include <vnx/web/Response.hxx>
-#include <vnx/web/StreamEvent.hxx>
+#include <vnx/web/StreamEventArray.hxx>
 
 
 namespace vnx {
@@ -24,9 +24,10 @@ public:
 	::vnx::TopicPtr output;
 	::std::string default_domain;
 	::std::map<::std::string, ::vnx::TopicPtr> domain_map;
-	::int64_t max_queue_size = 1000;
-	::int64_t max_backlog = 10000;
+	::int64_t max_queue_size = 10;
+	::int64_t max_pending = 10000;
 	::int64_t timeout_ms = 3000;
+	::int32_t update_interval_ms = 200;
 	
 	typedef ::vnx::Module Super;
 	
@@ -54,8 +55,8 @@ protected:
 	virtual void handle(std::shared_ptr<const ::vnx::web::HttpRequest> _value) {}
 	virtual void handle(std::shared_ptr<const ::vnx::web::Response> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
 	virtual void handle(std::shared_ptr<const ::vnx::web::Response> _value) {}
-	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEvent> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
-	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEvent> _value) {}
+	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
+	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> _value) {}
 	
 	void handle_switch(std::shared_ptr<const ::vnx::Sample> _sample);
 	bool call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const vnx::TypeCode* _call_type, const vnx::TypeCode* _return_type);

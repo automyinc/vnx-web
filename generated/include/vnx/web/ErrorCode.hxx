@@ -29,7 +29,7 @@ public:
 	vnx::Hash64 get_type_hash() const;
 	const char* get_type_name() const;
 	
-	static ::std::shared_ptr<const ::vnx::web::ErrorCode> create(const ::int32_t& code_);
+	static ::std::shared_ptr<const ::vnx::web::ErrorCode> create(const ::int32_t& code);
 	
 	static std::shared_ptr<ErrorCode> create();
 	std::shared_ptr<vnx::Value> clone() const;

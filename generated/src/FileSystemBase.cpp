@@ -15,19 +15,21 @@ namespace web {
 
 
 const vnx::Hash64 FileSystemBase::VNX_TYPE_HASH(0x2a134f58319c8e28ull);
-const vnx::Hash64 FileSystemBase::VNX_CODE_HASH(0x222e32c611543623ull);
+const vnx::Hash64 FileSystemBase::VNX_CODE_HASH(0x95a6b6d1f63b142cull);
 
 FileSystemBase::FileSystemBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
 	vnx::read_config(vnx_name + ".domain", domain);
-	vnx::read_config(vnx_name + ".channel", channel);
+	vnx::read_config(vnx_name + ".input", input);
 	vnx::read_config(vnx_name + ".source_path", source_path);
 	vnx::read_config(vnx_name + ".provider_path", provider_path);
-	vnx::read_config(vnx_name + ".update_interval_ms", update_interval_ms);
-	vnx::read_config(vnx_name + ".scan_interval_ms", scan_interval_ms);
 	vnx::read_config(vnx_name + ".time_to_live_ms", time_to_live_ms);
 	vnx::read_config(vnx_name + ".max_file_size", max_file_size);
+	vnx::read_config(vnx_name + ".max_history_size", max_history_size);
+	vnx::read_config(vnx_name + ".update_interval_ms", update_interval_ms);
+	vnx::read_config(vnx_name + ".scan_interval_ms", scan_interval_ms);
+	vnx::read_config(vnx_name + ".max_input_queue_ms", max_input_queue_ms);
 }
 
 vnx::Hash64 FileSystemBase::get_type_hash() const {
@@ -42,26 +44,30 @@ void FileSystemBase::accept(vnx::Visitor& _visitor) const {
 	const vnx::TypeCode* _type_code = get_type_code();
 	_visitor.type_begin(*_type_code);
 	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, domain);
-	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, channel);
+	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, input);
 	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, source_path);
 	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, provider_path);
-	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, update_interval_ms);
-	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, scan_interval_ms);
-	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, time_to_live_ms);
-	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, max_file_size);
+	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, time_to_live_ms);
+	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, max_file_size);
+	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, max_history_size);
+	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, update_interval_ms);
+	_visitor.type_field(_type_code->fields[8], 8); vnx::accept(_visitor, scan_interval_ms);
+	_visitor.type_field(_type_code->fields[9], 9); vnx::accept(_visitor, max_input_queue_ms);
 	_visitor.type_end(*_type_code);
 }
 
 void FileSystemBase::write(std::ostream& _out) const {
 	_out << "{";
 	_out << "\"domain\": "; vnx::write(_out, domain);
-	_out << ", \"channel\": "; vnx::write(_out, channel);
+	_out << ", \"input\": "; vnx::write(_out, input);
 	_out << ", \"source_path\": "; vnx::write(_out, source_path);
 	_out << ", \"provider_path\": "; vnx::write(_out, provider_path);
-	_out << ", \"update_interval_ms\": "; vnx::write(_out, update_interval_ms);
-	_out << ", \"scan_interval_ms\": "; vnx::write(_out, scan_interval_ms);
 	_out << ", \"time_to_live_ms\": "; vnx::write(_out, time_to_live_ms);
 	_out << ", \"max_file_size\": "; vnx::write(_out, max_file_size);
+	_out << ", \"max_history_size\": "; vnx::write(_out, max_history_size);
+	_out << ", \"update_interval_ms\": "; vnx::write(_out, update_interval_ms);
+	_out << ", \"scan_interval_ms\": "; vnx::write(_out, scan_interval_ms);
+	_out << ", \"max_input_queue_ms\": "; vnx::write(_out, max_input_queue_ms);
 	_out << "}";
 }
 
@@ -71,20 +77,24 @@ void FileSystemBase::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "domain") {
 			vnx::from_string(_entry.second, domain);
-		} else if(_entry.first == "channel") {
-			vnx::from_string(_entry.second, channel);
+		} else if(_entry.first == "input") {
+			vnx::from_string(_entry.second, input);
 		} else if(_entry.first == "source_path") {
 			vnx::from_string(_entry.second, source_path);
 		} else if(_entry.first == "provider_path") {
 			vnx::from_string(_entry.second, provider_path);
-		} else if(_entry.first == "update_interval_ms") {
-			vnx::from_string(_entry.second, update_interval_ms);
-		} else if(_entry.first == "scan_interval_ms") {
-			vnx::from_string(_entry.second, scan_interval_ms);
 		} else if(_entry.first == "time_to_live_ms") {
 			vnx::from_string(_entry.second, time_to_live_ms);
 		} else if(_entry.first == "max_file_size") {
 			vnx::from_string(_entry.second, max_file_size);
+		} else if(_entry.first == "max_history_size") {
+			vnx::from_string(_entry.second, max_history_size);
+		} else if(_entry.first == "update_interval_ms") {
+			vnx::from_string(_entry.second, update_interval_ms);
+		} else if(_entry.first == "scan_interval_ms") {
+			vnx::from_string(_entry.second, scan_interval_ms);
+		} else if(_entry.first == "max_input_queue_ms") {
+			vnx::from_string(_entry.second, max_input_queue_ms);
 		}
 	}
 }
@@ -111,7 +121,7 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.FileSystem";
 	type_code->type_hash = vnx::Hash64(0x2a134f58319c8e28ull);
-	type_code->code_hash = vnx::Hash64(0x222e32c611543623ull);
+	type_code->code_hash = vnx::Hash64(0x95a6b6d1f63b142cull);
 	type_code->methods.resize(2);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -156,7 +166,7 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 		call_type->build();
 		type_code->methods[1] = vnx::register_type_code(call_type);
 	}
-	type_code->fields.resize(8);
+	type_code->fields.resize(10);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -166,7 +176,7 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[1];
 		field.is_extended = true;
-		field.name = "channel";
+		field.name = "input";
 		field.code = {12, 5};
 	}
 	{
@@ -185,26 +195,38 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 	}
 	{
 		vnx::TypeField& field = type_code->fields[4];
-		field.name = "update_interval_ms";
-		field.value = vnx::to_string(500);
-		field.code = {7};
-	}
-	{
-		vnx::TypeField& field = type_code->fields[5];
-		field.name = "scan_interval_ms";
-		field.value = vnx::to_string(30000);
-		field.code = {7};
-	}
-	{
-		vnx::TypeField& field = type_code->fields[6];
 		field.name = "time_to_live_ms";
 		field.value = vnx::to_string(60000);
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[7];
+		vnx::TypeField& field = type_code->fields[5];
 		field.name = "max_file_size";
 		field.code = {8};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[6];
+		field.name = "max_history_size";
+		field.value = vnx::to_string(100);
+		field.code = {8};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[7];
+		field.name = "update_interval_ms";
+		field.value = vnx::to_string(500);
+		field.code = {7};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[8];
+		field.name = "scan_interval_ms";
+		field.value = vnx::to_string(30000);
+		field.code = {7};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[9];
+		field.name = "max_input_queue_ms";
+		field.value = vnx::to_string(1000);
+		field.code = {7};
 	}
 	type_code->build();
 	return type_code;
@@ -269,31 +291,43 @@ void read(TypeInput& in, ::vnx::web::FileSystemBase& value, const TypeCode* type
 	{
 		const vnx::TypeField* const _field = type_code->field_map[4];
 		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.update_interval_ms, _field->code.data());
+			vnx::read_value(_buf + _field->offset, value.time_to_live_ms, _field->code.data());
 		}
 	}
 	{
 		const vnx::TypeField* const _field = type_code->field_map[5];
 		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.scan_interval_ms, _field->code.data());
+			vnx::read_value(_buf + _field->offset, value.max_file_size, _field->code.data());
 		}
 	}
 	{
 		const vnx::TypeField* const _field = type_code->field_map[6];
 		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.time_to_live_ms, _field->code.data());
+			vnx::read_value(_buf + _field->offset, value.max_history_size, _field->code.data());
 		}
 	}
 	{
 		const vnx::TypeField* const _field = type_code->field_map[7];
 		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.max_file_size, _field->code.data());
+			vnx::read_value(_buf + _field->offset, value.update_interval_ms, _field->code.data());
+		}
+	}
+	{
+		const vnx::TypeField* const _field = type_code->field_map[8];
+		if(_field) {
+			vnx::read_value(_buf + _field->offset, value.scan_interval_ms, _field->code.data());
+		}
+	}
+	{
+		const vnx::TypeField* const _field = type_code->field_map[9];
+		if(_field) {
+			vnx::read_value(_buf + _field->offset, value.max_input_queue_ms, _field->code.data());
 		}
 	}
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
 			case 0: vnx::read(in, value.domain, type_code, _field->code.data()); break;
-			case 1: vnx::read(in, value.channel, type_code, _field->code.data()); break;
+			case 1: vnx::read(in, value.input, type_code, _field->code.data()); break;
 			case 2: vnx::read(in, value.source_path, type_code, _field->code.data()); break;
 			case 3: vnx::read(in, value.provider_path, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
@@ -309,13 +343,15 @@ void write(TypeOutput& out, const ::vnx::web::FileSystemBase& value, const TypeC
 	if(code && code[0] == CODE_STRUCT) {
 		type_code = type_code->depends[code[1]];
 	}
-	char* const _buf = out.write(24);
-	vnx::write_value(_buf + 0, value.update_interval_ms);
-	vnx::write_value(_buf + 4, value.scan_interval_ms);
-	vnx::write_value(_buf + 8, value.time_to_live_ms);
-	vnx::write_value(_buf + 16, value.max_file_size);
+	char* const _buf = out.write(36);
+	vnx::write_value(_buf + 0, value.time_to_live_ms);
+	vnx::write_value(_buf + 8, value.max_file_size);
+	vnx::write_value(_buf + 16, value.max_history_size);
+	vnx::write_value(_buf + 24, value.update_interval_ms);
+	vnx::write_value(_buf + 28, value.scan_interval_ms);
+	vnx::write_value(_buf + 32, value.max_input_queue_ms);
 	vnx::write(out, value.domain, type_code, type_code->fields[0].code.data());
-	vnx::write(out, value.channel, type_code, type_code->fields[1].code.data());
+	vnx::write(out, value.input, type_code, type_code->fields[1].code.data());
 	vnx::write(out, value.source_path, type_code, type_code->fields[2].code.data());
 	vnx::write(out, value.provider_path, type_code, type_code->fields[3].code.data());
 }

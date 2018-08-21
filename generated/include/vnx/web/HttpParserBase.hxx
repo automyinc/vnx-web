@@ -7,7 +7,7 @@
 #include <vnx/web/package.hxx>
 #include <vnx/Module.h>
 #include <vnx/TopicPtr.h>
-#include <vnx/web/StreamEvent.hxx>
+#include <vnx/web/StreamEventArray.hxx>
 #include <vnx/web/StreamRead.hxx>
 
 
@@ -43,8 +43,8 @@ public:
 	static std::shared_ptr<vnx::TypeCode> create_type_code();
 	
 protected:
-	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEvent> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
-	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEvent> _value) {}
+	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
+	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> _value) {}
 	virtual void handle(std::shared_ptr<const ::vnx::web::StreamRead> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
 	virtual void handle(std::shared_ptr<const ::vnx::web::StreamRead> _value) {}
 	

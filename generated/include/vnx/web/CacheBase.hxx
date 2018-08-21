@@ -32,7 +32,7 @@ public:
 	::vnx::TopicPtr channel;
 	::int64_t num_entries = 1024;
 	::int64_t max_entry_size = 4194304;
-	::int64_t max_backlog = 10000;
+	::int64_t max_pending = 10000;
 	::int32_t update_interval_ms = 500;
 	::int32_t maintain_interval_ms = 5000;
 	

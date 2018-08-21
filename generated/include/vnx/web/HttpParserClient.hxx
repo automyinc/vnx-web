@@ -7,7 +7,7 @@
 #include <vnx/Client.h>
 #include <vnx/Module.h>
 #include <vnx/TopicPtr.h>
-#include <vnx/web/StreamEvent.hxx>
+#include <vnx/web/StreamEventArray.hxx>
 #include <vnx/web/StreamRead.hxx>
 
 
@@ -20,9 +20,9 @@ public:
 	
 	HttpParserClient(vnx::Hash64 service_addr);
 	
-	void handle(const ::std::shared_ptr<const ::vnx::web::StreamEvent>& sample);
+	void handle(const ::std::shared_ptr<const ::vnx::web::StreamEventArray>& sample);
 	
-	void handle_async(const ::std::shared_ptr<const ::vnx::web::StreamEvent>& sample);
+	void handle_async(const ::std::shared_ptr<const ::vnx::web::StreamEventArray>& sample);
 	
 	void handle(const ::std::shared_ptr<const ::vnx::web::StreamRead>& sample);
 	

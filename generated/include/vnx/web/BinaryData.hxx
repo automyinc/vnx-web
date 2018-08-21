@@ -25,6 +25,8 @@ public:
 	vnx::Hash64 get_type_hash() const;
 	const char* get_type_name() const;
 	
+	virtual void append(const ::vnx::web::BinaryData& data);
+	virtual void append_string(const ::std::string& data);
 	virtual ::uint64_t get_size() const;
 	virtual ::vnx::Buffer as_buffer() const;
 	virtual ::std::string as_string() const;
