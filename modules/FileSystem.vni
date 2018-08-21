@@ -10,19 +10,19 @@ module FileSystem {
 	
 	string source_path = ".";			// source root directory
 	
-	Path provider_path = "/";			// where to mount
+	Path domain_path = "/";				// where to mount
 	
 	long time_to_live_ms = 60000;		// how long to cache files [ms]
 	
-	long max_file_size;					// zero means unlimited [bytes]
+	long max_file_size = 268435456;		// zero means unlimited [bytes]
 	
 	long max_history_size = 100;		// how many files to keep in history
 	
 	int update_interval_ms = 500;
 	
-	int scan_interval_ms = 30000;		// [ms]
+	int scan_interval_ms = 30000;		// how often to scan for new/updated files [ms]
 	
-	int max_input_queue_ms = 1000;
+	int max_input_queue_ms = 500;
 	
 	
 	void scan();

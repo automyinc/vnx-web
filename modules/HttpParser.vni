@@ -8,7 +8,7 @@ module HttpParser {
 	
 	TopicPtr output;
 	
-	long max_request_size = 4194304;
+	long max_request_size = 4194304;		// [bytes]
 	
 	
 	void handle(StreamRead sample);

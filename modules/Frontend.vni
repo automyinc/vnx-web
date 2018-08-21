@@ -1,0 +1,17 @@
+package vnx.web;
+
+import vnx.TopicPtr;
+
+module Frontend {
+	
+	string endpoint = "127.0.0.1:8080";
+	
+	vector<TopicPtr> output;
+	
+	TopicPtr channel;
+	
+	
+	void handle(StreamEventArray sample);
+	void handle(StreamWrite sample);
+	
+}

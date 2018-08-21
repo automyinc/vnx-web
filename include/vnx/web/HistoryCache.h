@@ -21,6 +21,8 @@ public:
 	
 	void remove(const Path& path);
 	
+	void purge();
+	
 private:
 	size_t max_size = 0;
 	std::unordered_map<Path, std::shared_ptr<const Content>> content_map;

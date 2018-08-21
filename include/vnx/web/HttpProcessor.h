@@ -23,10 +23,14 @@ public:
 protected:
 	struct state_t {
 		Hash128 stream;
-		int64_t sequence = 0;
 		std::queue<std::shared_ptr<const HttpRequest>> request_queue;
 		std::unordered_map<Hash128, std::shared_ptr<const Response>> response_map;
 		bool is_paused = false;
+	};
+	
+	struct request_entry_t {
+		Hash128 stream;
+		std::string domain;
 	};
 	
 	void init() override;
@@ -40,11 +44,11 @@ protected:
 	void handle(std::shared_ptr<const ::vnx::web::Response> response) override;
 	
 private:
-	void process(state_t& state);
+	void process(state_t& state, const std::string& domain);
 	
 	void process(state_t& state, std::shared_ptr<const HttpRequest> request);
 	
-	void process(state_t& state, std::shared_ptr<const HttpRequest> request, std::shared_ptr<const Response> response);
+	void process(state_t& state, const std::string& domain, std::shared_ptr<const HttpRequest> request, std::shared_ptr<const Response> response);
 	
 	void update();
 	
@@ -55,7 +59,7 @@ private:
 private:
 	std::shared_ptr<Pipe> input_pipe;
 	std::unordered_map<Hash128, state_t> state_map;
-	std::unordered_map<Hash128, Hash128> pending_requests;
+	std::unordered_map<Hash128, request_entry_t> pending_requests;
 	std::unordered_map<TopicPtr, std::unordered_set<Hash128>> pause_map;
 	
 	size_t request_counter = 0;

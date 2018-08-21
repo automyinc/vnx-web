@@ -6,6 +6,6 @@ class StreamWrite {
 	
 	Hash128 stream;
 	
-	vector<vnx.Value*> data;
+	vector<vnx.Buffer> chunks;
 	
 }

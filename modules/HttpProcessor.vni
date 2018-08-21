@@ -10,15 +10,15 @@ module HttpProcessor {
 	
 	TopicPtr output;
 	
-	string default_domain;
+	string default_domain;				// default web domain for this server
 	
-	map<string, TopicPtr> domain_map;
+	map<string, TopicPtr> domain_map;	// map from web domain name to vnx topic name
 	
 	long max_queue_size = 10;			// maximum number of pending requests per connection
 	
-	long max_pending = 10000;			// maximum number of total pending requests
+	long max_pending = 100000;			// maximum number of total pending requests
 	
-	long timeout_ms = 3000;
+	long timeout_ms = 1000;				// request timeout [ms]
 	
 	int update_interval_ms = 200;
 	

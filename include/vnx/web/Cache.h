@@ -37,6 +37,10 @@ private:
 	
 	std::shared_ptr<const Provider> find_provider(const Path& path);
 	
+	void push_request(std::shared_ptr<const Request> request);
+	
+	void erase_request(const Hash128& id);
+	
 	void update();
 	
 	void maintain();

@@ -10,15 +10,15 @@ module Cache {
 	
 	TopicPtr channel;
 	
-	long num_entries = 1024;			// number of cache entries
+	long num_entries = 4096;			// number of cache entries
 	
 	long max_entry_size = 4194304;		// maximum size of a single entry [bytes]
 	
-	long max_pending = 10000;			// maximum number of pending requests
+	long max_pending = 100000;			// maximum number of total pending requests
 	
-	int update_interval_ms = 500;
+	int update_interval_ms = 500;		// how often to check for timed out requests [ms]
 	
-	int maintain_interval_ms = 5000;
+	int maintain_interval_ms = 5000;	// how often to purge stale content [ms]
 	
 	
 	void purge();

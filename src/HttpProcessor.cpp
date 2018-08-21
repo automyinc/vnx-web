@@ -34,7 +34,7 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> v
 			}
 		}
 	}
-	publish(value, output);
+	publish(value, output, BLOCKING);
 }
 
 void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::HttpRequest> request) {
@@ -58,9 +58,13 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::HttpRequest> reques
 void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 	auto iter = pending_requests.find(response->id);
 	if(iter != pending_requests.end()) {
-		state_t& state = state_map[iter->second];
+		state_t& state = state_map[iter->second.stream];
 		state.response_map[response->id] = response;
-		process(state);
+		process(state, iter->second.domain);
+		
+		if(state.request_queue.empty()) {
+			state_map.erase(state.stream);
+		}
 		pending_requests.erase(response->id);
 	} else {
 		log(WARN).out << "Unknown response: id=" << response->id;
@@ -77,14 +81,17 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::Response> response)
 	}
 }
 
-void HttpProcessor::process(state_t& state) {
+void HttpProcessor::process(state_t& state, const std::string& domain) {
 	while(!state.request_queue.empty()) {
 		std::shared_ptr<const HttpRequest> request = state.request_queue.front();
 		auto iter = state.response_map.find(request->id);
 		if(iter != state.response_map.end()) {
-			process(state, request, iter->second);
+			process(state, domain, request, iter->second);
 			state.response_map.erase(request->id);
 			state.request_queue.pop();
+			if(state.request_queue.size() <= max_queue_size / 2) {
+				resume_stream(state, request->channel);
+			}
 			total_queue_size--;
 		} else {
 			break;
@@ -104,15 +111,6 @@ std::shared_ptr<Parameter> parse_parameter(std::shared_ptr<Parameter> parameter,
 
 void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> request) {
 	
-	if(request->sequence <= state.sequence) {
-		log(WARN).out << "Duplicate request: sequence=" << request->sequence << ", id=" << request->id;
-		return;
-	}
-	if(request->sequence != state.sequence + 1) {
-		log(WARN).out << "Out of order request: sequence=" << request->sequence << ", id=" << request->id;
-	}
-	state.sequence = request->sequence;
-	
 	std::map<std::string, std::string> header_fields;
 	for(const auto& field : request->header) {
 		header_fields[field.first] = field.second;
@@ -123,9 +121,11 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	if(request->method == "GET") {
 		forward = Request::create();
 		forward->path = request->path;
+		forward->type = request_type_e::READ;
 	} else if(request->method == "POST") {
 		forward = Request::create();
 		forward->path = request->path;
+		forward->type = request_type_e::GENERIC;
 		const std::string payload = request->payload.as_string();
 		parameter = parse_parameter(parameter, payload.c_str(), payload.size());
 	}
@@ -145,22 +145,25 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		forward->parameter = parameter;
 	}
 	
+	std::string domain = default_domain;
 	if(forward) {
-		std::string target_domain = default_domain;
 		{
 			auto iter = header_fields.find("Host");
 			if(iter != header_fields.end()) {
-				target_domain = iter->second;
+				domain = iter->second;
 			}
 		}
-		auto iter = domain_map.find(target_domain);
+		auto iter = domain_map.find(domain);
 		if(iter != domain_map.end()) {
 			forward->id = request->id;
 			forward->channel = channel;
 			forward->time_stamp_ms = request->time_stamp_ms;
 			forward->timeout_ms = timeout_ms;
 			publish(forward, iter->second, BLOCKING);
-			pending_requests[request->id] = state.stream;
+			
+			request_entry_t& entry = pending_requests[request->id];
+			entry.stream = state.stream;
+			entry.domain = domain;
 		} else {
 			state.response_map[request->id] = Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND));
 		}
@@ -170,19 +173,23 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	
 	total_queue_size++;
 	state.request_queue.push(request);
-	process(state);
+	process(state, domain);
 	
 	if(state.request_queue.size() > max_queue_size) {
 		pause_stream(state, request->channel);
 	}
 }
 
-void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> request, std::shared_ptr<const Response> response) {
+void HttpProcessor::process(state_t& state, const std::string& domain, std::shared_ptr<const HttpRequest> request, std::shared_ptr<const Response> response) {
 	
 	std::shared_ptr<HttpResponse> out = HttpResponse::create();
 	out->id = request->id;
 	out->stream = state.stream;
 	out->sequence = request->sequence;
+	out->is_dynamic = response->is_dynamic;
+	out->time_to_live_ms = response->time_to_live_ms;
+	out->header.emplace_back(std::make_pair("Host", domain));
+	out->header.emplace_back(std::make_pair("Server", "VNX"));
 	{
 		auto error = std::dynamic_pointer_cast<const ErrorCode>(response->content);
 		if(error) {
@@ -199,12 +206,7 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 			out->status = 200;
 		}
 	}
-	
 	publish(out, output);
-	
-	if(state.request_queue.size() <= max_queue_size / 2) {
-		resume_stream(state, request->channel);
-	}
 }
 
 void HttpProcessor::update() {

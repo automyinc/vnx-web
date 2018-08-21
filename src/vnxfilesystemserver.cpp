@@ -16,12 +16,12 @@ int main(int argc, char** argv) {
 	options["domain"] = "server domain topic";
 	options["input"] = "request input topic";
 	
-	vnx::init("filesystem_server", argc, argv, options);
+	vnx::init("vnxfilesystemserver", argc, argv, options);
 	
 	/*
 	 * By default we create a local UNIX node for this example.
 	 */
-	std::string node = "filesystem_server.sock";
+	std::string node = "vnxfilesystemserver.sock";
 	vnx::read_config("node", node);
 	
 	{
@@ -60,6 +60,7 @@ int main(int argc, char** argv) {
 //	while(vnx::do_run()) {
 //		std::shared_ptr<vnx::web::Request> request = vnx::web::Request::create();
 //		request->id = vnx::Hash128::rand();
+//		request->id = request_type_e::READ;
 //		request->path = "/LICENSE";
 //		request->channel = "test.channel";
 //		request->time_stamp_ms = vnx::get_time_millis();

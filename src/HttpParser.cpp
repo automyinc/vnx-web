@@ -107,7 +107,7 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> valu
 				break;
 		}
 	}
-	publish(value, output);
+	publish(value, output, BLOCKING);
 }
 
 void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {

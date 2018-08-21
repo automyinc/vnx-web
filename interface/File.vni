@@ -2,7 +2,7 @@ package vnx.web;
 
 class File extends Content {
 	
-	vector<uchar> data;
+	vnx.Buffer data;
 	
 	
 	long get_num_bytes() const;

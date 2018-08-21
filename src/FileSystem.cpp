@@ -28,12 +28,13 @@ void FileSystem::main() {
 		}
 	} else {
 		log(ERROR).out << "magic_open(MAGIC_MIME_TYPE) failed!";
+		return;
 	}
 	
 	{
 		auto provider = Provider::create();
 		provider->id = Hash128::rand();
-		provider->path = provider_path.get_base_path(provider_path.size() - 1);
+		provider->path = domain_path.get_base_path(domain_path.size() - 1);
 		provider->channel = input;
 		this->provider = provider;
 	}
@@ -49,9 +50,7 @@ void FileSystem::main() {
 	
 	Super::main();
 	
-	if(magic) {
-		::magic_close(magic);
-	}
+	::magic_close(magic);
 }
 
 void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
@@ -60,9 +59,24 @@ void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	response->is_dynamic = false;
 	response->time_to_live_ms = time_to_live_ms;
 	try {
-		response->content = read_file(request->path);
+		switch(request->type) {
+			case request_type_e::READ:
+				response->content = read_file(request->path);
+				break;
+			case request_type_e::WRITE: {
+				auto content = std::dynamic_pointer_cast<const BinaryData>(request->parameter);
+				if(content) {
+					write_file(request->path, content);
+				} else {
+					response->content = ErrorCode::create(ErrorCode::BAD_REQUEST);
+				}
+				break;
+			}
+			default:
+				response->content = ErrorCode::create(ErrorCode::BAD_REQUEST);
+		}
 	} catch(const std::exception& ex) {
-		response->content = vnx::clone(ErrorCode::create(ErrorCode::INTERNAL_ERROR));
+		response->content = ErrorCode::create_with_message(ErrorCode::INTERNAL_ERROR, ex.what());
 		log(WARN).out << ex.what();
 	}
 	publish(response, request->channel);
@@ -73,7 +87,7 @@ void FileSystem::scan() {
 	const filesystem::path root = source_path;
 	if(filesystem::exists(root)) {
 		if(filesystem::is_directory(root)) {
-			scan_tree(provider_path, root);
+			scan_tree(domain_path, root);
 		} else {
 			log(WARN).out << "Not a directory: " << root;
 		}
@@ -102,7 +116,6 @@ std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
 	auto entry = file_map.find(path);
 	if(entry != file_map.end()) {
 		const filesystem::path file_path = entry->second.path;
-		const std::string source_path = file_path.generic_string();
 		std::shared_ptr<Content> result;
 		if(filesystem::is_directory(file_path)) {
 			std::shared_ptr<Directory> directory = Directory::create();
@@ -121,20 +134,19 @@ std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
 			}
 			result = directory;
 		} else if(filesystem::is_regular(file_path)) {
+			const std::string file_path_str = file_path.generic_string();
 			const size_t file_size = filesystem::file_size(file_path);
 			if(max_file_size && file_size > max_file_size) {
 				throw std::runtime_error("file too big: " + path.to_string() + " (" + std::to_string(file_size) + ")");
 			}
 			std::shared_ptr<File> file = File::create();
-			file->data.resize(file_size);
-			::FILE* p_file = ::fopen(source_path.c_str(), "r");
+			file->data.reserve(file_size);
+			::FILE* p_file = ::fopen(file_path_str.c_str(), "r");
 			if(!p_file) {
 				throw std::runtime_error("fopen() failed for: " + path.to_string());
 			}
-			const size_t num_read = ::fread(file->data.data(), 1, file->data.size(), p_file);
-			if(num_read != file->data.size()) {
-				file->data.resize(num_read);
-			}
+			const size_t num_read = ::fread(file->data.data(), 1, file_size, p_file);
+			file->data.resize(num_read);
 			::fclose(p_file);
 			result = file;
 			num_read_bytes += num_read;
@@ -147,6 +159,38 @@ std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
 	} else {
 		return vnx::clone(ErrorCode::create(ErrorCode::NOT_FOUND));
 	}
+}
+
+void FileSystem::write_file(const Path& path, std::shared_ptr<const BinaryData> content) {
+	
+	const filesystem::path file_path = source_path + path.to_string();
+	if(file_path.has_parent_path()) {
+		const filesystem::path parent = file_path.parent_path();
+		if(!filesystem::exists(parent)) {
+			filesystem::create_directories(parent);
+		}
+	}
+	
+	const std::string file_path_str = file_path.generic_string();
+	::FILE* p_file = ::fopen(file_path_str.c_str(), "wb");
+	if(!p_file) {
+		throw std::runtime_error("fopen() failed for: " + path.to_string());
+	}
+	for(const vnx::Buffer& chunk : content->chunks) {
+		const size_t num_write = ::fwrite(chunk.data(), 1, chunk.size(), p_file);
+		if(num_write != chunk.size()) {
+			::fclose(p_file);
+			throw std::runtime_error("fwrite() failed for: " + path.to_string());
+		}
+		num_write_bytes += num_write;
+	}
+	::fclose(p_file);
+	
+	file_entry_t& entry = file_map[path];
+	entry.path = file_path;
+	entry.mime_type = get_mime_type(content);
+	entry.time_stamp_ms = int64_t(filesystem::last_write_time(file_path)) * 1000;
+	cache->remove(path);
 }
 
 void FileSystem::scan_tree(const Path& current, const filesystem::path& file_path) {
@@ -189,7 +233,17 @@ std::string FileSystem::get_mime_type(const std::string& path) {
 	if(mime) {
 		return std::string(mime);
 	}
-	return "unknown";
+	return "application/octet-stream";
+}
+
+std::string FileSystem::get_mime_type(std::shared_ptr<const BinaryData> content) {
+	if(content && !content->chunks.empty()) {
+		char const * mime = ::magic_buffer(magic, content->chunks.front().data(), content->chunks.front().size());
+		if(mime) {
+			return std::string(mime);
+		}
+	}
+	return "application/octet-stream";
 }
 
 

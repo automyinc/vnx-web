@@ -9,6 +9,7 @@ file(GLOB GENERATED_SOURCE_FILES generated/src/*.cpp)
 
 add_library(vnx_web SHARED
 	${GENERATED_SOURCE_FILES}
+	lib/http-parser/http_parser.c
 	src/Path.cpp
 	src/Cache.cpp
 	src/FileSystem.cpp
@@ -24,7 +25,7 @@ add_library(vnx_web SHARED
 	src/BinaryData.cpp
 	src/stream_event_t.cpp
 	src/HistoryCache.cpp
-	lib/http-parser/http_parser.c
+	src/Frontend.cpp
 )
 
 target_include_directories(vnx_web
@@ -36,7 +37,7 @@ target_link_libraries(vnx_web vnx_base ${Boost_LIBRARIES} magic)
 add_executable(vnxwebserver src/vnxwebserver.cpp)
 target_link_libraries(vnxwebserver vnx_web)
 
-add_executable(filesystem_server src/filesystem_server.cpp)
-target_link_libraries(filesystem_server vnx_web)
+add_executable(vnxfilesystemserver src/vnxfilesystemserver.cpp)
+target_link_libraries(vnxfilesystemserver vnx_web)
 
 add_subdirectory(test)

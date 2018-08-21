@@ -1,0 +1,7 @@
+package vnx.web;
+
+enum request_type_e {
+	
+	GENERIC, READ, WRITE
+	
+}

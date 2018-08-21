@@ -8,6 +8,8 @@ class Request {
 	
 	Hash128 id;
 	
+	request_type_e type = GENERIC;
+	
 	Path path;
 	
 	Value* parameter;

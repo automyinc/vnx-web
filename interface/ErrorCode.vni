@@ -10,6 +10,11 @@ class ErrorCode extends Content {
 	
 	int code;
 	
+	string message;
+	
+	
 	static ErrorCode* create(int code);
+	
+	static ErrorCode* create_with_message(int code, string message);
 	
 }
