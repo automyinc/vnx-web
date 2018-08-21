@@ -5,7 +5,6 @@ import vnx.Hash128;
 struct stream_event_t {
 	
 	static const int EVENT_NEW = 1;				// notification of new stream
-	static const int EVENT_OPEN = 2;			// open new stream
 	static const int EVENT_CLOSE = 3;			// close stream
 	static const int EVENT_EOF = 4;				// notification of closed stream
 	static const int EVENT_PAUSE = 5;			// pause reading for a number of [ms]

@@ -4,7 +4,9 @@ import vnx.TopicPtr;
 
 module Frontend {
 	
-	string endpoint = "127.0.0.1:8080";
+	string address = "127.0.0.1:8080";
+	
+	TopicPtr input;
 	
 	vector<TopicPtr> output;
 	
