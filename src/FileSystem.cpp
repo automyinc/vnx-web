@@ -146,7 +146,7 @@ std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
 				throw std::runtime_error("fopen() failed for: " + path.to_string());
 			}
 			const size_t num_read = ::fread(file->data.data(), 1, file_size, p_file);
-			file->data.resize(num_read);
+			file->data.set_size(num_read);
 			::fclose(p_file);
 			result = file;
 			num_read_bytes += num_read;

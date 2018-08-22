@@ -99,11 +99,13 @@ std::istream& operator>>(std::istream& in, Path& path) {
 
 
 void read(TypeInput& in, vnx::web::Path& value, const TypeCode* type_code, const uint16_t* code) {
-	vnx::read(in, (std::vector<std::string>&)value, type_code, code);
+	std::string path;
+	vnx::read(in, path, type_code, code);
+	value = path;
 }
 
 void write(TypeOutput& out, const vnx::web::Path& value, const TypeCode* type_code, const uint16_t* code) {
-	vnx::write(out, (const std::vector<std::string>&)value, type_code, code);
+	vnx::write(out, value.to_string(), type_code, code);
 }
 
 void read(std::istream& in, vnx::web::Path& value) {

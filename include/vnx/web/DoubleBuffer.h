@@ -19,18 +19,18 @@ public:
 		return data[state % 2];
 	}
 	
-	T& output() {
+	const T& output() {
 		return data[(state + 1) % 2];
 	}
 	
 	bool write_lock() {
-		std::unique_lock<std::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 		ready = false;
 		return consumed;
 	}
 	
 	void write_unlock() {
-		std::unique_lock<std::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 		if(!locked && consumed) {
 			flip();
 		} else {
@@ -51,7 +51,10 @@ public:
 	}
 	
 	const T* try_read_lock() {
-		std::unique_lock<std::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(mutex);
+		if(ready) {
+			flip();
+		}
 		if(available) {
 			locked = true;
 			return &output();
@@ -60,7 +63,7 @@ public:
 	}
 	
 	void read_unlock() {
-		std::unique_lock<std::mutex> lock(mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 		locked = false;
 		available = false;
 		consumed = true;

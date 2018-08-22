@@ -8,9 +8,13 @@ module Frontend {
 	
 	TopicPtr input;
 	
-	vector<TopicPtr> output;
+	TopicPtr output;
 	
 	TopicPtr channel;
+	
+	long read_block_size = 4096;		// [bytes]
+	
+	long write_block_size = 4096;		// [bytes]
 	
 	
 	void handle(StreamEventArray sample);

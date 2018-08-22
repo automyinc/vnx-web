@@ -8,4 +8,6 @@ class StreamWrite {
 	
 	vector<vnx.Buffer> chunks;
 	
+	bool is_eof;
+	
 }

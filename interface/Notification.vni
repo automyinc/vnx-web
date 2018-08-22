@@ -1,0 +1,13 @@
+package vnx.web;
+
+class Notification {
+	
+	static const int CONTENT_NEW = 1;
+	static const int CONTENT_UPDATE = 2;
+	static const int CONTENT_DELETE = 3;
+	
+	Path path;
+	
+	int type;
+	
+}
