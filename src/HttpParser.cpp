@@ -141,11 +141,13 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
 
 void HttpParser::update() {
 	for(const auto& entry : close_map) {
-		auto event = StreamEventArray::create();
+		auto events = StreamEventArray::create();
 		for(const auto& stream : entry.second) {
-			event->array.push_back(stream_event_t::create(stream, stream_event_t::EVENT_CLOSE));
+			events->array.push_back(stream_event_t::create(stream, stream_event_t::EVENT_CLOSE));
 		}
-		publish(event, entry.first);
+		if(!events->array.empty()) {
+			publish(events, entry.first);
+		}
 	}
 	close_map.clear();
 }

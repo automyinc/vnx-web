@@ -191,7 +191,7 @@ void HttpProcessor::process(state_t& state, const std::string& domain, std::shar
 	out->is_dynamic = response->is_dynamic;
 	out->time_to_live_ms = response->time_to_live_ms;
 	out->header.emplace_back(std::make_pair("Host", domain));
-	out->header.emplace_back(std::make_pair("Server", "VNX"));
+	out->header.emplace_back(std::make_pair("Server", "vnx::web::server"));
 	if(keepalive) {
 		out->header.emplace_back(std::make_pair("Connection", "keep-alive"));
 	} else {
@@ -220,11 +220,13 @@ void HttpProcessor::process(state_t& state, const std::string& domain, std::shar
 void HttpProcessor::update() {
 	size_t num_paused = 0;
 	for(const auto& entry : pause_map) {
-		auto event = StreamEventArray::create();
+		auto events = StreamEventArray::create();
 		for(const auto& stream : entry.second) {
-			event->array.push_back(stream_event_t::create_with_value(stream, stream_event_t::EVENT_PAUSE, 500));
+			events->array.push_back(stream_event_t::create_with_value(stream, stream_event_t::EVENT_PAUSE, 500));
 		}
-		publish(event, entry.first);
+		if(!events->array.empty()) {
+			publish(events, entry.first);
+		}
 		num_paused += entry.second.size();
 	}
 	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, pending="
