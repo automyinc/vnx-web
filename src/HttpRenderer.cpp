@@ -3,6 +3,7 @@
 #include <vnx/web/File.hxx>
 #include <vnx/web/Directory.hxx>
 #include <vnx/web/StreamWrite.hxx>
+#include <vnx/web/ErrorCode.hxx>
 
 #include <vnx/Output.h>
 
@@ -138,12 +139,7 @@ void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::HttpResponse> respon
 	render(out, " ");
 	switch(response->status) {
 		case 200: render(out, "OK"); break;
-		case 400: render(out, "Bad Request"); break;
-		case 404: render(out, "Not Found"); break;
-		case 429: render(out, "Timeout"); break;
-		case 500: render(out, "Internal Server Error"); break;
-		case 503: render(out, "Overload"); break;
-		default: render(out, "Unknown"); break;
+		default: render(out, ErrorCode::get_error_string(response->status)); break;
 	}
 	render(out, "\r\n");
 	

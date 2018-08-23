@@ -17,4 +17,6 @@ class ErrorCode extends Content {
 	
 	static ErrorCode* create_with_message(int code, string message);
 	
+	static string get_error_string(int code);
+	
 }

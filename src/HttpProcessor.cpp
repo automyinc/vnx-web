@@ -3,6 +3,9 @@
 #include <vnx/web/ErrorCode.hxx>
 #include <vnx/web/Parameter.hxx>
 #include <vnx/web/BinaryData.hxx>
+#include <vnx/web/File.hxx>
+
+#include <sstream>
 
 
 namespace vnx {
@@ -201,17 +204,11 @@ void HttpProcessor::process(state_t& state, const std::string& domain, std::shar
 	{
 		auto error = std::dynamic_pointer_cast<const ErrorCode>(response->content);
 		if(error) {
-			switch(error->code) {
-				case ErrorCode::BAD_REQUEST: out->status = 400; break;
-				case ErrorCode::NOT_FOUND: out->status = 404; break;
-				case ErrorCode::TIMEOUT: out->status = 429; break;
-				case ErrorCode::INTERNAL_ERROR: out->status = 500; break;
-				case ErrorCode::OVERLOAD: out->status = 503; break;
-				default: out->status = 500;
-			}
+			out->status = error->code;
+			out->content = get_error_content(error->code);
 		} else {
-			out->content = response->content;
 			out->status = 200;
+			out->content = response->content;
 		}
 	}
 	publish(out, output, BLOCKING);
@@ -254,7 +251,27 @@ void HttpProcessor::resume_stream(state_t& state, const TopicPtr& channel) {
 	state.is_paused = false;
 }
 
+std::shared_ptr<File> create_error_page(int code) {
+	std::shared_ptr<File> file = File::create();
+	file->path = "/error/" + std::to_string(code);
+	file->mime_type = "text/html";
+	file->time_stamp_ms = vnx::get_time_millis();
+	
+	std::ostringstream tmp;
+	tmp << "<html>\n<body>\n<h1>Error: " << std::to_string(code) << "</h1>\n</body>\n</html>";
+	file->data = tmp.str();
+	return file;
+}
 
+std::shared_ptr<File> HttpProcessor::get_error_content(int code) {
+	auto iter = static_error_pages.find(code);
+	if(iter != static_error_pages.end()) {
+		return iter->second;
+	}
+	std::shared_ptr<File> content = create_error_page(code);
+	static_error_pages[code] = content;
+	return content;
+}
 
 
 } // web

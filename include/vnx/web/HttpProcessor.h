@@ -56,11 +56,15 @@ private:
 	
 	void resume_stream(state_t& state, const TopicPtr& channel);
 	
+	std::shared_ptr<File> get_error_content(int code);
+	
 private:
 	std::shared_ptr<Pipe> input_pipe;
 	std::unordered_map<Hash128, state_t> state_map;
 	std::unordered_map<Hash128, request_entry_t> pending_requests;
 	std::unordered_map<TopicPtr, std::unordered_set<Hash128>> pause_map;
+	
+	std::map<int, std::shared_ptr<File>> static_error_pages;
 	
 	size_t request_counter = 0;
 	size_t total_queue_size = 0;

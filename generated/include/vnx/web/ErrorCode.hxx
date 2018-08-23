@@ -32,6 +32,7 @@ public:
 	
 	static ::std::shared_ptr<const ::vnx::web::ErrorCode> create(const ::int32_t& code);
 	static ::std::shared_ptr<const ::vnx::web::ErrorCode> create_with_message(const ::int32_t& code, const ::std::string& message);
+	static ::std::string get_error_string(const ::int32_t& code);
 	
 	static std::shared_ptr<ErrorCode> create();
 	std::shared_ptr<vnx::Value> clone() const;
