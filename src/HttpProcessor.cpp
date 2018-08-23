@@ -190,12 +190,12 @@ void HttpProcessor::process(state_t& state, const std::string& domain, std::shar
 	out->sequence = request->sequence;
 	out->is_dynamic = response->is_dynamic;
 	out->time_to_live_ms = response->time_to_live_ms;
-	out->header.emplace_back(std::make_pair("Host", domain));
-	out->header.emplace_back(std::make_pair("Server", "vnx::web::server"));
+	out->header.push_back(std::make_pair("Host", domain));
+	out->header.push_back(std::make_pair("Server", "vnx::web::server"));
 	if(keepalive) {
-		out->header.emplace_back(std::make_pair("Connection", "keep-alive"));
+		out->header.push_back(std::make_pair("Connection", "keep-alive"));
 	} else {
-		out->header.emplace_back(std::make_pair("Connection", "close"));
+		out->header.push_back(std::make_pair("Connection", "close"));
 	}
 	out->do_close = !keepalive;
 	{

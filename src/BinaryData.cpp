@@ -12,7 +12,7 @@ void BinaryData::append(const BinaryData& data) {
 }
 
 void BinaryData::append_string(const std::string& data) {
-	chunks.emplace_back(Buffer(data.size()));
+	chunks.push_back(Buffer(data.size()));
 	::memcpy(chunks.back().data(), data.data(), data.size());
 }
 

@@ -17,7 +17,7 @@ public:
 	OutputStream(std::shared_ptr<StreamWrite> out_) : out(out_) {}
 	
 	void write(const void* buf, size_t len) {
-		out->chunks.emplace_back(vnx::Buffer(len));
+		out->chunks.push_back(vnx::Buffer(len));
 		::memcpy(out->chunks.back().data(), buf, len);
 		out->chunks.back().set_size(len);
 		written += len;

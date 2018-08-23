@@ -56,7 +56,7 @@ int HttpParser::on_url(http_parser* parser, const char* at, size_t len) {
 int HttpParser::on_header_field(http_parser* parser, const char* at, size_t len) {
 	state_t* state = (state_t*)parser->data;
 	if(!state->last_was_field) {
-		state->request->header.emplace_back(std::pair<std::string, std::string>());
+		state->request->header.push_back(std::pair<std::string, std::string>());
 	}
 	state->request->header.back().first.append(at, len);
 	state->last_was_field = true;
@@ -73,7 +73,7 @@ int HttpParser::on_header_value(http_parser* parser, const char* at, size_t len)
 int HttpParser::on_body(http_parser* parser, const char* at, size_t len) {
 	state_t* state = (state_t*)parser->data;
 	BinaryData& payload = state->request->payload;
-	payload.chunks.emplace_back(vnx::Buffer(len));
+	payload.chunks.push_back(vnx::Buffer(len));
 	::memcpy(payload.chunks.back().data(), at, len);
 	return 0;
 }
