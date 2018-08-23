@@ -408,7 +408,7 @@ protected:
 					const vnx::Buffer& buffer = sample->chunks[state.index];
 					if(buffer.size() > state.offset) {
 						const ssize_t num_left = buffer.size() - state.offset;
-						const ssize_t num_written = ::write(state.sock, buffer.data(state.offset), size_t(num_left));
+						const ssize_t num_written = ::send(state.sock, buffer.data(state.offset), size_t(num_left), MSG_NOSIGNAL);
 //						std::cout << "sock=" << state.sock << ", num_left=" << num_left << ", num_written=" << num_written << ", index=" << state.index << ", offset=" << state.offset << std::endl;
 						if(num_written == num_left) {
 							state.index++;
