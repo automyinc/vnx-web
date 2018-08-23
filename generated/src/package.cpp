@@ -11,13 +11,15 @@
 #include <vnx/web/File.hxx>
 #include <vnx/web/FileInfo.hxx>
 #include <vnx/web/FileSystemBase.hxx>
+#include <vnx/web/FrontendBase.hxx>
 #include <vnx/web/HttpParserBase.hxx>
 #include <vnx/web/HttpProcessorBase.hxx>
+#include <vnx/web/HttpRendererBase.hxx>
 #include <vnx/web/HttpRequest.hxx>
 #include <vnx/web/HttpResponse.hxx>
+#include <vnx/web/Notification.hxx>
 #include <vnx/web/ObjectFile.hxx>
 #include <vnx/web/Parameter.hxx>
-#include <vnx/web/PollServerBase.hxx>
 #include <vnx/web/Provider.hxx>
 #include <vnx/web/Request.hxx>
 #include <vnx/web/Response.hxx>
@@ -27,6 +29,7 @@
 #include <vnx/web/TextFile.hxx>
 #include <vnx/web/ValueFile.hxx>
 #include <vnx/web/cache_entry_t.hxx>
+#include <vnx/web/request_type_e.hxx>
 #include <vnx/web/stream_event_t.hxx>
 
 
@@ -44,13 +47,15 @@ static void register_all_types() {
 	vnx::register_type_code(vnx::web::File::create_type_code());
 	vnx::register_type_code(vnx::web::FileInfo::create_type_code());
 	vnx::register_type_code(vnx::web::FileSystemBase::create_type_code());
+	vnx::register_type_code(vnx::web::FrontendBase::create_type_code());
 	vnx::register_type_code(vnx::web::HttpParserBase::create_type_code());
 	vnx::register_type_code(vnx::web::HttpProcessorBase::create_type_code());
+	vnx::register_type_code(vnx::web::HttpRendererBase::create_type_code());
 	vnx::register_type_code(vnx::web::HttpRequest::create_type_code());
 	vnx::register_type_code(vnx::web::HttpResponse::create_type_code());
+	vnx::register_type_code(vnx::web::Notification::create_type_code());
 	vnx::register_type_code(vnx::web::ObjectFile::create_type_code());
 	vnx::register_type_code(vnx::web::Parameter::create_type_code());
-	vnx::register_type_code(vnx::web::PollServerBase::create_type_code());
 	vnx::register_type_code(vnx::web::Provider::create_type_code());
 	vnx::register_type_code(vnx::web::Request::create_type_code());
 	vnx::register_type_code(vnx::web::Response::create_type_code());
@@ -60,6 +65,7 @@ static void register_all_types() {
 	vnx::register_type_code(vnx::web::TextFile::create_type_code());
 	vnx::register_type_code(vnx::web::ValueFile::create_type_code());
 	vnx::register_type_code(vnx::web::cache_entry_t::create_type_code());
+	vnx::register_type_code(vnx::web::request_type_e::create_type_code());
 	vnx::register_type_code(vnx::web::stream_event_t::create_type_code());
 }
 

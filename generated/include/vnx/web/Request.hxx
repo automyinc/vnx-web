@@ -9,6 +9,7 @@
 #include <vnx/TopicPtr.h>
 #include <vnx/Value.h>
 #include <vnx/web/Path.h>
+#include <vnx/web/request_type_e.hxx>
 
 
 namespace vnx {
@@ -18,6 +19,8 @@ class Request : public ::vnx::Value {
 public:
 	
 	::vnx::Hash128 id;
+	::vnx::Hash128 stream;
+	::vnx::web::request_type_e type = ::vnx::web::request_type_e::GENERIC;
 	::vnx::web::Path path;
 	::std::shared_ptr<const ::vnx::Value> parameter;
 	::vnx::TopicPtr channel;

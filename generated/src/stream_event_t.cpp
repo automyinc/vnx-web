@@ -13,7 +13,6 @@ namespace vnx {
 namespace web {
 
 const ::int32_t stream_event_t::EVENT_NEW;
-const ::int32_t stream_event_t::EVENT_OPEN;
 const ::int32_t stream_event_t::EVENT_CLOSE;
 const ::int32_t stream_event_t::EVENT_EOF;
 const ::int32_t stream_event_t::EVENT_PAUSE;

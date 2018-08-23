@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 CacheBase::VNX_TYPE_HASH(0x6de8cc0cc0e6b5f8ull);
-const vnx::Hash64 CacheBase::VNX_CODE_HASH(0xb4ff28684cbd7c7full);
+const vnx::Hash64 CacheBase::VNX_CODE_HASH(0xd50aa3291aae0fb2ull);
 
 CacheBase::CacheBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -111,7 +111,7 @@ std::shared_ptr<vnx::TypeCode> CacheBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Cache";
 	type_code->type_hash = vnx::Hash64(0x6de8cc0cc0e6b5f8ull);
-	type_code->code_hash = vnx::Hash64(0xb4ff28684cbd7c7full);
+	type_code->code_hash = vnx::Hash64(0xd50aa3291aae0fb2ull);
 	type_code->methods.resize(5);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -253,7 +253,7 @@ std::shared_ptr<vnx::TypeCode> CacheBase::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[3];
 		field.name = "num_entries";
-		field.value = vnx::to_string(1024);
+		field.value = vnx::to_string(4096);
 		field.code = {8};
 	}
 	{
@@ -265,7 +265,7 @@ std::shared_ptr<vnx::TypeCode> CacheBase::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[5];
 		field.name = "max_pending";
-		field.value = vnx::to_string(10000);
+		field.value = vnx::to_string(100000);
 		field.code = {8};
 	}
 	{

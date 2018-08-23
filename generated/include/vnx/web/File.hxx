@@ -5,6 +5,7 @@
 #define INCLUDE_vnx_web_File_HXX_
 
 #include <vnx/web/package.hxx>
+#include <vnx/Buffer.h>
 #include <vnx/web/Content.hxx>
 
 
@@ -14,7 +15,7 @@ namespace web {
 class File : public ::vnx::web::Content {
 public:
 	
-	::std::vector<::uint8_t> data;
+	::vnx::Buffer data;
 	
 	typedef ::vnx::web::Content Super;
 	

@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 File::VNX_TYPE_HASH(0x7e5090af37dca85dull);
-const vnx::Hash64 File::VNX_CODE_HASH(0x9893fbe034c2db29ull);
+const vnx::Hash64 File::VNX_CODE_HASH(0xdfe5356f9fbe2f43ull);
 
 vnx::Hash64 File::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -97,7 +97,7 @@ std::shared_ptr<vnx::TypeCode> File::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.File";
 	type_code->type_hash = vnx::Hash64(0x7e5090af37dca85dull);
-	type_code->code_hash = vnx::Hash64(0x9893fbe034c2db29ull);
+	type_code->code_hash = vnx::Hash64(0xdfe5356f9fbe2f43ull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Content::get_type_code();
@@ -107,7 +107,7 @@ std::shared_ptr<vnx::TypeCode> File::create_type_code() {
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
 		field.name = "path";
-		field.code = {12, 12, 5};
+		field.code = {12, 5};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[1];

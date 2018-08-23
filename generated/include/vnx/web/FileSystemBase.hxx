@@ -21,13 +21,13 @@ public:
 	::vnx::TopicPtr domain;
 	::vnx::TopicPtr input;
 	::std::string source_path = ".";
-	::vnx::web::Path provider_path = "/";
+	::vnx::web::Path domain_path = "/";
 	::int64_t time_to_live_ms = 60000;
-	::int64_t max_file_size = 0;
+	::int64_t max_file_size = 268435456;
 	::int64_t max_history_size = 100;
 	::int32_t update_interval_ms = 500;
-	::int32_t scan_interval_ms = 30000;
-	::int32_t max_input_queue_ms = 1000;
+	::int32_t scan_interval_ms = 10000;
+	::int32_t max_input_queue_ms = 500;
 	
 	typedef ::vnx::Module Super;
 	

@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 Provider::VNX_TYPE_HASH(0x1d2b97d959828f56ull);
-const vnx::Hash64 Provider::VNX_CODE_HASH(0x8fe36bdf0bb425ccull);
+const vnx::Hash64 Provider::VNX_CODE_HASH(0xe678a5d65284692full);
 
 vnx::Hash64 Provider::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -97,7 +97,7 @@ std::shared_ptr<vnx::TypeCode> Provider::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Provider";
 	type_code->type_hash = vnx::Hash64(0x1d2b97d959828f56ull);
-	type_code->code_hash = vnx::Hash64(0x8fe36bdf0bb425ccull);
+	type_code->code_hash = vnx::Hash64(0xe678a5d65284692full);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<Provider>(); };
 	type_code->fields.resize(4);
@@ -111,7 +111,7 @@ std::shared_ptr<vnx::TypeCode> Provider::create_type_code() {
 		vnx::TypeField& field = type_code->fields[1];
 		field.is_extended = true;
 		field.name = "path";
-		field.code = {12, 12, 5};
+		field.code = {12, 5};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[2];

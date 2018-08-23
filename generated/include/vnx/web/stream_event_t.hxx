@@ -15,7 +15,6 @@ namespace web {
 struct stream_event_t {
 	
 	static const ::int32_t EVENT_NEW = 1;
-	static const ::int32_t EVENT_OPEN = 2;
 	static const ::int32_t EVENT_CLOSE = 3;
 	static const ::int32_t EVENT_EOF = 4;
 	static const ::int32_t EVENT_PAUSE = 5;

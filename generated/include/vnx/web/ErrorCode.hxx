@@ -20,6 +20,7 @@ public:
 	static const ::int32_t OVERLOAD = 503;
 	
 	::int32_t code = 0;
+	::std::string message;
 	
 	typedef ::vnx::web::Content Super;
 	
@@ -30,6 +31,7 @@ public:
 	const char* get_type_name() const;
 	
 	static ::std::shared_ptr<const ::vnx::web::ErrorCode> create(const ::int32_t& code);
+	static ::std::shared_ptr<const ::vnx::web::ErrorCode> create_with_message(const ::int32_t& code, const ::std::string& message);
 	
 	static std::shared_ptr<ErrorCode> create();
 	std::shared_ptr<vnx::Value> clone() const;

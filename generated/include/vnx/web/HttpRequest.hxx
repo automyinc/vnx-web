@@ -16,7 +16,6 @@ namespace web {
 class HttpRequest : public ::vnx::web::Request {
 public:
 	
-	::vnx::Hash128 stream;
 	::int64_t sequence = 0;
 	::std::string method;
 	::int32_t version = 0;
