@@ -474,6 +474,7 @@ protected:
 					if(now - entry.second.last_write_time > frontend->connection_timeout_ms) {
 						if(write_set.count(entry.first) == 0) {
 							close_stream.input().emplace_back(entry.first);
+							frontend->num_timeout++;
 						}
 					}
 				}
@@ -790,12 +791,14 @@ void Frontend::handle(std::shared_ptr<const ::vnx::web::StreamWrite> value) {
 }
 
 void Frontend::update() {
-	log(INFO).out << "connections=" << num_connections << ", accept=" << num_accept << "/s, close=" << num_close << "/s"
+	log(INFO).out << "connections=" << num_connections << ", accept=" << num_accept << "/s, timeout="
+			<< num_timeout << "/s, close=" << num_close << "/s"
 			<< ", read=" << (float(num_bytes_read / 1024) / 1024) << " MB/s, write="
 			<< (float(num_bytes_written / 1024) / 1024) << " MB/s";
 	num_accept = 0;
 	num_bytes_read = 0;
 	num_bytes_written = 0;
+	num_timeout = 0;
 	num_close = 0;
 }
 

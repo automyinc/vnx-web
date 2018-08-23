@@ -48,6 +48,7 @@ private:
 	int64_t num_accept = 0;
 	int64_t num_bytes_read = 0;
 	int64_t num_bytes_written = 0;
+	int64_t num_timeout = 0;
 	int64_t num_close = 0;
 	
 };
