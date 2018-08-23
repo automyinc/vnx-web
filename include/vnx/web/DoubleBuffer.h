@@ -25,21 +25,26 @@ public:
 	
 	bool write_lock() {
 		std::lock_guard<std::mutex> lock(mutex);
+		write_locked = true;
 		return write_counter == 0;
 	}
 	
 	void write_unlock() {
 		std::lock_guard<std::mutex> lock(mutex);
 		write_counter++;
-		if(!locked && read_counter == 0) {
+		if(read_counter == 0 && !read_locked) {
 			flip();
 		}
+		write_locked = false;
 	}
 	
 	const T* try_read_lock() {
 		std::lock_guard<std::mutex> lock(mutex);
+		if(!read_counter && write_counter && !write_locked) {
+			flip();
+		}
 		if(read_counter) {
-			locked = true;
+			read_locked = true;
 			return &output();
 		}
 		return 0;
@@ -47,16 +52,15 @@ public:
 	
 	void read_unlock() {
 		std::lock_guard<std::mutex> lock(mutex);
-		locked = false;
+		read_locked = false;
 		read_counter = 0;
 	}
 	
 private:
 	void flip() {
 		state = (state + 1) % 2;
-		const size_t tmp = write_counter;
-		write_counter = read_counter;
-		read_counter = tmp;
+		read_counter = write_counter;
+		write_counter = 0;
 	}
 	
 private:
@@ -67,7 +71,8 @@ private:
 	size_t read_counter = 0;
 	size_t write_counter = 0;
 	int state = 0;
-	bool locked = false;
+	bool read_locked = false;
+	bool write_locked = false;
 	
 	
 };
