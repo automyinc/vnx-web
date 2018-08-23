@@ -4,7 +4,7 @@
 
 #include <vnx/web/Content.hxx>
 
-#include <list>
+#include <queue>
 #include <unordered_map>
 
 
@@ -26,7 +26,7 @@ public:
 private:
 	size_t max_size = 0;
 	std::unordered_map<Path, std::shared_ptr<const Content>> content_map;
-	std::list<Path> history;
+	std::queue<Path> history;
 	
 };
 

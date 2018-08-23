@@ -3,7 +3,6 @@
 #define INCLUDE_VNX_WEB_DOUBLEBUFFER_H
 
 #include <mutex>
-#include <condition_variable>
 
 
 namespace vnx {
@@ -65,7 +64,6 @@ private:
 	
 private:
 	std::mutex mutex;
-//	std::condition_variable condition;
 	
 	T data[2] = {};
 	size_t read_counter = 0;

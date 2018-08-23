@@ -21,11 +21,11 @@ std::shared_ptr<const Content> HistoryCache::query(const Path& path) const {
 void HistoryCache::insert(std::shared_ptr<const Content> content) {
 	if(max_size > 0) {
 		content_map[content->path] = content;
-		history.push_back(content->path);
+		history.push(content->path);
 	}
 	while(history.size() > max_size) {
 		content_map.erase(history.front());
-		history.pop_front();
+		history.pop();
 	}
 }
 
@@ -35,7 +35,6 @@ void HistoryCache::remove(const Path& path) {
 
 void HistoryCache::purge() {
 	content_map.clear();
-	history.clear();
 }
 
 

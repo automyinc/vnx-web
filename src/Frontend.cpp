@@ -461,7 +461,7 @@ protected:
 					if(state.samples.empty()) {
 						done_list.push_back(entry.first);
 						if(sample->is_eof) {
-							close_stream.input().push_back(sample->stream);
+							close_stream.input().push_back(sample->stream);		// server decided to close connection
 						}
 					}
 				}
@@ -473,7 +473,7 @@ protected:
 				for(const auto& entry : stream_map) {
 					if(now - entry.second.last_write_time > frontend->connection_timeout_ms) {
 						if(write_set.count(entry.first) == 0) {
-							close_stream.input().push_back(entry.first);
+							close_stream.input().push_back(entry.first);		// connection timeout
 							frontend->num_timeout++;
 						}
 					}
