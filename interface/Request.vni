@@ -8,6 +8,8 @@ class Request {
 	
 	Hash128 id;
 	
+	Hash128 stream;
+	
 	request_type_e type = GENERIC;
 	
 	Path path;

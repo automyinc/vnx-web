@@ -1,0 +1,173 @@
+
+#include <vnx/web/HttpRenderer.h>
+#include <vnx/web/File.hxx>
+#include <vnx/web/Directory.hxx>
+#include <vnx/web/StreamWrite.hxx>
+
+#include <vnx/Output.h>
+
+#include <sstream>
+
+
+namespace vnx {
+namespace web {
+
+class HttpRenderer::OutputStream : public vnx::OutputStream {
+public:
+	OutputStream(std::shared_ptr<StreamWrite> out_) : out(out_) {}
+	
+	void write(const void* buf, size_t len) {
+		out->chunks.emplace_back(vnx::Buffer(len));
+		::memcpy(out->chunks.back().data(), buf, len);
+		out->chunks.back().set_size(len);
+		written += len;
+	}
+	
+	size_t get_output_pos() const {
+		return written;
+	}
+	
+private:
+	std::shared_ptr<StreamWrite> out;
+	size_t written = 0;
+	
+};
+
+
+HttpRenderer::HttpRenderer(const std::string& _vnx_name)
+		: HttpRendererBase(_vnx_name)
+{
+}
+
+void HttpRenderer::main() {
+	
+	subscribe(input);
+	
+	Super::main();
+}
+
+void HttpRenderer::render(vnx::OutputBuffer& out, const char str[]) {
+	render(out, std::string(str));
+}
+
+void HttpRenderer::render(vnx::OutputBuffer& out, const std::string& str) {
+	out.write(str.c_str(), str.size());
+}
+
+void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const Content> content) {
+	{
+		auto value = std::dynamic_pointer_cast<const File>(content);
+		if(value) {
+			render(out, value);
+			return;
+		}
+	}
+	{
+		auto value = std::dynamic_pointer_cast<const Directory>(content);
+		if(value) {
+			render(out, value);
+			return;
+		}
+	}
+	render_header(out, "Content-Length", "0");
+	render(out, "\r\n");
+}
+
+void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const File> file) {
+	render_header(out, "Content-Length", std::to_string(file->get_num_bytes()));
+	render_header(out, "Content-Type", file->mime_type);
+	render(out, "\r\n");
+	out.write(file->data.data(), file->data.size());
+}
+
+void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const Directory> directory) {
+	std::ostringstream tmp;
+	tmp << "<html>\n<body>\n";
+	if(directory->path.has_parent_path()) {
+		tmp << "<a href=\"" << directory->path.get_parent_path().to_string() << "\">..</a><br>\n";
+	}
+	const std::string path = directory->path.to_string();
+	for(const FileInfo& file : directory->files) {
+		tmp << "<a href=\"" << path << file.name << (file.is_directory ? "/" : "") << "\">" << file.name << (file.is_directory ? "/" : "") << "</a><br>\n";
+	}
+	tmp << "</body>\n</html>\n";
+	
+	render_header(out, "Content-Length", std::to_string(tmp.str().size()));
+	render_header(out, "Content-Type", "text/html");
+	render(out, "\r\n");
+	out.write(tmp.str().data(), tmp.str().size());
+}
+
+void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::pair<std::string, Variant> &field) {
+	render_header(out, field.first, vnx::to_string(field.second));
+}
+
+void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::string &key, const std::string &value) {
+	render(out, key);
+	render(out, ": ");
+	render(out, value);
+	render(out, "\r\n");
+}
+
+void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::HttpResponse> response) {
+	
+	auto iter = state_map.find(response->stream);
+	if(iter == state_map.end()) {
+		if(response->sequence > 1) {
+			return;
+		}
+	}
+	
+	std::shared_ptr<StreamWrite> sample = StreamWrite::create();
+	sample->stream = response->stream;
+	sample->is_eof = response->do_close;
+	
+	int64_t& state = state_map[response->stream];
+	if(response->sequence != state + 1) {
+		sample->is_eof = true;
+		publish(sample, output);
+		return;
+	}
+	state = response->sequence;
+	
+	OutputStream stream(sample);
+	OutputBuffer out(&stream);
+	
+	render(out, "HTTP/1.1 ");
+	render(out, std::to_string(response->status));
+	render(out, " ");
+	switch(response->status) {
+		case 200: render(out, "OK"); break;
+		case 400: render(out, "Bad Request"); break;
+		case 404: render(out, "Not Found"); break;
+		case 429: render(out, "Timeout"); break;
+		case 500: render(out, "Internal Server Error"); break;
+		case 503: render(out, "Overload"); break;
+		default: render(out, "Unknown"); break;
+	}
+	render(out, "\r\n");
+	
+	for(const auto& field : response->header) {
+		render_header(out, field);
+	}
+	
+	render(out, response->content);
+	
+	out.flush();
+	
+	publish(sample, output);
+}
+
+void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> events) {
+	for(const stream_event_t& event : events->array) {
+		switch(event.event) {
+			case stream_event_t::EVENT_EOF:
+				state_map.erase(event.stream);
+				break;
+		}
+	}
+}
+
+
+} // web
+} // vnx

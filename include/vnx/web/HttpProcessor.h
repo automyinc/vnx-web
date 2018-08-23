@@ -37,7 +37,7 @@ protected:
 	
 	void main() override;
 	
-	void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> value) override;
+	void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> events) override;
 	
 	void handle(std::shared_ptr<const ::vnx::web::HttpRequest> request) override;
 	

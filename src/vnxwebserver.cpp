@@ -2,6 +2,7 @@
 #include <vnx/web/Frontend.h>
 #include <vnx/web/HttpParser.h>
 #include <vnx/web/HttpProcessor.h>
+#include <vnx/web/HttpRenderer.h>
 #include <vnx/web/Cache.h>
 #include <vnx/web/FileSystem.h>
 
@@ -56,18 +57,24 @@ int main(int argc, char** argv) {
 		module.start_detached();
 	}
 	{
+		vnx::Handle<vnx::web::HttpRenderer> module = new vnx::web::HttpRenderer("HttpRenderer");
+		module->input = "test.http.response";
+		module->output = "test.frontend.return_data";
+		module.start_detached();
+	}
+	{
 		vnx::Handle<vnx::web::Cache> module = new vnx::web::Cache("Cache");
 		module->domain = "test.domain";
 		module->input = "test.cache.request";
 		module->channel = "test.cache.channel";
 		module.start_detached();
 	}
-//	{
-//		vnx::Handle<vnx::web::FileSystem> module = new vnx::web::FileSystem("FileSystem");
-//		module->domain = "test.domain";
-//		module->input = "test.filesystem.request";
-//		module.start_detached();
-//	}
+	{
+		vnx::Handle<vnx::web::FileSystem> module = new vnx::web::FileSystem("FileSystem");
+		module->domain = "test.domain";
+		module->input = "test.filesystem.request";
+		module.start_detached();
+	}
 	
 //	const std::string test_request =
 //		"GET /LICENSE HTTP/1.1\r\n\r\n"

@@ -65,6 +65,29 @@ std::string Path::to_string() const {
 	return path;
 }
 
+bool Path::has_parent_path() const {
+	return !get_parent_path().empty();
+}
+
+Path Path::get_parent_path() const {
+	Path parent = *this;
+	if(!empty()) {
+		if(back().empty()) {
+			parent.pop_back();
+			if(!parent.empty()) {
+				if(!parent.back().empty()) {
+					parent.back() = "";
+				} else {
+					parent.pop_back();
+				}
+			}
+		} else {
+			parent.pop_back();
+		}
+	}
+	return parent;
+}
+
 Path Path::get_base_path(size_t N) const {
 	if(N > size()) {
 		N = size();

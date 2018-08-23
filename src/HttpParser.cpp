@@ -24,7 +24,6 @@ int HttpParser::on_message_begin(http_parser* parser) {
 	state->request = HttpRequest::create();
 	state->request->id = Hash128::rand();
 	state->request->sequence = state->sequence++;
-	state->request->time_stamp_ms = vnx::get_time_millis();
 	return 0;
 }
 
@@ -99,15 +98,15 @@ void HttpParser::main() {
 	Super::main();
 }
 
-void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> value) {
-	for(const stream_event_t& event : value->array) {
+void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> events) {
+	for(const stream_event_t& event : events->array) {
 		switch(event.event) {
 			case stream_event_t::EVENT_EOF:
 				state_map.erase(event.stream);
 				break;
 		}
 	}
-	publish(value, output, BLOCKING);
+	publish(events, output, BLOCKING);
 }
 
 void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
@@ -134,6 +133,7 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
 	for(const auto& request : state.complete) {
 		request->stream = input->stream;
 		request->channel = input->channel;
+		request->time_stamp_ms = vnx::get_time_millis();
 		publish(request, output, BLOCKING);
 	}
 	state.complete.clear();

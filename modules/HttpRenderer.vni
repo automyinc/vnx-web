@@ -1,0 +1,15 @@
+package vnx.web;
+
+import vnx.TopicPtr;
+
+module HttpRenderer {
+	
+	TopicPtr input;
+	
+	TopicPtr output;
+	
+	
+	void handle(HttpResponse sample);
+	void handle(StreamEventArray sample);
+	
+}

@@ -13,4 +13,6 @@ class HttpResponse extends Response {
 	
 	vector<pair<string, Variant>> header;
 	
+	bool do_close;
+	
 }

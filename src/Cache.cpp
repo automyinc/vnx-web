@@ -89,7 +89,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	if(provider) {
 		std::shared_ptr<Request> forward = vnx::clone(request);
 		forward->channel = channel;
-//		publish(forward, provider->channel);
+		publish(forward, provider->channel);
 		push_request(request);
 		return;
 	}

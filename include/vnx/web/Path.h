@@ -49,6 +49,10 @@ public:
 	
 	std::string to_string() const;
 	
+	bool has_parent_path() const;
+	
+	Path get_parent_path() const;
+	
 	Path get_base_path(size_t N) const;
 	
 	Path get_sub_path(size_t N) const;

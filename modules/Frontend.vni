@@ -12,12 +12,16 @@ module Frontend {
 	
 	TopicPtr channel;
 	
+	int listen_queue_size = 256;
+	
+	int connection_timeout_ms = 5000;
+	
 	long read_block_size = 4096;		// [bytes]
 	
 	long write_block_size = 4096;		// [bytes]
 	
 	
-	void handle(StreamEventArray sample);
 	void handle(StreamWrite sample);
+	void handle(StreamEventArray sample);
 	
 }

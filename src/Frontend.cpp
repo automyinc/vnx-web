@@ -26,9 +26,8 @@ void set_non_block(int fd) {
 
 class Loop : protected Publisher {
 public:
-	~Loop() {
-		stop();
-		join();
+	virtual ~Loop() {
+		close();
 	}
 	
 	void start() {
@@ -47,6 +46,11 @@ public:
 		if(thread.joinable()) {
 			thread.join();
 		}
+	}
+	
+	void close() {
+		stop();
+		join();
 	}
 	
 	virtual void notify() {
@@ -105,8 +109,11 @@ protected:
 		} catch(...) {
 			
 		}
+		
 		add_socket(-1);
 		::close(server_sock);
+		
+		poll_loop = 0;
 	}
 	
 	void add_socket(int sock) {
@@ -142,6 +149,7 @@ protected:
 	struct stream_state_t {
 		Hash128 id;
 		int64_t resume_time = -1;
+		bool is_paused = false;
 	};
 	
 	int notify_pipe[2] = {-1, -1};
@@ -208,6 +216,10 @@ protected:
 			}
 		}
 		publish(events, frontend->output);
+		
+		accept_loop = 0;
+		read_loop = 0;
+		write_loop = 0;
 	}
 	
 	void loop();
@@ -233,6 +245,8 @@ protected:
 		while(do_run) {
 			loop();
 		}
+		
+		poll_loop = 0;
 	}
 	
 	void loop() {
@@ -242,6 +256,7 @@ protected:
 			if(input) {
 				for(const std::pair<Hash128, int>& entry : *input) {
 					read_set[entry.first] = entry.second;
+//					std::cout << "read_set[...] = " << entry.second << std::endl;
 				}
 				poll_loop->new_read_avail.read_unlock();
 			}
@@ -274,9 +289,10 @@ protected:
 					publish(sample, frontend->output);
 					sample = 0;
 				}
-				if(num_read < read_block_size) {
+				if(num_read < ssize_t(read_block_size)) {
 					remove_list.emplace_back(entry.first);
-					if(num_read < 0) {
+//					std::cout << "remove_list.emplace_back = " << entry.second << " (num_read=" << num_read << ")" << std::endl;
+					if(num_read != 0) {
 						set_poll_in.input().emplace_back(entry.first);
 					}
 				}
@@ -325,6 +341,8 @@ protected:
 		while(do_run) {
 			loop();
 		}
+		
+		poll_loop = 0;
 	}
 	
 	void loop() {
@@ -334,7 +352,10 @@ protected:
 			if(input) {
 				for(const std::pair<Hash128, int>& entry : *input) {
 					stream_map[entry.first] = entry.second;
-					write_set[entry.first].sock = entry.second;
+					auto iter = write_set.find(entry.first);
+					if(iter != write_set.end()) {
+						iter->second.sock = entry.second;
+					}
 				}
 				poll_loop->new_write_avail.read_unlock();
 			}
@@ -377,13 +398,18 @@ protected:
 				if(state.sock < 0) {
 					continue;
 				}
+				if(state.samples.empty()) {
+					done_list.emplace_back(entry.first);
+					continue;
+				}
 				size_t total_written = 0;
-				const std::shared_ptr<const StreamWrite>& sample = state.samples.front();
+				std::shared_ptr<const StreamWrite> sample = state.samples.front();
 				while(state.index < sample->chunks.size()) {
 					const vnx::Buffer& buffer = sample->chunks[state.index];
 					if(buffer.size() > state.offset) {
 						const ssize_t num_left = buffer.size() - state.offset;
 						const ssize_t num_written = ::write(state.sock, buffer.data(state.offset), size_t(num_left));
+//						std::cout << "sock=" << state.sock << ", num_left=" << num_left << ", num_written=" << num_written << ", index=" << state.index << ", offset=" << state.offset << std::endl;
 						if(num_written == num_left) {
 							state.index++;
 							state.offset = 0;
@@ -404,14 +430,14 @@ protected:
 					}
 				}
 				if(state.index >= sample->chunks.size()) {
+					state.index = 0;
+					state.samples.pop();
 					if(state.samples.empty()) {
 						done_list.emplace_back(entry.first);
 						if(sample->is_eof) {
 							close_stream.input().emplace_back(sample->stream);
 						}
 					}
-					state.index = 0;
-					state.samples.pop();
 				}
 			}
 			for(const Hash128& id : done_list) {
@@ -449,6 +475,8 @@ void Frontend::PollLoop::loop() {
 				set_non_block(sock);
 				const Hash128 id = add_stream(sock, POLLIN);
 				new_write_avail.input().emplace_back(std::make_pair(id, sock));
+				stream_events->array.emplace_back(stream_event_t::create(id, stream_event_t::EVENT_NEW));
+//				std::cout << "new socket: " << sock << std::endl;
 			}
 			new_write_avail.write_unlock();
 			accept_loop->new_sockets.read_unlock();
@@ -466,6 +494,7 @@ void Frontend::PollLoop::loop() {
 					auto& events = poll_vector[iter->second].events;
 					if(events == 0) {
 						events = POLLIN;
+//						std::cout << "set POLLIN on " << poll_vector[iter->second].fd << std::endl;
 					}
 				}
 			}
@@ -483,6 +512,7 @@ void Frontend::PollLoop::loop() {
 				if(iter != stream_map.end()) {
 					poll_vector[iter->second].events = POLLOUT;
 					remove_read_avail.input().emplace_back(state_vector[iter->second].id);
+//					std::cout << "set POLLOUT on " << poll_vector[iter->second].fd << std::endl;
 				}
 			}
 			remove_read_avail.write_unlock();
@@ -496,6 +526,7 @@ void Frontend::PollLoop::loop() {
 				auto iter = stream_map.find(id);
 				if(iter != stream_map.end()) {
 					poll_vector[iter->second].revents = POLLHUP;
+//					std::cout << "set POLLHUP on " << poll_vector[iter->second].fd << std::endl;
 				}
 			}
 			write_loop->close_stream.read_unlock();
@@ -509,14 +540,16 @@ void Frontend::PollLoop::loop() {
 				if(iter == stream_map.end()) {
 					continue;
 				}
+//				std::cout << "new event: " << event << std::endl;
 				stream_state_t& state = state_vector[iter->second];
 				::pollfd& entry = poll_vector[iter->second];
 				switch(event.event) {
 					case stream_event_t::EVENT_PAUSE:
 						state.resume_time = now + event.value;
+						state.is_paused = true;
 						break;
 					case stream_event_t::EVENT_RESUME:
-						state.resume_time = -1;
+						state.resume_time = now;
 						break;
 					case stream_event_t::EVENT_CLOSE:
 						if(entry.fd >= 0) {
@@ -535,46 +568,69 @@ void Frontend::PollLoop::loop() {
 		if(new_write_avail.write_lock()) {
 			new_write_avail.input().clear();
 		}
+		if(remove_read_avail.write_lock()) {
+			remove_read_avail.input().clear();
+		}
 		if(remove_write_avail.write_lock()) {
 			remove_write_avail.input().clear();
 		}
 		for(size_t i = 0; i < state_vector.size(); ++i) {
-			stream_state_t& state = state_vector[i];
 			::pollfd& entry = poll_vector[i];
-			if(entry.events == POLLIN && now < state.resume_time) {
-				entry.events = 0;
+			if(entry.fd < 0) {
+				continue;
 			}
-			if(entry.events == 0 && now >= state.resume_time) {
-				entry.events = POLLIN;
+			stream_state_t& state = state_vector[i];
+			if(state.is_paused) {
+				if(now < state.resume_time) {
+					if(entry.events == 0) {
+						remove_read_avail.input().emplace_back(state.id);
+					}
+					if(entry.events == POLLIN) {
+						entry.events = 0;
+					}
+				} else {
+					if(entry.events == 0) {
+						entry.events = POLLIN;
+					}
+					state.is_paused = false;
+				}
 			}
 			if(entry.events == POLLIN && entry.revents & POLLIN) {
+//				std::cout << "got POLLIN on " << entry.fd << std::endl;
 				new_read_avail.input().emplace_back(std::make_pair(state.id, entry.fd));
 				entry.events = 0;
 			}
 			if(entry.events == POLLOUT && entry.revents & POLLOUT) {
+//				std::cout << "got POLLOUT on " << entry.fd << std::endl;
 				new_write_avail.input().emplace_back(std::make_pair(state.id, entry.fd));
 				entry.events = POLLIN;
 			}
 			if(entry.revents & (POLLHUP | POLLERR | POLLNVAL)) {
+//				std::cout << "got POLLHUP | POLLERR | POLLNVAL on " << entry.fd << std::endl;
 				remove_write_avail.input().emplace_back(state.id);
 				stream_events->array.emplace_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
 				const int res = ::close(entry.fd);
 				remove_stream(i);
 			}
+			entry.revents = 0;
 		}
 		new_read_avail.write_unlock();
 		new_write_avail.write_unlock();
+		remove_read_avail.write_unlock();
 		remove_write_avail.write_unlock();
 	}
 	read_loop->notify();
 	write_loop->notify();
 	
-	publish(stream_events, frontend->output);
+	if(!stream_events->array.empty()) {
+		publish(stream_events, frontend->output);
+	}
 	
 	const int res = ::poll(&poll_vector[0], poll_vector.size(), 100);
 	if(res < 0) {
 		do_run = false;
 	}
+//	std::cout << "poll(size=" << poll_vector.size() << ") = " << res << std::endl;
 	
 	{
 		::pollfd& entry = poll_vector[0];
@@ -594,7 +650,8 @@ Frontend::Frontend(const std::string& _vnx_name)
 
 void Frontend::main() {
 	
-	endpoint = Endpoint::from_url(address);
+	endpoint = vnx::clone(Endpoint::from_url(address));
+	endpoint->listen_queue_size = listen_queue_size;
 	
 	setup_timer = set_timer_millis(1000, std::bind(&Frontend::setup, this));
 	
@@ -606,16 +663,16 @@ void Frontend::main() {
 		::shutdown(server_sock, SHUT_RDWR);
 	}
 	if(accept_loop) {
-		accept_loop->stop();
+		accept_loop->close();
 	}
 	if(poll_loop) {
-		poll_loop->stop();
+		poll_loop->close();
 	}
 	if(read_loop) {
-		read_loop->stop();
+		read_loop->close();
 	}
 	if(write_loop) {
-		write_loop->stop();
+		write_loop->close();
 	}
 }
 

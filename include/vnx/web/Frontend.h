@@ -6,8 +6,6 @@
 #include <vnx/web/DoubleBuffer.h>
 #include <vnx/Endpoint.hxx>
 
-#include <unordered_map>
-
 
 namespace vnx {
 namespace web {
@@ -34,7 +32,7 @@ private:
 private:
 	int server_sock = -1;
 	Timer* setup_timer = 0;
-	std::shared_ptr<const Endpoint> endpoint;
+	std::shared_ptr<Endpoint> endpoint;
 	
 	DoubleBuffer<std::vector<stream_event_t>> new_event_list;							// main() -> poll_loop
 	DoubleBuffer<std::vector<std::shared_ptr<const StreamWrite>>> new_write_data;		// main() -> write_loop

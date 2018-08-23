@@ -4,8 +4,6 @@ import vnx.Hash128;
 
 class HttpRequest extends Request {
 	
-	Hash128 stream;
-	
 	long sequence;
 	
 	string method;

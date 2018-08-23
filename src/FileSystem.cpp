@@ -126,7 +126,7 @@ std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
 					FileInfo info;
 					info.name = file_name;
 					info.is_directory = filesystem::is_directory(file);
-					if(!info.is_directory) {
+					if(filesystem::is_regular(file_path)) {
 						info.num_bytes = filesystem::file_size(file);
 					}
 					directory->files.push_back(info);

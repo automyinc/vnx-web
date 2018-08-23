@@ -20,8 +20,8 @@ void HttpProcessor::main() {
 	Super::main();
 }
 
-void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> value) {
-	for(const stream_event_t& event : value->array) {
+void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> events) {
+	for(const stream_event_t& event : events->array) {
 		switch(event.event) {
 			case stream_event_t::EVENT_EOF: {
 				state_t& state = state_map[event.stream];
@@ -34,7 +34,7 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> v
 			}
 		}
 	}
-	publish(value, output, BLOCKING);
+	publish(events, output, BLOCKING);
 }
 
 void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::HttpRequest> request) {
@@ -150,7 +150,9 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		{
 			auto iter = header_fields.find("Host");
 			if(iter != header_fields.end()) {
-				domain = iter->second;
+				if(domain_map.count(iter->second)) {
+					domain = iter->second;
+				}
 			}
 		}
 		auto iter = domain_map.find(domain);
@@ -190,6 +192,12 @@ void HttpProcessor::process(state_t& state, const std::string& domain, std::shar
 	out->time_to_live_ms = response->time_to_live_ms;
 	out->header.emplace_back(std::make_pair("Host", domain));
 	out->header.emplace_back(std::make_pair("Server", "VNX"));
+	if(keepalive) {
+		out->header.emplace_back(std::make_pair("Connection", "keep-alive"));
+	} else {
+		out->header.emplace_back(std::make_pair("Connection", "close"));
+	}
+	out->do_close = !keepalive;
 	{
 		auto error = std::dynamic_pointer_cast<const ErrorCode>(response->content);
 		if(error) {
@@ -206,7 +214,7 @@ void HttpProcessor::process(state_t& state, const std::string& domain, std::shar
 			out->status = 200;
 		}
 	}
-	publish(out, output);
+	publish(out, output, BLOCKING);
 }
 
 void HttpProcessor::update() {

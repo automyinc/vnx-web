@@ -26,6 +26,7 @@ add_library(vnx_web SHARED
 	src/stream_event_t.cpp
 	src/HistoryCache.cpp
 	src/Frontend.cpp
+	src/HttpRenderer.cpp
 )
 
 target_include_directories(vnx_web
