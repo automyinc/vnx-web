@@ -258,7 +258,8 @@ std::shared_ptr<File> create_error_page(int code) {
 	file->time_stamp_ms = vnx::get_time_millis();
 	
 	std::ostringstream tmp;
-	tmp << "<html>\n<body>\n<h1>Error: " << std::to_string(code) << "</h1>\n</body>\n</html>";
+	tmp << "<html>\n<body>\n<h1>Error: " << std::to_string(code)
+			<< " " << ErrorCode::get_error_string(code) << "</h1>\n</body>\n</html>";
 	file->data = tmp.str();
 	return file;
 }
