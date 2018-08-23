@@ -29,6 +29,8 @@ protected:
 private:
 	void setup();
 	
+	void update();
+	
 private:
 	int server_sock = -1;
 	Timer* setup_timer = 0;
@@ -41,6 +43,12 @@ private:
 	std::shared_ptr<PollLoop> poll_loop;
 	std::shared_ptr<ReadLoop> read_loop;
 	std::shared_ptr<WriteLoop> write_loop;
+	
+	int64_t num_connections = 0;
+	int64_t num_accept = 0;
+	int64_t num_bytes_read = 0;
+	int64_t num_bytes_written = 0;
+	int64_t num_close = 0;
 	
 };
 

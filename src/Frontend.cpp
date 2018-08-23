@@ -105,6 +105,7 @@ protected:
 			while(do_run) {
 				const int sock = endpoint->accept(server_sock);
 				add_socket(sock);
+//				std::cout << "accept: " << sock << std::endl;
 			}
 		} catch(...) {
 			
@@ -180,6 +181,8 @@ protected:
 		state.id = Hash128::rand();
 		stream_map[state.id] = index;
 		poll_vector[index] = create_pollfd(sock, events);
+		frontend->num_connections++;
+		frontend->num_accept++;
 		return state.id;
 	}
 	
@@ -190,6 +193,8 @@ protected:
 		poll_vector[index].events = 0;
 		poll_vector[index].revents = 0;
 		free_list.push_back(uint32_t(index));
+		frontend->num_connections--;
+		frontend->num_close++;
 	}
 	
 	void init() override {
@@ -233,6 +238,7 @@ public:
 	std::shared_ptr<PollLoop> poll_loop;
 	
 	DoubleBuffer<std::vector<Hash128>> set_poll_in;
+	DoubleBuffer<std::vector<Hash128>> close_stream;
 	
 protected:
 	size_t read_block_size = 0;
@@ -274,6 +280,9 @@ protected:
 			if(set_poll_in.write_lock()) {
 				set_poll_in.input().clear();
 			}
+			if(close_stream.write_lock()) {
+				close_stream.input().clear();
+			}
 			std::vector<Hash128> remove_list;
 			std::shared_ptr<StreamRead> sample;
 			for(const auto& entry : read_set) {
@@ -288,20 +297,24 @@ protected:
 					sample->data.set_size(size_t(num_read));
 					publish(sample, frontend->output);
 					sample = 0;
+					frontend->num_bytes_read += num_read;
 				}
 				if(num_read < ssize_t(read_block_size)) {
 					remove_list.emplace_back(entry.first);
 //					std::cout << "remove_list.emplace_back = " << entry.second << " (num_read=" << num_read << ")" << std::endl;
 					if(num_read != 0) {
 						set_poll_in.input().emplace_back(entry.first);
+					} else {
+						close_stream.input().emplace_back(entry.first);
 					}
 				}
 			}
 			for(const Hash128& id : remove_list) {
 				read_set.erase(id);
 			}
-			do_notify = !set_poll_in.input().empty();
+			do_notify = !set_poll_in.input().empty() || !close_stream.input().empty();
 			set_poll_in.write_unlock();
+			close_stream.write_unlock();
 		}
 		if(do_notify) {
 			poll_loop->notify();
@@ -323,6 +336,11 @@ public:
 	DoubleBuffer<std::vector<Hash128>> close_stream;
 	
 protected:
+	struct stream_state_t {
+		int64_t last_write_time = 0;
+		int sock = -1;
+	};
+	
 	struct write_state_t {
 		std::queue<std::shared_ptr<const StreamWrite>> samples;
 		size_t index = 0;
@@ -330,8 +348,9 @@ protected:
 		int sock = -1;
 	};
 	
+	int64_t last_update_time = 0;
 	size_t write_block_size = 0;
-	std::unordered_map<Hash128, int> stream_map;
+	std::unordered_map<Hash128, stream_state_t> stream_map;
 	std::unordered_map<Hash128, write_state_t> write_set;
 	
 	void main() override {
@@ -346,12 +365,15 @@ protected:
 	}
 	
 	void loop() {
+		const int64_t now = vnx::get_time_millis();
 		bool do_notify = false;
 		{
 			const std::vector<std::pair<Hash128, int>>* input = poll_loop->new_write_avail.try_read_lock();
 			if(input) {
 				for(const std::pair<Hash128, int>& entry : *input) {
-					stream_map[entry.first] = entry.second;
+					stream_state_t& state = stream_map[entry.first];
+					state.last_write_time = now;
+					state.sock = entry.second;
 					auto iter = write_set.find(entry.first);
 					if(iter != write_set.end()) {
 						iter->second.sock = entry.second;
@@ -379,8 +401,9 @@ protected:
 						continue;
 					}
 					write_state_t& state = write_set[sample->stream];
-					state.sock = iter->second;
+					state.sock = iter->second.sock;
 					state.samples.push(sample);
+					iter->second.last_write_time = now;
 				}
 				frontend->new_write_data.read_unlock();
 			}
@@ -409,6 +432,9 @@ protected:
 					if(buffer.size() > state.offset) {
 						const ssize_t num_left = buffer.size() - state.offset;
 						const ssize_t num_written = ::send(state.sock, buffer.data(state.offset), size_t(num_left), MSG_NOSIGNAL);
+						if(num_written > 0) {
+							frontend->num_bytes_written += num_written;
+						}
 //						std::cout << "sock=" << state.sock << ", num_left=" << num_left << ", num_written=" << num_written << ", index=" << state.index << ", offset=" << state.offset << std::endl;
 						if(num_written == num_left) {
 							state.index++;
@@ -442,6 +468,16 @@ protected:
 			}
 			for(const Hash128& id : done_list) {
 				write_set.erase(id);
+			}
+			if(now - last_update_time > frontend->connection_timeout_ms / 5) {
+				for(const auto& entry : stream_map) {
+					if(now - entry.second.last_write_time > frontend->connection_timeout_ms) {
+						if(write_set.count(entry.first) == 0) {
+							close_stream.input().emplace_back(entry.first);
+						}
+					}
+				}
+				last_update_time = now;
 			}
 			do_notify = !set_poll_out.input().empty() || !close_stream.input().empty();
 			set_poll_out.write_unlock();
@@ -517,6 +553,19 @@ void Frontend::PollLoop::loop() {
 			}
 			remove_read_avail.write_unlock();
 			write_loop->set_poll_out.read_unlock();
+		}
+	}
+	{
+		const std::vector<Hash128>* input = read_loop->close_stream.try_read_lock();
+		if(input) {
+			for(const Hash128& id : *input) {
+				auto iter = stream_map.find(id);
+				if(iter != stream_map.end()) {
+					poll_vector[iter->second].revents = POLLHUP;
+//					std::cout << "set POLLHUP on " << poll_vector[iter->second].fd << std::endl;
+				}
+			}
+			read_loop->close_stream.read_unlock();
 		}
 	}
 	{
@@ -717,6 +766,8 @@ void Frontend::setup() {
 	subscribe(input, 0);
 	subscribe(channel);
 	
+	set_timer_millis(1000, std::bind(&Frontend::update, this));
+	
 	log(INFO).out << "running on " << endpoint->to_url();
 }
 
@@ -736,6 +787,16 @@ void Frontend::handle(std::shared_ptr<const ::vnx::web::StreamWrite> value) {
 	new_write_data.input().emplace_back(value);
 	new_write_data.write_unlock();
 	write_loop->notify();
+}
+
+void Frontend::update() {
+	log(INFO).out << "connections=" << num_connections << ", accept=" << num_accept << "/s, close=" << num_close << "/s"
+			<< ", read=" << (float(num_bytes_read / 1024) / 1024) << " MB/s, write="
+			<< (float(num_bytes_written / 1024) / 1024) << " MB/s";
+	num_accept = 0;
+	num_bytes_read = 0;
+	num_bytes_written = 0;
+	num_close = 0;
 }
 
 
