@@ -1,6 +1,7 @@
 
 #include <vnx/web/Frontend.h>
 #include <vnx/web/StreamRead.hxx>
+#include <vnx/InternalThread.h>
 
 #include <mutex>
 #include <condition_variable>
@@ -27,76 +28,9 @@ void set_non_block(int fd) {
 }
 
 
-class Loop : protected Publisher {
+class Frontend::AcceptLoop : public InternalThread {
 public:
-	virtual ~Loop() {
-		close();
-	}
-	
-	void start() {
-		thread = std::thread(&Loop::entry, this);
-	}
-	
-	void stop() {
-		{
-			std::lock_guard<std::mutex> lock(mutex);
-			do_run = false;
-		}
-		notify();
-	}
-	
-	void join() {
-		if(thread.joinable()) {
-			thread.join();
-		}
-	}
-	
-	void close() {
-		stop();
-		join();
-	}
-	
-	virtual void notify() {
-		std::lock_guard<std::mutex> lock(mutex);
-		notify_counter++;
-		condition.notify_all();
-	}
-	
-protected:
-	std::mutex mutex;
-	
-	bool do_run = true;
-	
-	virtual void init() {}
-	
-	virtual void main() = 0;
-	
-	void wait() {
-		std::unique_lock<std::mutex> lock(mutex);
-		while(consume_count == notify_counter) {
-			condition.wait(lock);
-		}
-		consume_count = notify_counter;
-	}
-	
-private:
-	void entry() {
-		init();
-		main();
-	}
-	
-private:
-	std::thread thread;
-	std::condition_variable condition;
-	uint64_t notify_counter = 0;
-	uint64_t consume_count = 0;
-	
-};
-
-
-class Frontend::AcceptLoop : public Loop {
-public:
-	std::shared_ptr<Loop> poll_loop;
+	std::shared_ptr<InternalThread> poll_loop;
 	
 	int server_sock = -1;
 	std::shared_ptr<const Endpoint> endpoint;
@@ -138,7 +72,7 @@ protected:
 };
 
 
-class Frontend::PollLoop : public Loop {
+class Frontend::PollLoop : public InternalThread {
 public:
 	Frontend* frontend = 0;
 	std::shared_ptr<AcceptLoop> accept_loop;
@@ -277,7 +211,7 @@ protected:
 };
 
 
-class Frontend::ReadLoop : public Loop {
+class Frontend::ReadLoop : public InternalThread {
 public:
 	Frontend* frontend = 0;
 	std::shared_ptr<PollLoop> poll_loop;
@@ -423,6 +357,7 @@ void Frontend::PollLoop::loop() {
 		}
 	}
 	{
+		bool do_notify = false;
 		std::vector<size_t> resume_list;
 		for(const size_t index : pause_set) {
 			stream_state_t& state = state_vector[index];
@@ -430,6 +365,7 @@ void Frontend::PollLoop::loop() {
 				if(!state.is_paused) {
 					state.is_paused = true;
 					remove_read_avail.push(state.id);
+					do_notify = true;
 				}
 			} else {
 				if(state.is_paused && !state.is_blocked) {
@@ -444,6 +380,9 @@ void Frontend::PollLoop::loop() {
 		}
 		for(const size_t index : resume_list) {
 			pause_set.erase(index);
+		}
+		if(do_notify) {
+			read_loop->notify();
 		}
 	}
 	{
@@ -494,10 +433,9 @@ void Frontend::PollLoop::loop() {
 							state.chunk_offset += num_written;
 						}
 						epoll_event event = {};
-						event.events = EPOLLOUT | EPOLLONESHOT;
+						event.events = EPOLLOUT | EPOLLIN | EPOLLONESHOT;
 						event.data.u64 = state.vector_index;
 						::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, stream.sock, &event);
-						remove_read_avail.push(entry.first);
 						break;
 					}
 					if(total_written >= write_block_size) {
@@ -541,9 +479,11 @@ void Frontend::PollLoop::loop() {
 	{
 		for(const size_t index : close_list) {
 			stream_state_t& state = state_vector[index];
-			stream_events->array.push_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
-			const int res = ::close(state.sock);
-			remove_stream(index);
+			if(state.sock >= 0) {
+				stream_events->array.push_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
+				const int res = ::close(state.sock);
+				remove_stream(index);
+			}
 		}
 	}
 	
@@ -551,7 +491,7 @@ void Frontend::PollLoop::loop() {
 		publish(stream_events, frontend->output);
 	}
 	
-	const int num_events = ::epoll_wait(epoll_fd, new_events.data(), new_events.size(), 1000);
+	const int num_events = ::epoll_wait(epoll_fd, new_events.data(), new_events.size(), 100);
 	if(num_events < 0) {
 		log_error().out << "Frontend: epoll_wait() failed with " << errno;
 		do_run = false;
@@ -571,9 +511,11 @@ void Frontend::PollLoop::loop() {
 				while(::read(state.sock, buf, sizeof(buf)) == sizeof(buf));
 				continue;
 			}
-			if(event.events & EPOLLIN && !state.is_paused) {
-				new_read_avail.push(std::make_pair(state.id, state.sock));
-				do_notify = true;
+			if(event.events & EPOLLIN) {
+				if(!state.is_paused) {
+					new_read_avail.push(std::make_pair(state.id, state.sock));
+					do_notify = true;
+				}
 			}
 			if(event.events & EPOLLOUT) {
 				state.is_blocked = false;
@@ -585,6 +527,7 @@ void Frontend::PollLoop::loop() {
 			read_loop->notify();
 		}
 	}
+	frontend->num_poll_iter++;
 }
 
 
@@ -650,7 +593,7 @@ void Frontend::setup() {
 	poll_loop->start();
 	read_loop->start();
 	
-	subscribe(input, 0);
+	subscribe(input, 1000);
 	subscribe(channel);
 	
 	set_timer_millis(1000, std::bind(&Frontend::update, this));
@@ -669,15 +612,16 @@ void Frontend::handle(std::shared_ptr<const ::vnx::web::StreamWrite> value) {
 }
 
 void Frontend::update() {
-	log(INFO).out << "connections=" << (num_connections - 1) << ", accept=" << num_accept << "/s, timeout="
-			<< num_timeout << "/s, close=" << num_close << "/s"
-			<< ", read=" << (float(num_bytes_read / 1024) / 1024) << " MB/s, write="
+	log(INFO).out << "sockets=" << (num_connections - 1) << ", accept=" << num_accept << "/s, timeout="
+			<< num_timeout << "/s, close=" << num_close << "/s, poll=" << num_poll_iter
+			<< "/s, read=" << (float(num_bytes_read / 1024) / 1024) << " MB/s, write="
 			<< (float(num_bytes_written / 1024) / 1024) << " MB/s";
 	num_accept = 0;
 	num_bytes_read = 0;
 	num_bytes_written = 0;
 	num_timeout = 0;
 	num_close = 0;
+	num_poll_iter = 0;
 }
 
 

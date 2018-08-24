@@ -3,8 +3,8 @@
 #define INCLUDE_VNX_WEB_FRONTEND_H
 
 #include <vnx/web/FrontendBase.hxx>
-#include <vnx/web/InternalPipe.h>
 #include <vnx/Endpoint.hxx>
+#include <vnx/InternalPipe.h>
 
 
 namespace vnx {
@@ -48,6 +48,7 @@ private:
 	int64_t num_bytes_written = 0;
 	int64_t num_timeout = 0;
 	int64_t num_close = 0;
+	int64_t num_poll_iter = 0;
 	
 };
 
