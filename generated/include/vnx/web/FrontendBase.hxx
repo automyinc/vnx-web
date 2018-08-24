@@ -22,7 +22,7 @@ public:
 	::vnx::TopicPtr output;
 	::vnx::TopicPtr channel;
 	::int32_t listen_queue_size = 256;
-	::int32_t connection_timeout_ms = 5000;
+	::int32_t connection_timeout_ms = 10000;
 	::int64_t read_block_size = 4096;
 	::int64_t write_block_size = 4096;
 	

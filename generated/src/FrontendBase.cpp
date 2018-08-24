@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 FrontendBase::VNX_TYPE_HASH(0xc9fab0af74907466ull);
-const vnx::Hash64 FrontendBase::VNX_CODE_HASH(0x89c3bde704a44516ull);
+const vnx::Hash64 FrontendBase::VNX_CODE_HASH(0xf41dadcfdfa75905ull);
 
 FrontendBase::FrontendBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -111,7 +111,7 @@ std::shared_ptr<vnx::TypeCode> FrontendBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Frontend";
 	type_code->type_hash = vnx::Hash64(0xc9fab0af74907466ull);
-	type_code->code_hash = vnx::Hash64(0x89c3bde704a44516ull);
+	type_code->code_hash = vnx::Hash64(0xf41dadcfdfa75905ull);
 	type_code->methods.resize(2);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -198,7 +198,7 @@ std::shared_ptr<vnx::TypeCode> FrontendBase::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[5];
 		field.name = "connection_timeout_ms";
-		field.value = vnx::to_string(5000);
+		field.value = vnx::to_string(10000);
 		field.code = {7};
 	}
 	{
