@@ -452,24 +452,27 @@ protected:
 					const vnx::Buffer& buffer = sample->chunks[state.index];
 					if(buffer.size() > state.offset) {
 						const ssize_t num_left = buffer.size() - state.offset;
-						const ssize_t num_written = ::send(state.sock, buffer.data(state.offset), size_t(num_left), MSG_NOSIGNAL);
+						const ssize_t num_to_write = num_left > write_block_size ? write_block_size : num_left;
+						const ssize_t num_written = ::send(state.sock, buffer.data(state.offset), size_t(num_to_write), MSG_NOSIGNAL);
 						if(num_written > 0) {
+							total_written += num_written;
 							state.last_write_time = now;
 							frontend->num_bytes_written += num_written;
 						}
 						if(num_written == num_left) {
 							state.index++;
 							state.offset = 0;
-							total_written += num_written;
-							if(total_written >= write_block_size) {
-								break;
-							}
+						} else if(num_written == num_to_write) {
+							state.offset += num_written;
 						} else {
 							state.sock = -1;
 							if(num_written > 0) {
 								state.offset += num_written;
 							}
 							set_poll_out.input().push_back(entry.first);
+							break;
+						}
+						if(total_written >= write_block_size) {
 							break;
 						}
 					} else {
