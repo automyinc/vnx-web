@@ -337,7 +337,7 @@ protected:
 				if(num_read > 0) {
 					sample->stream = entry.first;
 					sample->data.set_size(size_t(num_read));
-					publish(sample, frontend->output);
+					publish(sample, frontend->output, BLOCKING);
 					sample = 0;
 					frontend->num_bytes_read += num_read;
 				}
