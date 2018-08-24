@@ -23,8 +23,8 @@ public:
 	::vnx::TopicPtr channel;
 	::int32_t listen_queue_size = 256;
 	::int32_t connection_timeout_ms = 10000;
-	::int64_t read_block_size = 4096;
-	::int64_t write_block_size = 4096;
+	::int64_t read_block_size = 16384;
+	::int64_t write_block_size = 65536;
 	
 	typedef ::vnx::Module Super;
 	

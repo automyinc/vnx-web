@@ -16,9 +16,9 @@ module Frontend {
 	
 	int connection_timeout_ms = 10000;		// timeout when not sending any data to client [ms]
 	
-	long read_block_size = 4096;			// [bytes]
+	long read_block_size = 16384;			// maximum read size before moving onto next socket [bytes]
 	
-	long write_block_size = 4096;			// [bytes]
+	long write_block_size = 65536;			// maximum write size before moving onto next socket [bytes]
 	
 	
 	void handle(StreamWrite sample);

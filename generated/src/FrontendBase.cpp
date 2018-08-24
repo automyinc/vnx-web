@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 FrontendBase::VNX_TYPE_HASH(0xc9fab0af74907466ull);
-const vnx::Hash64 FrontendBase::VNX_CODE_HASH(0xf41dadcfdfa75905ull);
+const vnx::Hash64 FrontendBase::VNX_CODE_HASH(0x16fcb3edff11ec47ull);
 
 FrontendBase::FrontendBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -111,7 +111,7 @@ std::shared_ptr<vnx::TypeCode> FrontendBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Frontend";
 	type_code->type_hash = vnx::Hash64(0xc9fab0af74907466ull);
-	type_code->code_hash = vnx::Hash64(0xf41dadcfdfa75905ull);
+	type_code->code_hash = vnx::Hash64(0x16fcb3edff11ec47ull);
 	type_code->methods.resize(2);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -204,13 +204,13 @@ std::shared_ptr<vnx::TypeCode> FrontendBase::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[6];
 		field.name = "read_block_size";
-		field.value = vnx::to_string(4096);
+		field.value = vnx::to_string(16384);
 		field.code = {8};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[7];
 		field.name = "write_block_size";
-		field.value = vnx::to_string(4096);
+		field.value = vnx::to_string(65536);
 		field.code = {8};
 	}
 	type_code->build();
