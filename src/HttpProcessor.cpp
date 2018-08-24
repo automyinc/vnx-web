@@ -18,7 +18,7 @@ void HttpProcessor::init() {
 
 void HttpProcessor::main() {
 	
-	set_timer_millis(update_interval_ms, std::bind(&HttpProcessor::update, this));
+	set_timer_millis(1000, std::bind(&HttpProcessor::update, this));
 	
 	Super::main();
 }
@@ -44,6 +44,10 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::HttpRequest> reques
 	request_counter++;
 	
 	state_t& state = state_map[request->stream];
+	if(state.is_closed) {
+		reject_counter++;
+		return;
+	}
 	state.stream = request->stream;
 	process(state, request);
 	
@@ -69,8 +73,6 @@ void HttpProcessor::handle(std::shared_ptr<const ::vnx::web::Response> response)
 			state_map.erase(state.stream);
 		}
 		pending_requests.erase(response->id);
-	} else {
-		log(WARN).out << "Unknown response: id=" << response->id;
 	}
 	
 	if(input_pipe) {
@@ -89,12 +91,9 @@ void HttpProcessor::process(state_t& state, const std::string& domain) {
 		std::shared_ptr<const HttpRequest> request = state.request_queue.front();
 		auto iter = state.response_map.find(request->id);
 		if(iter != state.response_map.end()) {
-			process(state, domain, request, iter->second);
-			state.response_map.erase(request->id);
 			state.request_queue.pop();
-			if(state.request_queue.size() <= max_queue_size / 2) {
-				resume_stream(state, request->channel);
-			}
+			process(state, domain, request, iter->second, state.is_closed && state.request_queue.empty());
+			state.response_map.erase(request->id);
 		} else {
 			break;
 		}
@@ -179,12 +178,15 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	process(state, domain);
 	
 	if(state.request_queue.size() > max_queue_size) {
-		pause_stream(state, request->channel);
+		state.is_closed = true;
 	}
 }
 
-void HttpProcessor::process(state_t& state, const std::string& domain, std::shared_ptr<const HttpRequest> request, std::shared_ptr<const Response> response) {
-	
+void HttpProcessor::process(	state_t& state, const std::string& domain,
+								std::shared_ptr<const HttpRequest> request,
+								std::shared_ptr<const Response> response,
+								bool do_close)
+{
 	std::shared_ptr<HttpResponse> out = HttpResponse::create();
 	out->id = request->id;
 	out->stream = state.stream;
@@ -198,7 +200,7 @@ void HttpProcessor::process(state_t& state, const std::string& domain, std::shar
 	} else {
 		out->header.push_back(std::make_pair("Connection", "close"));
 	}
-	out->do_close = !keepalive;
+	out->do_close = !keepalive || do_close;
 	{
 		auto error = std::dynamic_pointer_cast<const ErrorCode>(response->content);
 		if(error) {
@@ -213,40 +215,10 @@ void HttpProcessor::process(state_t& state, const std::string& domain, std::shar
 }
 
 void HttpProcessor::update() {
-	size_t num_paused = 0;
-	for(const auto& entry : pause_map) {
-		auto events = StreamEventArray::create();
-		for(const auto& stream : entry.second) {
-			events->array.push_back(stream_event_t::create_with_value(stream, stream_event_t::EVENT_PAUSE, 500));
-		}
-		if(!events->array.empty()) {
-			publish(events, entry.first);
-		}
-		num_paused += entry.second.size();
-	}
-	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, pending="
-			<< pending_requests.size() << ", num_paused=" << num_paused;
+	log(INFO).out << "requests=" << request_counter << "/s, pending=" << pending_requests.size()
+			<< ", reject=" << reject_counter << "/s";
 	request_counter = 0;
-}
-
-void HttpProcessor::pause_stream(state_t& state, const TopicPtr& channel) {
-	if(!state.is_paused) {
-		pause_map[channel].insert(state.stream);
-		auto event = StreamEventArray::create();
-		event->array.push_back(stream_event_t::create_with_value(state.stream, stream_event_t::EVENT_PAUSE, 500));
-		publish(event, channel);
-	}
-	state.is_paused = true;
-}
-
-void HttpProcessor::resume_stream(state_t& state, const TopicPtr& channel) {
-	if(state.is_paused) {
-		pause_map[channel].erase(state.stream);
-		auto event = StreamEventArray::create();
-		event->array.push_back(stream_event_t::create(state.stream, stream_event_t::EVENT_RESUME));
-		publish(event, channel);
-	}
-	state.is_paused = false;
+	reject_counter = 0;
 }
 
 std::shared_ptr<File> create_error_page(int code) {

@@ -14,15 +14,13 @@ module HttpProcessor {
 	
 	map<string, TopicPtr> domain_map;	// map from web domain name to vnx topic name
 	
-	long max_queue_size = 10;			// maximum number of pending requests per connection
+	long max_queue_size = 100;			// maximum number of pending requests per connection
 	
 	long max_pending = 100000;			// maximum number of total pending requests
 	
-	long timeout_ms = 1000;				// request timeout [ms]
+	long timeout_ms = 1000;				// internal request timeout [ms]
 	
 	bool keepalive = true;
-	
-	int update_interval_ms = 200;
 	
 	
 	void handle(StreamEventArray sample);

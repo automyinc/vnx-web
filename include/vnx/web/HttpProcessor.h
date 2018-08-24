@@ -25,7 +25,7 @@ protected:
 		Hash128 stream;
 		std::queue<std::shared_ptr<const HttpRequest>> request_queue;
 		std::unordered_map<Hash128, std::shared_ptr<const Response>> response_map;
-		bool is_paused = false;
+		bool is_closed = false;
 	};
 	
 	struct request_entry_t {
@@ -48,13 +48,10 @@ private:
 	
 	void process(state_t& state, std::shared_ptr<const HttpRequest> request);
 	
-	void process(state_t& state, const std::string& domain, std::shared_ptr<const HttpRequest> request, std::shared_ptr<const Response> response);
+	void process(state_t& state, const std::string& domain, std::shared_ptr<const HttpRequest> request,
+			std::shared_ptr<const Response> response, bool do_close);
 	
 	void update();
-	
-	void pause_stream(state_t& state, const TopicPtr& channel);
-	
-	void resume_stream(state_t& state, const TopicPtr& channel);
 	
 	std::shared_ptr<File> get_error_content(int code);
 	
@@ -62,11 +59,11 @@ private:
 	std::shared_ptr<Pipe> input_pipe;
 	std::unordered_map<Hash128, state_t> state_map;
 	std::unordered_map<Hash128, request_entry_t> pending_requests;
-	std::unordered_map<TopicPtr, std::unordered_set<Hash128>> pause_map;
 	
 	std::map<int, std::shared_ptr<File>> static_error_pages;
 	
 	size_t request_counter = 0;
+	size_t reject_counter = 0;
 	
 };
 

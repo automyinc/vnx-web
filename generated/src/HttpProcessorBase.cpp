@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpProcessorBase::VNX_TYPE_HASH(0xea3bdb551f410546ull);
-const vnx::Hash64 HttpProcessorBase::VNX_CODE_HASH(0xe97842bfb2b59fa0ull);
+const vnx::Hash64 HttpProcessorBase::VNX_CODE_HASH(0x5d9c89cbc6e7b9a3ull);
 
 HttpProcessorBase::HttpProcessorBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -29,7 +29,6 @@ HttpProcessorBase::HttpProcessorBase(const std::string& _vnx_name)
 	vnx::read_config(vnx_name + ".max_pending", max_pending);
 	vnx::read_config(vnx_name + ".timeout_ms", timeout_ms);
 	vnx::read_config(vnx_name + ".keepalive", keepalive);
-	vnx::read_config(vnx_name + ".update_interval_ms", update_interval_ms);
 }
 
 vnx::Hash64 HttpProcessorBase::get_type_hash() const {
@@ -52,7 +51,6 @@ void HttpProcessorBase::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, max_pending);
 	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, timeout_ms);
 	_visitor.type_field(_type_code->fields[8], 8); vnx::accept(_visitor, keepalive);
-	_visitor.type_field(_type_code->fields[9], 9); vnx::accept(_visitor, update_interval_ms);
 	_visitor.type_end(*_type_code);
 }
 
@@ -67,7 +65,6 @@ void HttpProcessorBase::write(std::ostream& _out) const {
 	_out << ", \"max_pending\": "; vnx::write(_out, max_pending);
 	_out << ", \"timeout_ms\": "; vnx::write(_out, timeout_ms);
 	_out << ", \"keepalive\": "; vnx::write(_out, keepalive);
-	_out << ", \"update_interval_ms\": "; vnx::write(_out, update_interval_ms);
 	_out << "}";
 }
 
@@ -93,8 +90,6 @@ void HttpProcessorBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, timeout_ms);
 		} else if(_entry.first == "keepalive") {
 			vnx::from_string(_entry.second, keepalive);
-		} else if(_entry.first == "update_interval_ms") {
-			vnx::from_string(_entry.second, update_interval_ms);
 		}
 	}
 }
@@ -121,7 +116,7 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpProcessor";
 	type_code->type_hash = vnx::Hash64(0xea3bdb551f410546ull);
-	type_code->code_hash = vnx::Hash64(0xe97842bfb2b59fa0ull);
+	type_code->code_hash = vnx::Hash64(0x5d9c89cbc6e7b9a3ull);
 	type_code->methods.resize(3);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -198,7 +193,7 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 		call_type->build();
 		type_code->methods[2] = vnx::register_type_code(call_type);
 	}
-	type_code->fields.resize(10);
+	type_code->fields.resize(9);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -232,7 +227,7 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[5];
 		field.name = "max_queue_size";
-		field.value = vnx::to_string(10);
+		field.value = vnx::to_string(100);
 		field.code = {8};
 	}
 	{
@@ -252,12 +247,6 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 		field.name = "keepalive";
 		field.value = vnx::to_string(true);
 		field.code = {1};
-	}
-	{
-		vnx::TypeField& field = type_code->fields[9];
-		field.name = "update_interval_ms";
-		field.value = vnx::to_string(200);
-		field.code = {7};
 	}
 	type_code->build();
 	return type_code;
@@ -366,12 +355,6 @@ void read(TypeInput& in, ::vnx::web::HttpProcessorBase& value, const TypeCode* t
 			vnx::read_value(_buf + _field->offset, value.keepalive, _field->code.data());
 		}
 	}
-	{
-		const vnx::TypeField* const _field = type_code->field_map[9];
-		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.update_interval_ms, _field->code.data());
-		}
-	}
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
 			case 0: vnx::read(in, value.input, type_code, _field->code.data()); break;
@@ -392,12 +375,11 @@ void write(TypeOutput& out, const ::vnx::web::HttpProcessorBase& value, const Ty
 	if(code && code[0] == CODE_STRUCT) {
 		type_code = type_code->depends[code[1]];
 	}
-	char* const _buf = out.write(29);
+	char* const _buf = out.write(25);
 	vnx::write_value(_buf + 0, value.max_queue_size);
 	vnx::write_value(_buf + 8, value.max_pending);
 	vnx::write_value(_buf + 16, value.timeout_ms);
 	vnx::write_value(_buf + 24, value.keepalive);
-	vnx::write_value(_buf + 25, value.update_interval_ms);
 	vnx::write(out, value.input, type_code, type_code->fields[0].code.data());
 	vnx::write(out, value.channel, type_code, type_code->fields[1].code.data());
 	vnx::write(out, value.output, type_code, type_code->fields[2].code.data());

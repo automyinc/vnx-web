@@ -81,7 +81,6 @@ public:
 	int max_num_events = 64 * 1024;
 	
 	InternalPipe<std::pair<Hash128, int>> new_read_avail;
-	InternalPipe<Hash128> remove_read_avail;
 	
 	void notify() override {
 		std::lock_guard<std::mutex> lock(mutex);
@@ -97,7 +96,6 @@ protected:
 		int64_t resume_time = -1;
 		int64_t last_write_time = -1;
 		int sock = -1;
-		bool is_paused = false;
 		bool is_blocked = false;
 	};
 	
@@ -112,7 +110,6 @@ protected:
 	int notify_pipe[2] = {-1, -1};
 	std::unordered_map<Hash128, size_t> stream_map;
 	std::vector<stream_state_t> state_vector;
-	std::unordered_set<size_t> pause_set;
 	std::vector<epoll_event> new_events;
 	std::vector<size_t> free_list;
 	
@@ -245,12 +242,6 @@ protected:
 			}
 		}
 		{
-			auto input = poll_loop->remove_read_avail.pop_all();
-			for(const Hash128& id : *input) {
-				read_set.erase(id);
-			}
-		}
-		{
 			std::vector<Hash128> remove_list;
 			std::shared_ptr<StreamRead> sample;
 			for(const auto& entry : read_set) {
@@ -314,12 +305,14 @@ void Frontend::PollLoop::loop() {
 			auto iter = stream_map.find(id);
 			if(iter != stream_map.end()) {
 				const stream_state_t& state = state_vector[iter->second];
-				if(!state.is_paused && !state.is_blocked) {
-					epoll_event event = {};
+				epoll_event event = {};
+				if(state.is_blocked) {
+					event.events = EPOLLIN | EPOLLOUT | EPOLLONESHOT;
+				} else {
 					event.events = EPOLLIN | EPOLLONESHOT;
-					event.data.u64 = iter->second;
-					::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
 				}
+				event.data.u64 = iter->second;
+				::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
 			}
 		}
 	}
@@ -341,48 +334,12 @@ void Frontend::PollLoop::loop() {
 			}
 			stream_state_t& state = state_vector[iter->second];
 			switch(event.event) {
-				case stream_event_t::EVENT_PAUSE:
-					state.resume_time = now + event.value;
-					pause_set.insert(iter->second);
-					break;
-				case stream_event_t::EVENT_RESUME:
-					state.resume_time = now;
-					break;
 				case stream_event_t::EVENT_CLOSE:
 					if(state.sock >= 0) {
 						close_list.push_back(iter->second);
 					}
 					break;
 			}
-		}
-	}
-	{
-		bool do_notify = false;
-		std::vector<size_t> resume_list;
-		for(const size_t index : pause_set) {
-			stream_state_t& state = state_vector[index];
-			if(now < state.resume_time) {
-				if(!state.is_paused) {
-					state.is_paused = true;
-					remove_read_avail.push(state.id);
-					do_notify = true;
-				}
-			} else {
-				if(state.is_paused && !state.is_blocked) {
-					epoll_event event = {};
-					event.events = EPOLLIN | EPOLLONESHOT;
-					event.data.u64 = index;
-					::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
-				}
-				state.is_paused = false;
-				resume_list.push_back(index);
-			}
-		}
-		for(const size_t index : resume_list) {
-			pause_set.erase(index);
-		}
-		if(do_notify) {
-			read_loop->notify();
 		}
 	}
 	{
@@ -433,7 +390,7 @@ void Frontend::PollLoop::loop() {
 							state.chunk_offset += num_written;
 						}
 						epoll_event event = {};
-						event.events = EPOLLOUT | EPOLLIN | EPOLLONESHOT;
+						event.events = EPOLLOUT | EPOLLIN | EPOLLONESHOT;		// EPOLLIN to detect disconnect
 						event.data.u64 = state.vector_index;
 						::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, stream.sock, &event);
 						break;
@@ -511,14 +468,16 @@ void Frontend::PollLoop::loop() {
 				while(::read(state.sock, buf, sizeof(buf)) == sizeof(buf));
 				continue;
 			}
+			if(event.events & EPOLLOUT) {
+				state.is_blocked = false;
+			}
 			if(event.events & EPOLLIN) {
-				if(!state.is_paused) {
+				if(!state.is_blocked) {
 					new_read_avail.push(std::make_pair(state.id, state.sock));
 					do_notify = true;
 				}
 			}
 			if(event.events & EPOLLOUT) {
-				state.is_blocked = false;
 				event.events = EPOLLIN | EPOLLONESHOT;
 				::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
 			}

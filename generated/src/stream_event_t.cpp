@@ -15,8 +15,6 @@ namespace web {
 const ::int32_t stream_event_t::EVENT_NEW;
 const ::int32_t stream_event_t::EVENT_CLOSE;
 const ::int32_t stream_event_t::EVENT_EOF;
-const ::int32_t stream_event_t::EVENT_PAUSE;
-const ::int32_t stream_event_t::EVENT_RESUME;
 
 const vnx::Hash64 stream_event_t::VNX_TYPE_HASH(0xd4f7a89285ca745aull);
 const vnx::Hash64 stream_event_t::VNX_CODE_HASH(0xd3d9f37682cbbf2eull);

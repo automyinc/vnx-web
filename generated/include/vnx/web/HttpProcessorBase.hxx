@@ -24,11 +24,10 @@ public:
 	::vnx::TopicPtr output;
 	::std::string default_domain;
 	::std::map<::std::string, ::vnx::TopicPtr> domain_map;
-	::int64_t max_queue_size = 10;
+	::int64_t max_queue_size = 100;
 	::int64_t max_pending = 100000;
 	::int64_t timeout_ms = 1000;
 	::vnx::bool_t keepalive = true;
-	::int32_t update_interval_ms = 200;
 	
 	typedef ::vnx::Module Super;
 	

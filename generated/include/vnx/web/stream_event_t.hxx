@@ -17,8 +17,6 @@ struct stream_event_t {
 	static const ::int32_t EVENT_NEW = 1;
 	static const ::int32_t EVENT_CLOSE = 3;
 	static const ::int32_t EVENT_EOF = 4;
-	static const ::int32_t EVENT_PAUSE = 5;
-	static const ::int32_t EVENT_RESUME = 6;
 	
 	::vnx::Hash128 stream;
 	::int32_t event = 0;

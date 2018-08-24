@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
 	const std::string request = tmp.str();
 	
 	int64_t fail_counter = 0;
+	int64_t num_bytes_received = 0;
 	
 	const int64_t start_time = vnx::get_time_millis();
 	for(int i = 0; i < N; ++i) {
@@ -57,31 +58,23 @@ int main(int argc, char** argv) {
 		if(res <= 0) {
 			fail_counter++;
 		}
-		if(i >= C) {
-			while(true) {
-				char buf[16*1024];
-				const int num_read = ::recv(sock, buf, sizeof(buf), 0);
-				if(num_read != sizeof(buf)) {
-					break;
-				}
-			}
-		}
-		std::cout << ".";
-	}
-	for(int i = 0; i < C; ++i) {
-		const int sock = sockets[i];
 		while(true) {
 			char buf[16*1024];
 			const int num_read = ::recv(sock, buf, sizeof(buf), MSG_DONTWAIT);
+			if(num_read > 0) {
+				num_bytes_received += num_read;
+			}
 			if(num_read != sizeof(buf)) {
 				break;
 			}
 		}
+		std::cout << ".";
 	}
 	const int64_t end_time = vnx::get_time_millis();
 	std::cout << std::endl;
 	
-	std::cout << (1000 * N / (end_time - start_time)) << " requests/s, " << fail_counter << " failed out of " << N << std::endl;
+	std::cout << (1000 * N / (end_time - start_time)) << " requests/s, " << fail_counter << " failed out of " << N
+			<< ", " << num_bytes_received << " bytes received" << std::endl;
 	
 	for(int i = 0; i < C; ++i) {
 		::close(sockets[i]);
