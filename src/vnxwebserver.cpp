@@ -35,16 +35,22 @@ int main(int argc, char** argv) {
 	}
 	
 	{
-		vnx::Handle<vnx::web::Frontend> module = new vnx::web::Frontend("Frontend");
-		module->input = "test.frontend.return_data";
-		module->channel = "test.frontend.channel";
-		module->output = "test.frontend.client_data";
+		vnx::Handle<vnx::web::FileSystem> module = new vnx::web::FileSystem("FileSystem");
+		module->domain = "test.domain";
+		module->input = "test.filesystem.request";
 		module.start_detached();
 	}
 	{
-		vnx::Handle<vnx::web::HttpParser> module = new vnx::web::HttpParser("HttpParser");
-		module->input = "test.frontend.client_data";
-		module->output = "test.http.request";
+		vnx::Handle<vnx::web::Cache> module = new vnx::web::Cache("Cache");
+		module->domain = "test.domain";
+		module->input = "test.cache.request";
+		module->channel = "test.cache.channel";
+		module.start_detached();
+	}
+	{
+		vnx::Handle<vnx::web::HttpRenderer> module = new vnx::web::HttpRenderer("HttpRenderer");
+		module->input = "test.http.response";
+		module->output = "test.frontend.return_data";
 		module.start_detached();
 	}
 	{
@@ -57,22 +63,16 @@ int main(int argc, char** argv) {
 		module.start_detached();
 	}
 	{
-		vnx::Handle<vnx::web::HttpRenderer> module = new vnx::web::HttpRenderer("HttpRenderer");
-		module->input = "test.http.response";
-		module->output = "test.frontend.return_data";
+		vnx::Handle<vnx::web::HttpParser> module = new vnx::web::HttpParser("HttpParser");
+		module->input = "test.frontend.client_data";
+		module->output = "test.http.request";
 		module.start_detached();
 	}
 	{
-		vnx::Handle<vnx::web::Cache> module = new vnx::web::Cache("Cache");
-		module->domain = "test.domain";
-		module->input = "test.cache.request";
-		module->channel = "test.cache.channel";
-		module.start_detached();
-	}
-	{
-		vnx::Handle<vnx::web::FileSystem> module = new vnx::web::FileSystem("FileSystem");
-		module->domain = "test.domain";
-		module->input = "test.filesystem.request";
+		vnx::Handle<vnx::web::Frontend> module = new vnx::web::Frontend("Frontend");
+		module->input = "test.frontend.return_data";
+		module->channel = "test.frontend.channel";
+		module->output = "test.frontend.client_data";
 		module.start_detached();
 	}
 	
