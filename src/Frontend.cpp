@@ -60,6 +60,8 @@ public:
 	}
 	
 protected:
+	std::mutex mutex;
+	
 	bool do_run = true;
 	
 	virtual void init() {}
@@ -82,7 +84,6 @@ private:
 	
 private:
 	std::thread thread;
-	std::mutex mutex;
 	std::condition_variable condition;
 	uint64_t notify_counter = 0;
 	uint64_t consume_count = 0;
@@ -101,17 +102,25 @@ public:
 	
 protected:
 	void main() override {
-		try {
-			while(do_run) {
-				const int sock = endpoint->accept(server_sock);
+		while(do_run) {
+			const int sock = ::accept(server_sock, 0, 0);
+			if(sock >= 0) {
 				add_socket(sock);
-//				std::cout << "accept: " << sock << std::endl;
+			} else {
+				switch(errno) {
+					case EMFILE:
+					case ENFILE:
+					case ENOBUFS:
+					case ENOMEM:
+						vnx::log_warn().out << "Frontend: accept() failed with: " << errno;
+						::usleep(500*1000);
+						break;
+					default:
+						do_run = false;
+				}
 			}
-		} catch(...) {
-			
 		}
 		
-		add_socket(-1);
 		::close(server_sock);
 		
 		poll_loop = 0;
@@ -142,8 +151,11 @@ public:
 	DoubleBuffer<std::vector<Hash128>> remove_write_avail;
 	
 	void notify() override {
-		const char data = 0;
-		const ssize_t res = ::write(notify_pipe[1], &data, 1);
+		std::lock_guard<std::mutex> lock(mutex);
+		if(notify_pipe[1] >= 0) {
+			const char data = 0;
+			const ssize_t res = ::write(notify_pipe[1], &data, 1);
+		}
 	}
 
 protected:
@@ -198,6 +210,7 @@ protected:
 	}
 	
 	void init() override {
+		std::lock_guard<std::mutex> lock(mutex);
 		if(::pipe(notify_pipe) != 0) {
 			throw std::runtime_error("pipe() failed with: " + std::to_string(errno));
 		}
@@ -214,7 +227,7 @@ protected:
 		}
 		
 		auto events = StreamEventArray::create();
-		for(size_t i = 0; i < state_vector.size(); ++i) {
+		for(size_t i = 1; i < state_vector.size(); ++i) {
 			if(poll_vector[i].fd >= 0) {
 				events->array.push_back(stream_event_t::create(state_vector[i].id, stream_event_t::EVENT_EOF));
 				::close(poll_vector[i].fd);
@@ -225,6 +238,14 @@ protected:
 		accept_loop = 0;
 		read_loop = 0;
 		write_loop = 0;
+		
+		{
+			std::lock_guard<std::mutex> lock(mutex);
+			::close(notify_pipe[0]);
+			::close(notify_pipe[1]);
+			notify_pipe[0] = -1;
+			notify_pipe[1] = -1;
+		}
 	}
 	
 	void loop();
@@ -262,7 +283,6 @@ protected:
 			if(input) {
 				for(const std::pair<Hash128, int>& entry : *input) {
 					read_set[entry.first] = entry.second;
-//					std::cout << "read_set[...] = " << entry.second << std::endl;
 				}
 				poll_loop->new_read_avail.read_unlock();
 			}
@@ -301,7 +321,6 @@ protected:
 				}
 				if(num_read < ssize_t(read_block_size)) {
 					remove_list.push_back(entry.first);
-//					std::cout << "remove_list.push_back = " << entry.second << " (num_read=" << num_read << ")" << std::endl;
 					if(num_read != 0) {
 						set_poll_in.input().push_back(entry.first);
 					} else {
@@ -345,6 +364,7 @@ protected:
 		std::queue<std::shared_ptr<const StreamWrite>> samples;
 		size_t index = 0;
 		size_t offset = 0;
+		int64_t last_write_time = 0;
 		int sock = -1;
 	};
 	
@@ -402,6 +422,7 @@ protected:
 					}
 					write_state_t& state = write_set[sample->stream];
 					state.sock = iter->second.sock;
+					state.last_write_time = now;
 					state.samples.push(sample);
 					iter->second.last_write_time = now;
 				}
@@ -433,9 +454,9 @@ protected:
 						const ssize_t num_left = buffer.size() - state.offset;
 						const ssize_t num_written = ::send(state.sock, buffer.data(state.offset), size_t(num_left), MSG_NOSIGNAL);
 						if(num_written > 0) {
+							state.last_write_time = now;
 							frontend->num_bytes_written += num_written;
 						}
-//						std::cout << "sock=" << state.sock << ", num_left=" << num_left << ", num_written=" << num_written << ", index=" << state.index << ", offset=" << state.offset << std::endl;
 						if(num_written == num_left) {
 							state.index++;
 							state.offset = 0;
@@ -472,7 +493,12 @@ protected:
 			if(now - last_update_time > frontend->connection_timeout_ms / 5) {
 				for(const auto& entry : stream_map) {
 					if(now - entry.second.last_write_time > frontend->connection_timeout_ms) {
-						if(write_set.count(entry.first) == 0) {
+						bool is_timeout = true;
+//						auto iter = write_set.find(entry.first);
+//						if(iter != write_set.end()) {
+//							is_timeout = now - iter->second.last_write_time > frontend->connection_timeout_ms;
+//						}
+						if(is_timeout) {
 							close_stream.input().push_back(entry.first);		// connection timeout
 							frontend->num_timeout++;
 						}
@@ -513,7 +539,6 @@ void Frontend::PollLoop::loop() {
 				const Hash128 id = add_stream(sock, POLLIN);
 				new_write_avail.input().push_back(std::make_pair(id, sock));
 				stream_events->array.push_back(stream_event_t::create(id, stream_event_t::EVENT_NEW));
-//				std::cout << "new socket: " << sock << std::endl;
 			}
 			new_write_avail.write_unlock();
 			accept_loop->new_sockets.read_unlock();
@@ -531,7 +556,6 @@ void Frontend::PollLoop::loop() {
 					auto& events = poll_vector[iter->second].events;
 					if(events == 0) {
 						events = POLLIN;
-//						std::cout << "set POLLIN on " << poll_vector[iter->second].fd << std::endl;
 					}
 				}
 			}
@@ -549,7 +573,6 @@ void Frontend::PollLoop::loop() {
 				if(iter != stream_map.end()) {
 					poll_vector[iter->second].events = POLLOUT;
 					remove_read_avail.input().push_back(state_vector[iter->second].id);
-					std::cout << "set POLLOUT on " << poll_vector[iter->second].fd << std::endl;
 				}
 			}
 			remove_read_avail.write_unlock();
@@ -563,7 +586,6 @@ void Frontend::PollLoop::loop() {
 				auto iter = stream_map.find(id);
 				if(iter != stream_map.end()) {
 					poll_vector[iter->second].revents = POLLHUP;
-//					std::cout << "set POLLHUP on " << poll_vector[iter->second].fd << std::endl;
 				}
 			}
 			read_loop->close_stream.read_unlock();
@@ -576,7 +598,6 @@ void Frontend::PollLoop::loop() {
 				auto iter = stream_map.find(id);
 				if(iter != stream_map.end()) {
 					poll_vector[iter->second].revents = POLLHUP;
-//					std::cout << "set POLLHUP on " << poll_vector[iter->second].fd << std::endl;
 				}
 			}
 			write_loop->close_stream.read_unlock();
@@ -590,7 +611,6 @@ void Frontend::PollLoop::loop() {
 				if(iter == stream_map.end()) {
 					continue;
 				}
-//				std::cout << "new event: " << event << std::endl;
 				stream_state_t& state = state_vector[iter->second];
 				::pollfd& entry = poll_vector[iter->second];
 				switch(event.event) {
@@ -646,17 +666,14 @@ void Frontend::PollLoop::loop() {
 				}
 			}
 			if(entry.events == POLLIN && entry.revents & POLLIN) {
-//				std::cout << "got POLLIN on " << entry.fd << std::endl;
 				new_read_avail.input().push_back(std::make_pair(state.id, entry.fd));
 				entry.events = 0;
 			}
 			if(entry.events == POLLOUT && entry.revents & POLLOUT) {
-//				std::cout << "got POLLOUT on " << entry.fd << std::endl;
 				new_write_avail.input().push_back(std::make_pair(state.id, entry.fd));
 				entry.events = POLLIN;
 			}
 			if(entry.revents & (POLLHUP | POLLERR | POLLNVAL)) {
-//				std::cout << "got POLLHUP | POLLERR | POLLNVAL on " << entry.fd << std::endl;
 				remove_write_avail.input().push_back(state.id);
 				stream_events->array.push_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
 				const int res = ::close(entry.fd);
@@ -680,7 +697,6 @@ void Frontend::PollLoop::loop() {
 	if(res < 0) {
 		do_run = false;
 	}
-//	std::cout << "poll(size=" << poll_vector.size() << ") = " << res << std::endl;
 	
 	{
 		::pollfd& entry = poll_vector[0];

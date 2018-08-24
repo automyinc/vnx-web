@@ -12,13 +12,13 @@ module Frontend {
 	
 	TopicPtr channel;
 	
-	int listen_queue_size = 256;
+	int listen_queue_size = 256;			// kernel listen backlog
 	
-	int connection_timeout_ms = 5000;
+	int connection_timeout_ms = 10000;		// timeout when not sending any data to client [ms]
 	
-	long read_block_size = 4096;		// [bytes]
+	long read_block_size = 4096;			// [bytes]
 	
-	long write_block_size = 4096;		// [bytes]
+	long write_block_size = 4096;			// [bytes]
 	
 	
 	void handle(StreamWrite sample);
