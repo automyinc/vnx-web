@@ -95,7 +95,6 @@ void HttpProcessor::process(state_t& state, const std::string& domain) {
 			if(state.request_queue.size() <= max_queue_size / 2) {
 				resume_stream(state, request->channel);
 			}
-			total_queue_size--;
 		} else {
 			break;
 		}
@@ -176,7 +175,6 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		state.response_map[request->id] = Response::create(request, ErrorCode::create(ErrorCode::BAD_REQUEST));
 	}
 	
-	total_queue_size++;
 	state.request_queue.push(request);
 	process(state, domain);
 	
@@ -227,7 +225,7 @@ void HttpProcessor::update() {
 		num_paused += entry.second.size();
 	}
 	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, pending="
-			<< pending_requests.size() << ", total_queue=" << total_queue_size << ", num_paused=" << num_paused;
+			<< pending_requests.size() << ", num_paused=" << num_paused;
 	request_counter = 0;
 }
 

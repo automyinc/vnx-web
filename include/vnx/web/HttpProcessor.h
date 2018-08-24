@@ -67,7 +67,6 @@ private:
 	std::map<int, std::shared_ptr<File>> static_error_pages;
 	
 	size_t request_counter = 0;
-	size_t total_queue_size = 0;
 	
 };
 
