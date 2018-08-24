@@ -40,5 +40,3 @@ target_link_libraries(vnxwebserver vnx_web)
 
 add_executable(vnxfilesystemserver src/vnxfilesystemserver.cpp)
 target_link_libraries(vnxfilesystemserver vnx_web)
-
-add_subdirectory(test)

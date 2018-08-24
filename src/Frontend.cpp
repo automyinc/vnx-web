@@ -791,7 +791,7 @@ void Frontend::handle(std::shared_ptr<const ::vnx::web::StreamWrite> value) {
 }
 
 void Frontend::update() {
-	log(INFO).out << "connections=" << num_connections << ", accept=" << num_accept << "/s, timeout="
+	log(INFO).out << "connections=" << (num_connections - 1) << ", accept=" << num_accept << "/s, timeout="
 			<< num_timeout << "/s, close=" << num_close << "/s"
 			<< ", read=" << (float(num_bytes_read / 1024) / 1024) << " MB/s, write="
 			<< (float(num_bytes_written / 1024) / 1024) << " MB/s";

@@ -3,4 +3,4 @@ VNX Webserver Framework
 
 # Dependencies
 
-boost-filesystem-dev libmagic-dev
+libboost-dev libmagic-dev
