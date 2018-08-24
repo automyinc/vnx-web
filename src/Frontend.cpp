@@ -497,10 +497,10 @@ protected:
 				for(const auto& entry : stream_map) {
 					if(now - entry.second.last_write_time > frontend->connection_timeout_ms) {
 						bool is_timeout = true;
-//						auto iter = write_set.find(entry.first);
-//						if(iter != write_set.end()) {
-//							is_timeout = now - iter->second.last_write_time > frontend->connection_timeout_ms;
-//						}
+						auto iter = write_set.find(entry.first);
+						if(iter != write_set.end()) {
+							is_timeout = now - iter->second.last_write_time > frontend->connection_timeout_ms;
+						}
 						if(is_timeout) {
 							close_stream.input().push_back(entry.first);		// connection timeout
 							frontend->num_timeout++;
