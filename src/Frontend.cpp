@@ -102,6 +102,9 @@ public:
 	
 protected:
 	void main() override {
+		
+		pthread_setname_np(pthread_self(), "AcceptLoop");
+		
 		while(do_run) {
 			const int sock = ::accept(server_sock, 0, 0);
 			if(sock >= 0) {
@@ -220,6 +223,8 @@ protected:
 	
 	void main() override {
 		
+		pthread_setname_np(pthread_self(), "PollLoop");
+		
 		add_stream(notify_pipe[0], POLLIN);
 		
 		while(do_run) {
@@ -266,6 +271,8 @@ protected:
 	std::unordered_map<Hash128, int> read_set;
 	
 	void main() override {
+		
+		pthread_setname_np(pthread_self(), "ReadLoop");
 		
 		read_block_size = size_t(frontend->read_block_size > 0 ? frontend->read_block_size : 4096);
 		
@@ -374,6 +381,8 @@ protected:
 	std::unordered_map<Hash128, write_state_t> write_set;
 	
 	void main() override {
+		
+		pthread_setname_np(pthread_self(), "WriteLoop");
 		
 		write_block_size = size_t(frontend->write_block_size > 0 ? frontend->write_block_size : 4096);
 		
