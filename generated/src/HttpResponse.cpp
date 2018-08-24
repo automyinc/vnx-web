@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpResponse::VNX_TYPE_HASH(0x5f05cae7dd441511ull);
-const vnx::Hash64 HttpResponse::VNX_CODE_HASH(0xd3abdcdd31560c22ull);
+const vnx::Hash64 HttpResponse::VNX_CODE_HASH(0xb3a2e4692ecb021aull);
 
 vnx::Hash64 HttpResponse::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -117,7 +117,7 @@ std::shared_ptr<vnx::TypeCode> HttpResponse::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpResponse";
 	type_code->type_hash = vnx::Hash64(0x5f05cae7dd441511ull);
-	type_code->code_hash = vnx::Hash64(0xd3abdcdd31560c22ull);
+	type_code->code_hash = vnx::Hash64(0xb3a2e4692ecb021aull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Response::get_type_code();
@@ -167,7 +167,7 @@ std::shared_ptr<vnx::TypeCode> HttpResponse::create_type_code() {
 		vnx::TypeField& field = type_code->fields[7];
 		field.is_extended = true;
 		field.name = "header";
-		field.code = {12, 23, 2, 4, 6, 12, 5, 17};
+		field.code = {12, 23, 2, 4, 6, 12, 5, 12, 5};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[8];

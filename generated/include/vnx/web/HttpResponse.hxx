@@ -19,7 +19,7 @@ public:
 	::vnx::Hash128 stream;
 	::int64_t sequence = 0;
 	::int32_t status = 500;
-	::std::vector<::std::pair<::std::string, ::vnx::Variant>> header;
+	::std::vector<::std::pair<::std::string, ::std::string>> header;
 	::vnx::bool_t do_close = 0;
 	
 	typedef ::vnx::web::Response Super;

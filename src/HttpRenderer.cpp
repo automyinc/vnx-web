@@ -99,8 +99,8 @@ void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const Director
 	out.write(tmp.str().data(), tmp.str().size());
 }
 
-void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::pair<std::string, Variant> &field) {
-	render_header(out, field.first, vnx::to_string(field.second));
+void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::pair<std::string, std::string> &field) {
+	render_header(out, field.first, field.second);
 }
 
 void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::string &key, const std::string &value) {

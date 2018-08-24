@@ -11,7 +11,7 @@ class HttpResponse extends Response {
 	
 	int status = 500;
 	
-	vector<pair<string, Variant>> header;
+	vector<pair<string, string>> header;
 	
 	bool do_close;
 	

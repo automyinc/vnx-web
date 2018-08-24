@@ -36,7 +36,7 @@ private:
 	
 	void render_header(vnx::OutputBuffer &out, const std::string &key, const std::string &value);
 	
-	void render_header(vnx::OutputBuffer &out, const std::pair<std::string, Variant> &field);
+	void render_header(vnx::OutputBuffer &out, const std::pair<std::string, std::string> &field);
 	
 private:
 	std::unordered_map<Hash128, int64_t> state_map;
