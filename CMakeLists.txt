@@ -40,3 +40,6 @@ target_link_libraries(vnxwebserver vnx_web)
 
 add_executable(vnxfilesystemserver src/vnxfilesystemserver.cpp)
 target_link_libraries(vnxfilesystemserver vnx_web)
+
+add_executable(http_bench_tool tools/http_bench_tool.cpp)
+target_link_libraries(http_bench_tool vnx_web)
