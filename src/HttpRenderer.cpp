@@ -151,7 +151,7 @@ void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::HttpResponse> respon
 	
 	out.flush();
 	
-	publish(sample, output);
+	publish(sample, output, BLOCKING);
 }
 
 void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> events) {
