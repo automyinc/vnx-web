@@ -259,7 +259,7 @@ std::shared_ptr<File> create_error_page(int code) {
 	
 	std::ostringstream tmp;
 	tmp << "<html>\n<body>\n<h1>Error: " << std::to_string(code)
-			<< " " << ErrorCode::get_error_string(code) << "</h1>\n</body>\n</html>";
+			<< " " << ErrorCode::get_error_string(code) << "</h1>\n</body>\n</html>\n";
 	file->data = tmp.str();
 	return file;
 }
