@@ -7,11 +7,12 @@
 
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
 
-#include <poll.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <sys/epoll.h>
 
 
 namespace vnx {
@@ -148,6 +149,8 @@ public:
 	std::shared_ptr<ReadLoop> read_loop;
 	std::shared_ptr<WriteLoop> write_loop;
 	
+	int max_num_events = 64 * 1024;
+	
 	DoubleBuffer<std::vector<std::pair<Hash128, int>>> new_read_avail;
 	DoubleBuffer<std::vector<std::pair<Hash128, int>>> new_write_avail;
 	DoubleBuffer<std::vector<Hash128>> remove_read_avail;
@@ -165,37 +168,39 @@ protected:
 	struct stream_state_t {
 		Hash128 id;
 		int64_t resume_time = -1;
+		int sock = -1;
 		bool is_paused = false;
 	};
 	
+	int epoll_fd = -1;
 	int notify_pipe[2] = {-1, -1};
-	std::unordered_map<Hash128, uint32_t> stream_map;
+	std::unordered_map<Hash128, size_t> stream_map;
 	std::vector<stream_state_t> state_vector;
-	std::vector<::pollfd> poll_vector;
-	std::vector<uint32_t> free_list;
+	std::unordered_set<size_t> pause_set;
+	std::vector<epoll_event> new_events;
+	std::vector<size_t> free_list;
 	
-	::pollfd create_pollfd(int sock, short events) {
-		::pollfd res = {};
-		res.fd = sock;
-		res.events = events;
-		return res;
-	}
-	
-	Hash128 add_stream(int sock, short events) {
-		uint32_t index;
+	Hash128 add_stream(int sock) {
+		size_t index;
 		if(free_list.empty()) {
-			index = uint32_t(state_vector.size());
+			index = state_vector.size();
 			state_vector.resize(index + 1);
-			poll_vector.resize(index + 1);
 		} else {
 			index = free_list.back();
 			free_list.pop_back();
 		}
+		
 		stream_state_t& state = state_vector[index];
 		state = stream_state_t();
 		state.id = Hash128::rand();
+		state.sock = sock;
 		stream_map[state.id] = index;
-		poll_vector[index] = create_pollfd(sock, events);
+		
+		epoll_event event = {};
+		event.events = EPOLLIN | EPOLLONESHOT;
+		event.data.u64 = index;
+		::epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sock, &event);
+		
 		frontend->num_connections++;
 		frontend->num_accept++;
 		return state.id;
@@ -204,10 +209,9 @@ protected:
 	void remove_stream(size_t index) {
 		stream_state_t& state = state_vector[index];
 		stream_map.erase(state.id);
-		poll_vector[index].fd = -1;
-		poll_vector[index].events = 0;
-		poll_vector[index].revents = 0;
-		free_list.push_back(uint32_t(index));
+		::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, state.sock, 0);
+		state = stream_state_t();
+		free_list.push_back(index);
 		frontend->num_connections--;
 		frontend->num_close++;
 	}
@@ -225,17 +229,24 @@ protected:
 		
 		pthread_setname_np(pthread_self(), "PollLoop");
 		
-		add_stream(notify_pipe[0], POLLIN);
+		epoll_fd = ::epoll_create(max_num_events);
+		if(epoll_fd < 0) {
+			log_error().out << "Frontend: epoll_create() failed with " << errno;
+			return;
+		}
+		new_events.resize(max_num_events);
+		
+		add_stream(notify_pipe[0]);
 		
 		while(do_run) {
 			loop();
 		}
 		
 		auto events = StreamEventArray::create();
-		for(size_t i = 1; i < state_vector.size(); ++i) {
-			if(poll_vector[i].fd >= 0) {
-				events->array.push_back(stream_event_t::create(state_vector[i].id, stream_event_t::EVENT_EOF));
-				::close(poll_vector[i].fd);
+		for(stream_state_t& state : state_vector) {
+			if(state.sock >= 0) {
+				events->array.push_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
+				::close(state.sock);
 			}
 		}
 		publish(events, frontend->output);
@@ -536,6 +547,7 @@ protected:
 void Frontend::PollLoop::loop() {
 	const int64_t now = vnx::get_time_millis();
 	std::shared_ptr<StreamEventArray> stream_events = StreamEventArray::create();
+	std::vector<size_t> close_list;
 	{
 		const std::vector<int>* input = accept_loop->new_sockets.try_read_lock();
 		if(input) {
@@ -548,7 +560,7 @@ void Frontend::PollLoop::loop() {
 					break;
 				}
 				set_non_block(sock);
-				const Hash128 id = add_stream(sock, POLLIN);
+				const Hash128 id = add_stream(sock);
 				new_write_avail.input().push_back(std::make_pair(id, sock));
 				stream_events->array.push_back(stream_event_t::create(id, stream_event_t::EVENT_NEW));
 			}
@@ -565,9 +577,12 @@ void Frontend::PollLoop::loop() {
 			for(const Hash128& id : *input) {
 				auto iter = stream_map.find(id);
 				if(iter != stream_map.end()) {
-					auto& events = poll_vector[iter->second].events;
-					if(events == 0) {
-						events = POLLIN;
+					const stream_state_t& state = state_vector[iter->second];
+					if(!state.is_paused) {
+						epoll_event event = {};
+						event.events = EPOLLIN | EPOLLONESHOT;
+						event.data.u64 = iter->second;
+						::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
 					}
 				}
 			}
@@ -583,8 +598,12 @@ void Frontend::PollLoop::loop() {
 			for(const Hash128& id : *input) {
 				auto iter = stream_map.find(id);
 				if(iter != stream_map.end()) {
-					poll_vector[iter->second].events = POLLOUT;
-					remove_read_avail.input().push_back(state_vector[iter->second].id);
+					const stream_state_t& state = state_vector[iter->second];
+					epoll_event event = {};
+					event.events = EPOLLOUT | EPOLLONESHOT;
+					event.data.u64 = iter->second;
+					::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
+					remove_read_avail.input().push_back(state.id);
 				}
 			}
 			remove_read_avail.write_unlock();
@@ -597,7 +616,7 @@ void Frontend::PollLoop::loop() {
 			for(const Hash128& id : *input) {
 				auto iter = stream_map.find(id);
 				if(iter != stream_map.end()) {
-					poll_vector[iter->second].revents = POLLHUP;
+					close_list.push_back(iter->second);
 				}
 			}
 			read_loop->close_stream.read_unlock();
@@ -609,7 +628,7 @@ void Frontend::PollLoop::loop() {
 			for(const Hash128& id : *input) {
 				auto iter = stream_map.find(id);
 				if(iter != stream_map.end()) {
-					poll_vector[iter->second].revents = POLLHUP;
+					close_list.push_back(iter->second);
 				}
 			}
 			write_loop->close_stream.read_unlock();
@@ -624,18 +643,17 @@ void Frontend::PollLoop::loop() {
 					continue;
 				}
 				stream_state_t& state = state_vector[iter->second];
-				::pollfd& entry = poll_vector[iter->second];
 				switch(event.event) {
 					case stream_event_t::EVENT_PAUSE:
 						state.resume_time = now + event.value;
-						state.is_paused = true;
+						pause_set.insert(iter->second);
 						break;
 					case stream_event_t::EVENT_RESUME:
 						state.resume_time = now;
 						break;
 					case stream_event_t::EVENT_CLOSE:
-						if(entry.fd >= 0) {
-							entry.revents |= POLLHUP;
+						if(state.sock >= 0) {
+							close_list.push_back(iter->second);
 						}
 						break;
 				}
@@ -643,6 +661,55 @@ void Frontend::PollLoop::loop() {
 			frontend->new_event_list.read_unlock();
 		}
 	}
+	{
+		std::vector<size_t> remove_list;
+		for(const size_t index : pause_set) {
+			stream_state_t& state = state_vector[index];
+			if(now < state.resume_time) {
+				if(!state.is_paused) {
+					state.is_paused = true;
+					remove_read_avail.input().push_back(state.id);
+				}
+			} else {
+				if(state.is_paused) {
+					epoll_event event = {};
+					event.events = EPOLLIN | EPOLLONESHOT;
+					event.data.u64 = index;
+					::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
+				}
+				state.is_paused = false;
+				remove_list.push_back(index);
+			}
+		}
+		for(const size_t index : remove_list) {
+			pause_set.erase(index);
+		}
+	}
+	{
+		if(remove_write_avail.write_lock()) {
+			remove_write_avail.input().clear();
+		}
+		for(const size_t index : close_list) {
+			stream_state_t& state = state_vector[index];
+			remove_write_avail.input().push_back(state.id);
+			stream_events->array.push_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
+			const int res = ::close(state.sock);
+			remove_stream(index);
+		}
+		remove_write_avail.write_unlock();
+	}
+	
+	if(!stream_events->array.empty()) {
+		publish(stream_events, frontend->output);
+	}
+	
+	const int num_events = ::epoll_wait(epoll_fd, new_events.data(), new_events.size(), 100);
+	if(num_events < 0) {
+		log_error().out << "Frontend: epoll_wait() failed with " << errno;
+		do_run = false;
+		return;
+	}
+	
 	{
 		if(new_read_avail.write_lock()) {
 			new_read_avail.input().clear();
@@ -653,71 +720,32 @@ void Frontend::PollLoop::loop() {
 		if(remove_read_avail.write_lock()) {
 			remove_read_avail.input().clear();
 		}
-		if(remove_write_avail.write_lock()) {
-			remove_write_avail.input().clear();
-		}
-		for(size_t i = 0; i < state_vector.size(); ++i) {
-			::pollfd& entry = poll_vector[i];
-			if(entry.fd < 0) {
+		for(int i = 0; i < num_events; ++i) {
+			epoll_event& event = new_events[i];
+			stream_state_t& state = state_vector[event.data.u64];
+			if(state.sock < 0) {
 				continue;
 			}
-			stream_state_t& state = state_vector[i];
-			if(state.is_paused) {
-				if(now < state.resume_time) {
-					if(entry.events == 0) {
-						remove_read_avail.input().push_back(state.id);
-					}
-					if(entry.events == POLLIN) {
-						entry.events = 0;
-					}
-				} else {
-					if(entry.events == 0) {
-						entry.events = POLLIN;
-					}
-					state.is_paused = false;
-				}
+			if(state.sock == notify_pipe[0]) {
+				char buf[4096];
+				while(::read(notify_pipe[0], buf, sizeof(buf)) == sizeof(buf));
+				continue;
 			}
-			if(entry.events == POLLIN && entry.revents & POLLIN) {
-				new_read_avail.input().push_back(std::make_pair(state.id, entry.fd));
-				entry.events = 0;
+			if(event.events & EPOLLIN && !state.is_paused) {
+				new_read_avail.input().push_back(std::make_pair(state.id, state.sock));
 			}
-			if(entry.events == POLLOUT && entry.revents & POLLOUT) {
-				new_write_avail.input().push_back(std::make_pair(state.id, entry.fd));
-				entry.events = POLLIN;
+			if(event.events & EPOLLOUT) {
+				new_write_avail.input().push_back(std::make_pair(state.id, state.sock));
+				event.events = EPOLLIN | EPOLLONESHOT;
+				::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
 			}
-			if(entry.revents & (POLLHUP | POLLERR | POLLNVAL)) {
-				remove_write_avail.input().push_back(state.id);
-				stream_events->array.push_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
-				const int res = ::close(entry.fd);
-				remove_stream(i);
-			}
-			entry.revents = 0;
 		}
 		new_read_avail.write_unlock();
 		new_write_avail.write_unlock();
 		remove_read_avail.write_unlock();
-		remove_write_avail.write_unlock();
 	}
 	read_loop->notify();
 	write_loop->notify();
-	
-	if(!stream_events->array.empty()) {
-		publish(stream_events, frontend->output);
-	}
-	
-	const int res = ::poll(&poll_vector[0], poll_vector.size(), 100);
-	if(res < 0) {
-		do_run = false;
-	}
-	
-	{
-		::pollfd& entry = poll_vector[0];
-		if(entry.revents & POLLIN) {
-			char buf[4096];
-			while(::read(entry.fd, buf, sizeof(buf)) == sizeof(buf));
-			entry.revents = 0;
-		}
-	}
 }
 
 
