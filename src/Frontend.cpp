@@ -11,6 +11,8 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
 
@@ -109,6 +111,8 @@ protected:
 		while(do_run) {
 			const int sock = ::accept(server_sock, 0, 0);
 			if(sock >= 0) {
+				const int value = 1;
+				::setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &value, sizeof(value));
 				add_socket(sock);
 			} else {
 				switch(errno) {
