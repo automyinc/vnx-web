@@ -7,8 +7,6 @@
 #include <vnx/web/package.hxx>
 #include <vnx/Module.h>
 #include <vnx/TopicPtr.h>
-#include <vnx/web/StreamEventArray.hxx>
-#include <vnx/web/StreamWrite.hxx>
 
 
 namespace vnx {
@@ -23,6 +21,7 @@ public:
 	::vnx::TopicPtr channel;
 	::int32_t listen_queue_size = 256;
 	::int32_t connection_timeout_ms = 10000;
+	::int64_t max_write_backlog = 268435456;
 	::int64_t read_block_size = 16384;
 	::int64_t write_block_size = 65536;
 	
@@ -48,10 +47,6 @@ public:
 	static std::shared_ptr<vnx::TypeCode> create_type_code();
 	
 protected:
-	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
-	virtual void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> _value) {}
-	virtual void handle(std::shared_ptr<const ::vnx::web::StreamWrite> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
-	virtual void handle(std::shared_ptr<const ::vnx::web::StreamWrite> _value) {}
 	
 	void handle_switch(std::shared_ptr<const ::vnx::Sample> _sample);
 	bool call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const vnx::TypeCode* _call_type, const vnx::TypeCode* _return_type);

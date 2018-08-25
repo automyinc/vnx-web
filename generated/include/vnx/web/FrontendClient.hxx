@@ -7,8 +7,6 @@
 #include <vnx/Client.h>
 #include <vnx/Module.h>
 #include <vnx/TopicPtr.h>
-#include <vnx/web/StreamEventArray.hxx>
-#include <vnx/web/StreamWrite.hxx>
 
 
 namespace vnx {
@@ -19,14 +17,6 @@ public:
 	FrontendClient(const std::string& service_name);
 	
 	FrontendClient(vnx::Hash64 service_addr);
-	
-	void handle(const ::std::shared_ptr<const ::vnx::web::StreamEventArray>& sample);
-	
-	void handle_async(const ::std::shared_ptr<const ::vnx::web::StreamEventArray>& sample);
-	
-	void handle(const ::std::shared_ptr<const ::vnx::web::StreamWrite>& sample);
-	
-	void handle_async(const ::std::shared_ptr<const ::vnx::web::StreamWrite>& sample);
 	
 };
 

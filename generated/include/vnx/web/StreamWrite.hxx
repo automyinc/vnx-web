@@ -5,22 +5,20 @@
 #define INCLUDE_vnx_web_StreamWrite_HXX_
 
 #include <vnx/web/package.hxx>
-#include <vnx/Buffer.h>
 #include <vnx/Hash128.h>
-#include <vnx/Value.h>
+#include <vnx/web/BinaryData.hxx>
 
 
 namespace vnx {
 namespace web {
 
-class StreamWrite : public ::vnx::Value {
+class StreamWrite : public ::vnx::web::BinaryData {
 public:
 	
 	::vnx::Hash128 stream;
-	::std::vector<::vnx::Buffer> chunks;
 	::vnx::bool_t is_eof = 0;
 	
-	typedef ::vnx::Value Super;
+	typedef ::vnx::web::BinaryData Super;
 	
 	static const vnx::Hash64 VNX_TYPE_HASH;
 	static const vnx::Hash64 VNX_CODE_HASH;

@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 FrontendBase::VNX_TYPE_HASH(0xc9fab0af74907466ull);
-const vnx::Hash64 FrontendBase::VNX_CODE_HASH(0x16fcb3edff11ec47ull);
+const vnx::Hash64 FrontendBase::VNX_CODE_HASH(0xf48c2bfbb63a643full);
 
 FrontendBase::FrontendBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -26,6 +26,7 @@ FrontendBase::FrontendBase(const std::string& _vnx_name)
 	vnx::read_config(vnx_name + ".channel", channel);
 	vnx::read_config(vnx_name + ".listen_queue_size", listen_queue_size);
 	vnx::read_config(vnx_name + ".connection_timeout_ms", connection_timeout_ms);
+	vnx::read_config(vnx_name + ".max_write_backlog", max_write_backlog);
 	vnx::read_config(vnx_name + ".read_block_size", read_block_size);
 	vnx::read_config(vnx_name + ".write_block_size", write_block_size);
 }
@@ -47,8 +48,9 @@ void FrontendBase::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, channel);
 	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, listen_queue_size);
 	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, connection_timeout_ms);
-	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, read_block_size);
-	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, write_block_size);
+	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, max_write_backlog);
+	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, read_block_size);
+	_visitor.type_field(_type_code->fields[8], 8); vnx::accept(_visitor, write_block_size);
 	_visitor.type_end(*_type_code);
 }
 
@@ -60,6 +62,7 @@ void FrontendBase::write(std::ostream& _out) const {
 	_out << ", \"channel\": "; vnx::write(_out, channel);
 	_out << ", \"listen_queue_size\": "; vnx::write(_out, listen_queue_size);
 	_out << ", \"connection_timeout_ms\": "; vnx::write(_out, connection_timeout_ms);
+	_out << ", \"max_write_backlog\": "; vnx::write(_out, max_write_backlog);
 	_out << ", \"read_block_size\": "; vnx::write(_out, read_block_size);
 	_out << ", \"write_block_size\": "; vnx::write(_out, write_block_size);
 	_out << "}";
@@ -81,6 +84,8 @@ void FrontendBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, listen_queue_size);
 		} else if(_entry.first == "connection_timeout_ms") {
 			vnx::from_string(_entry.second, connection_timeout_ms);
+		} else if(_entry.first == "max_write_backlog") {
+			vnx::from_string(_entry.second, max_write_backlog);
 		} else if(_entry.first == "read_block_size") {
 			vnx::from_string(_entry.second, read_block_size);
 		} else if(_entry.first == "write_block_size") {
@@ -111,59 +116,9 @@ std::shared_ptr<vnx::TypeCode> FrontendBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Frontend";
 	type_code->type_hash = vnx::Hash64(0xc9fab0af74907466ull);
-	type_code->code_hash = vnx::Hash64(0x16fcb3edff11ec47ull);
-	type_code->methods.resize(2);
-	{
-		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.handle_vnx_web_StreamEventArray";
-		call_type->type_hash = vnx::Hash64(0x30751ebcba8fcb3full);
-		call_type->code_hash = vnx::Hash64(0x3533214304cc2aefull);
-		call_type->is_method = true;
-		{
-			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
-			return_type->name = "vnx.web.Frontend.handle_vnx_web_StreamEventArray.return";
-			return_type->type_hash = vnx::Hash64(0xd78960a776458e8cull);
-			return_type->code_hash = vnx::Hash64(0xf3307e0a1343aee1ull);
-			return_type->is_return = true;
-			return_type->build();
-			call_type->return_type = vnx::register_type_code(return_type);
-		}
-		call_type->fields.resize(1);
-		{
-			vnx::TypeField& field = call_type->fields[0];
-			field.is_extended = true;
-			field.name = "sample";
-			field.code = {16};
-		}
-		call_type->build();
-		type_code->methods[0] = vnx::register_type_code(call_type);
-	}
-	{
-		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.handle_vnx_web_StreamWrite";
-		call_type->type_hash = vnx::Hash64(0xc1497e9e245cdacdull);
-		call_type->code_hash = vnx::Hash64(0xa7075a45287d0eb2ull);
-		call_type->is_method = true;
-		{
-			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
-			return_type->name = "vnx.web.Frontend.handle_vnx_web_StreamWrite.return";
-			return_type->type_hash = vnx::Hash64(0x790640075d31ba68ull);
-			return_type->code_hash = vnx::Hash64(0x1c4f8c1066ddeb9bull);
-			return_type->is_return = true;
-			return_type->build();
-			call_type->return_type = vnx::register_type_code(return_type);
-		}
-		call_type->fields.resize(1);
-		{
-			vnx::TypeField& field = call_type->fields[0];
-			field.is_extended = true;
-			field.name = "sample";
-			field.code = {16};
-		}
-		call_type->build();
-		type_code->methods[1] = vnx::register_type_code(call_type);
-	}
-	type_code->fields.resize(8);
+	type_code->code_hash = vnx::Hash64(0xf48c2bfbb63a643full);
+	type_code->methods.resize(0);
+	type_code->fields.resize(9);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -203,12 +158,18 @@ std::shared_ptr<vnx::TypeCode> FrontendBase::create_type_code() {
 	}
 	{
 		vnx::TypeField& field = type_code->fields[6];
+		field.name = "max_write_backlog";
+		field.value = vnx::to_string(268435456);
+		field.code = {8};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[7];
 		field.name = "read_block_size";
 		field.value = vnx::to_string(16384);
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[7];
+		vnx::TypeField& field = type_code->fields[8];
 		field.name = "write_block_size";
 		field.value = vnx::to_string(65536);
 		field.code = {8};
@@ -219,43 +180,9 @@ std::shared_ptr<vnx::TypeCode> FrontendBase::create_type_code() {
 
 void FrontendBase::handle_switch(std::shared_ptr<const ::vnx::Sample> _sample) {
 	const uint64_t _type_hash = _sample->value->get_type_hash();
-	if(_type_hash == 0x88743c1ec13df063ull) {
-		std::shared_ptr<const vnx::web::StreamEventArray> _value = std::dynamic_pointer_cast<const vnx::web::StreamEventArray>(_sample->value);
-		if(_value) {
-			handle(_value, _sample);
-		}
-	} else if(_type_hash == 0x6bf24232cab955eeull) {
-		std::shared_ptr<const vnx::web::StreamWrite> _value = std::dynamic_pointer_cast<const vnx::web::StreamWrite>(_sample->value);
-		if(_value) {
-			handle(_value, _sample);
-		}
-	}
 }
 
 bool FrontendBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const vnx::TypeCode* _call_type, const vnx::TypeCode* _return_type) {
-	if(_call_type->type_hash == vnx::Hash64(0x30751ebcba8fcb3full)) {
-		::std::shared_ptr<const ::vnx::web::StreamEventArray> sample;
-		const char* const _buf = _in.read(_call_type->total_field_size);
-		for(const vnx::TypeField* _field : _call_type->ext_fields) {
-			switch(_field->native_index) {
-				case 0: vnx::read(_in, sample, _call_type, _field->code.data()); break;
-				default: vnx::skip(_in, _call_type, _field->code.data());
-			}
-		}
-		handle(sample);
-		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xc1497e9e245cdacdull)) {
-		::std::shared_ptr<const ::vnx::web::StreamWrite> sample;
-		const char* const _buf = _in.read(_call_type->total_field_size);
-		for(const vnx::TypeField* _field : _call_type->ext_fields) {
-			switch(_field->native_index) {
-				case 0: vnx::read(_in, sample, _call_type, _field->code.data()); break;
-				default: vnx::skip(_in, _call_type, _field->code.data());
-			}
-		}
-		handle(sample);
-		return true;
-	}
 	return false;
 }
 
@@ -290,11 +217,17 @@ void read(TypeInput& in, ::vnx::web::FrontendBase& value, const TypeCode* type_c
 	{
 		const vnx::TypeField* const _field = type_code->field_map[6];
 		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.read_block_size, _field->code.data());
+			vnx::read_value(_buf + _field->offset, value.max_write_backlog, _field->code.data());
 		}
 	}
 	{
 		const vnx::TypeField* const _field = type_code->field_map[7];
+		if(_field) {
+			vnx::read_value(_buf + _field->offset, value.read_block_size, _field->code.data());
+		}
+	}
+	{
+		const vnx::TypeField* const _field = type_code->field_map[8];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.write_block_size, _field->code.data());
 		}
@@ -318,11 +251,12 @@ void write(TypeOutput& out, const ::vnx::web::FrontendBase& value, const TypeCod
 	if(code && code[0] == CODE_STRUCT) {
 		type_code = type_code->depends[code[1]];
 	}
-	char* const _buf = out.write(24);
+	char* const _buf = out.write(32);
 	vnx::write_value(_buf + 0, value.listen_queue_size);
 	vnx::write_value(_buf + 4, value.connection_timeout_ms);
-	vnx::write_value(_buf + 8, value.read_block_size);
-	vnx::write_value(_buf + 16, value.write_block_size);
+	vnx::write_value(_buf + 8, value.max_write_backlog);
+	vnx::write_value(_buf + 16, value.read_block_size);
+	vnx::write_value(_buf + 24, value.write_block_size);
 	vnx::write(out, value.address, type_code, type_code->fields[0].code.data());
 	vnx::write(out, value.input, type_code, type_code->fields[1].code.data());
 	vnx::write(out, value.output, type_code, type_code->fields[2].code.data());
