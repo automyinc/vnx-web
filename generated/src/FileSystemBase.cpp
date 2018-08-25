@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 FileSystemBase::VNX_TYPE_HASH(0x2a134f58319c8e28ull);
-const vnx::Hash64 FileSystemBase::VNX_CODE_HASH(0xd5cb76e016451f67ull);
+const vnx::Hash64 FileSystemBase::VNX_CODE_HASH(0xbaaa7e5722de5583ull);
 
 FileSystemBase::FileSystemBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -121,7 +121,7 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.FileSystem";
 	type_code->type_hash = vnx::Hash64(0x2a134f58319c8e28ull);
-	type_code->code_hash = vnx::Hash64(0xd5cb76e016451f67ull);
+	type_code->code_hash = vnx::Hash64(0xbaaa7e5722de5583ull);
 	type_code->methods.resize(2);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -190,7 +190,7 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 		vnx::TypeField& field = type_code->fields[3];
 		field.is_extended = true;
 		field.name = "domain_path";
-		field.value = vnx::to_string("/");
+		field.value = vnx::to_string("/file/");
 		field.code = {12, 5};
 	}
 	{

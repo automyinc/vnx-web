@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 Provider::VNX_TYPE_HASH(0x1d2b97d959828f56ull);
-const vnx::Hash64 Provider::VNX_CODE_HASH(0xe678a5d65284692full);
+const vnx::Hash64 Provider::VNX_CODE_HASH(0xacdde8eacc9397d6ull);
 
 vnx::Hash64 Provider::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -45,7 +45,7 @@ void Provider::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_begin(*_type_code);
 	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, id);
 	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, path);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, channel);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, input);
 	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, level);
 	_visitor.type_end(*_type_code);
 }
@@ -54,7 +54,7 @@ void Provider::write(std::ostream& _out) const {
 	_out << "{";
 	_out << "\"id\": "; vnx::write(_out, id);
 	_out << ", \"path\": "; vnx::write(_out, path);
-	_out << ", \"channel\": "; vnx::write(_out, channel);
+	_out << ", \"input\": "; vnx::write(_out, input);
 	_out << ", \"level\": "; vnx::write(_out, level);
 	_out << "}";
 }
@@ -67,8 +67,8 @@ void Provider::read(std::istream& _in) {
 			vnx::from_string(_entry.second, id);
 		} else if(_entry.first == "path") {
 			vnx::from_string(_entry.second, path);
-		} else if(_entry.first == "channel") {
-			vnx::from_string(_entry.second, channel);
+		} else if(_entry.first == "input") {
+			vnx::from_string(_entry.second, input);
 		} else if(_entry.first == "level") {
 			vnx::from_string(_entry.second, level);
 		}
@@ -97,7 +97,7 @@ std::shared_ptr<vnx::TypeCode> Provider::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Provider";
 	type_code->type_hash = vnx::Hash64(0x1d2b97d959828f56ull);
-	type_code->code_hash = vnx::Hash64(0xe678a5d65284692full);
+	type_code->code_hash = vnx::Hash64(0xacdde8eacc9397d6ull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<Provider>(); };
 	type_code->fields.resize(4);
@@ -116,7 +116,7 @@ std::shared_ptr<vnx::TypeCode> Provider::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[2];
 		field.is_extended = true;
-		field.name = "channel";
+		field.name = "input";
 		field.code = {12, 5};
 	}
 	{
@@ -154,7 +154,7 @@ void read(TypeInput& in, ::vnx::web::Provider& value, const TypeCode* type_code,
 		switch(_field->native_index) {
 			case 0: vnx::read(in, value.id, type_code, _field->code.data()); break;
 			case 1: vnx::read(in, value.path, type_code, _field->code.data()); break;
-			case 2: vnx::read(in, value.channel, type_code, _field->code.data()); break;
+			case 2: vnx::read(in, value.input, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -172,7 +172,7 @@ void write(TypeOutput& out, const ::vnx::web::Provider& value, const TypeCode* t
 	vnx::write_value(_buf + 0, value.level);
 	vnx::write(out, value.id, type_code, type_code->fields[0].code.data());
 	vnx::write(out, value.path, type_code, type_code->fields[1].code.data());
-	vnx::write(out, value.channel, type_code, type_code->fields[2].code.data());
+	vnx::write(out, value.input, type_code, type_code->fields[2].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::Provider& value) {

@@ -29,6 +29,8 @@
 #include <vnx/web/StreamWrite.hxx>
 #include <vnx/web/TextFile.hxx>
 #include <vnx/web/ValueFile.hxx>
+#include <vnx/web/View.hxx>
+#include <vnx/web/ViewProcessorBase.hxx>
 #include <vnx/web/cache_entry_t.hxx>
 #include <vnx/web/request_type_e.hxx>
 #include <vnx/web/stream_event_t.hxx>
@@ -66,6 +68,8 @@ static void register_all_types() {
 	vnx::register_type_code(vnx::web::StreamWrite::create_type_code());
 	vnx::register_type_code(vnx::web::TextFile::create_type_code());
 	vnx::register_type_code(vnx::web::ValueFile::create_type_code());
+	vnx::register_type_code(vnx::web::View::create_type_code());
+	vnx::register_type_code(vnx::web::ViewProcessorBase::create_type_code());
 	vnx::register_type_code(vnx::web::cache_entry_t::create_type_code());
 	vnx::register_type_code(vnx::web::request_type_e::create_type_code());
 	vnx::register_type_code(vnx::web::stream_event_t::create_type_code());
