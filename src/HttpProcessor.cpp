@@ -18,6 +18,8 @@ void HttpProcessor::init() {
 
 void HttpProcessor::main() {
 	
+	server_start_time_ms = vnx::get_time_millis();
+	
 	set_timer_millis(1000, std::bind(&HttpProcessor::print_stats, this));
 	
 	Super::main();
@@ -201,20 +203,36 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 		out->header.push_back(std::make_pair("Connection", "close"));
 	}
 	out->do_close = !keepalive || do_close;
+	
+	HttpDomainStats& stats = domain_stats[domain];
 	{
 		auto error = std::dynamic_pointer_cast<const ErrorCode>(response->content);
 		if(error) {
 			out->status = error->code;
 			out->content = get_error_content(error->code);
+			stats.error_counts[error->code]++;
 		} else {
 			out->status = 200;
 			out->content = response->content;
+			stats.page_hits[request->path.to_string()]++;
 		}
 	}
 	publish(out, output, BLOCKING);
 }
 
 void HttpProcessor::print_stats() {
+	for(const auto& entry : domain_stats) {
+		auto request = Request::create();
+		request->id = Hash128::rand();
+		request->type = request_type_e::WRITE;
+		request->path = "/vnx.web/http_domain_stats_" + std::to_string(server_start_time_ms) + ".dat";
+		auto data = BinaryData::create();
+		data->write_value(entry.second);
+		request->parameter = data;
+		request->time_stamp_ms = vnx::get_time_millis();
+		publish(request, domain_map[entry.first]);
+	}
+	
 	log(INFO).out << "requests=" << request_counter << "/s, pending=" << pending_requests.size()
 			<< ", reject=" << reject_counter << "/s";
 	request_counter = 0;

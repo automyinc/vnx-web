@@ -102,9 +102,9 @@ void FileSystem::update() {
 }
 
 void FileSystem::print_stats() {
-	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, read="
-			<< (float(num_read_bytes / update_interval_ms) * 1e-3) << " MB/s, write="
-			<< (float(num_write_bytes / update_interval_ms) * 1e-3) << " MB/s";
+	log(INFO).out << "requests=" << request_counter << "/s, read="
+			<< (float(num_read_bytes) / 1024 / 1024) << " MB/s, write="
+			<< (float(num_write_bytes) / 1024 / 1024) << " MB/s";
 	request_counter = 0;
 	num_read_bytes = 0;
 	num_write_bytes = 0;

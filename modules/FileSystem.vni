@@ -14,7 +14,7 @@ module FileSystem {
 	
 	long time_to_live_ms = 60000;		// how long to cache files [ms]
 	
-	long max_file_size = 268435456;		// zero means unlimited [bytes]
+	long max_file_size = 16777216;		// zero means unlimited [bytes]
 	
 	long max_history_size = 100;		// how many files to keep in history cache
 	

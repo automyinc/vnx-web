@@ -620,8 +620,8 @@ void Frontend::setup() {
 void Frontend::update() {
 	log(INFO).out << "sockets=" << (num_connections - 1) << ", accept=" << num_accept << "/s, timeout="
 			<< num_timeout << "/s, close=" << num_close << "/s, poll=" << num_poll_iter
-			<< "/s, read=" << (float(num_bytes_read / 1024) / 1024) << " MB/s, write="
-			<< (float(num_bytes_written / 1024) / 1024) << " MB/s";
+			<< "/s, read=" << (float(num_bytes_read) / 1024 / 1024) << " MB/s, write="
+			<< (float(num_bytes_written) / 1024 / 1024) << " MB/s";
 	num_accept = 0;
 	num_bytes_read = 0;
 	num_bytes_written = 0;

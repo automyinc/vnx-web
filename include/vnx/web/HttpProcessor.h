@@ -4,6 +4,7 @@
 
 #include <vnx/web/HttpProcessorBase.hxx>
 #include <vnx/web/HttpResponse.hxx>
+#include <vnx/web/HttpDomainStats.hxx>
 
 #include <queue>
 #include <unordered_set>
@@ -60,8 +61,10 @@ private:
 	std::unordered_map<Hash128, state_t> state_map;
 	std::unordered_map<Hash128, request_entry_t> pending_requests;
 	
-	std::map<int, std::shared_ptr<File>> static_error_pages;
+	std::unordered_map<std::string, HttpDomainStats> domain_stats;
+	std::unordered_map<int, std::shared_ptr<File>> static_error_pages;
 	
+	int64_t server_start_time_ms = 0;
 	size_t request_counter = 0;
 	size_t reject_counter = 0;
 	

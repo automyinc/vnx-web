@@ -18,7 +18,7 @@ module Cache {
 	
 	int update_interval_ms = 500;		// how often to check for timed out requests [ms]
 	
-	int maintain_interval_ms = 5000;	// how often to purge stale content [ms]
+	int maintain_interval_ms = 1000;	// how often to purge stale content [ms]
 	
 	
 	void purge();
