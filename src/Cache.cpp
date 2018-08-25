@@ -23,6 +23,7 @@ void Cache::main() {
 	
 	set_timer_millis(update_interval_ms, std::bind(&Cache::update, this));
 	set_timer_millis(maintain_interval_ms, std::bind(&Cache::maintain, this));
+	set_timer_millis(1000, std::bind(&Cache::print_stats, this));
 	
 	Super::main();
 }
@@ -167,7 +168,6 @@ void Cache::erase_request(const Hash128& id) {
 
 void Cache::update() {
 	const int64_t now = vnx::get_time_millis();
-	size_t num_timeout = 0;
 	{
 		std::vector<std::shared_ptr<const Request>> list;
 		for(const auto& entry : pending_requests) {
@@ -188,11 +188,6 @@ void Cache::update() {
 		provider->level = entry.second->level + 1;
 		publish(provider, domain);
 	}
-	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, hitrate="
-			<< (100 * float(hit_counter) / float(request_counter)) << " %, pending="
-			<< pending_requests.size() << ", num_timeout=" << num_timeout;
-	request_counter = 0;
-	hit_counter = 0;
 }
 
 void Cache::maintain() {
@@ -204,6 +199,14 @@ void Cache::maintain() {
 			}
 		}
 	}
+}
+
+void Cache::print_stats() {
+	log(INFO).out << "requests=" << request_counter << "/s, pending=" << pending_requests.size()
+			<< ", num_timeout=" << num_timeout << ", hitrate=" << (100 * float(hit_counter) / float(request_counter)) << " %";
+	request_counter = 0;
+	hit_counter = 0;
+	num_timeout = 0;
 }
 
 

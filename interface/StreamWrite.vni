@@ -2,11 +2,9 @@ package vnx.web;
 
 import vnx.Hash128;
 
-class StreamWrite {
+class StreamWrite extends BinaryData {
 	
 	Hash128 stream;
-	
-	vector<vnx.Buffer> chunks;
 	
 	bool is_eof;
 	

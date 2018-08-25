@@ -35,6 +35,8 @@ protected:
 private:
 	void update();
 	
+	void print_stats();
+	
 	std::shared_ptr<const Content> read_file(const Path& path);
 	
 	void write_file(const Path& path, std::shared_ptr<const BinaryData> content);

@@ -18,7 +18,7 @@ void HttpProcessor::init() {
 
 void HttpProcessor::main() {
 	
-	set_timer_millis(1000, std::bind(&HttpProcessor::update, this));
+	set_timer_millis(1000, std::bind(&HttpProcessor::print_stats, this));
 	
 	Super::main();
 }
@@ -214,7 +214,7 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 	publish(out, output, BLOCKING);
 }
 
-void HttpProcessor::update() {
+void HttpProcessor::print_stats() {
 	log(INFO).out << "requests=" << request_counter << "/s, pending=" << pending_requests.size()
 			<< ", reject=" << reject_counter << "/s";
 	request_counter = 0;

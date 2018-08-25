@@ -45,6 +45,8 @@ private:
 	
 	void maintain();
 	
+	void print_stats();
+	
 private:
 	vnx::Hash64 cache_salt;
 	vnx::Hash128 provider_id;
@@ -55,6 +57,7 @@ private:
 	
 	size_t request_counter = 0;
 	size_t hit_counter = 0;
+	size_t num_timeout = 0;
 	
 };
 

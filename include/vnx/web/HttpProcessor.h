@@ -51,7 +51,7 @@ private:
 	void process(state_t& state, const std::string& domain, std::shared_ptr<const HttpRequest> request,
 			std::shared_ptr<const Response> response, bool do_close);
 	
-	void update();
+	void print_stats();
 	
 	std::shared_ptr<File> get_error_content(int code);
 	

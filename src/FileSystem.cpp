@@ -47,6 +47,7 @@ void FileSystem::main() {
 	
 	set_timer_millis(update_interval_ms, std::bind(&FileSystem::update, this));
 	set_timer_millis(scan_interval_ms, std::bind(&FileSystem::scan, this));
+	set_timer_millis(1000, std::bind(&FileSystem::print_stats, this));
 	
 	Super::main();
 	
@@ -98,6 +99,9 @@ void FileSystem::scan() {
 
 void FileSystem::update() {
 	publish(provider, domain);
+}
+
+void FileSystem::print_stats() {
 	log(INFO).out << "requests=" << ((1000 * request_counter) / update_interval_ms) << "/s, read="
 			<< (float(num_read_bytes / update_interval_ms) * 1e-3) << " MB/s, write="
 			<< (float(num_write_bytes / update_interval_ms) * 1e-3) << " MB/s";

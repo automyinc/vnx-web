@@ -4,7 +4,7 @@
 
 #include <vnx/web/FrontendBase.hxx>
 #include <vnx/Endpoint.hxx>
-#include <vnx/InternalPipe.h>
+#include <vnx/Pipe.h>
 
 
 namespace vnx {
@@ -21,10 +21,6 @@ protected:
 	
 	void main() override;
 	
-	void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> value) override;
-	
-	void handle(std::shared_ptr<const ::vnx::web::StreamWrite> value) override;
-	
 private:
 	void setup();
 	
@@ -34,9 +30,6 @@ private:
 	int server_sock = -1;
 	Timer* setup_timer = 0;
 	std::shared_ptr<Endpoint> endpoint;
-	
-	InternalPipe<stream_event_t> new_event_list;							// main() -> poll_loop
-	InternalPipe<std::shared_ptr<const StreamWrite>> new_write_data;		// main() -> write_loop
 	
 	std::shared_ptr<AcceptLoop> accept_loop;
 	std::shared_ptr<PollLoop> poll_loop;

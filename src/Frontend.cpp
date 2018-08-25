@@ -1,11 +1,12 @@
 
 #include <vnx/web/Frontend.h>
 #include <vnx/web/StreamRead.hxx>
-#include <vnx/InternalThread.h>
+#include <vnx/web/StreamWrite.hxx>
+#include <vnx/web/StreamEventArray.hxx>
+#include <vnx/Thread.h>
+#include <vnx/Pipe.h>
 
 #include <mutex>
-#include <condition_variable>
-
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
@@ -27,28 +28,45 @@ void set_non_block(int fd) {
 	}
 }
 
-
-class Frontend::AcceptLoop : public InternalThread {
+class NewSocket : public vnx::Message {
 public:
-	std::shared_ptr<InternalThread> poll_loop;
-	
+	int sock = -1;
+};
+
+class NewReadAvail : public vnx::Message {
+public:
+	std::vector<std::pair<Hash128, int>> list;
+};
+
+class SetPollIn : public vnx::Message {
+public:
+	std::vector<vnx::Hash128> list;
+};
+
+class CloseStream : public vnx::Message {
+public:
+	std::vector<vnx::Hash128> list;
+};
+
+
+class Frontend::AcceptLoop : public Thread {
+public:
 	int server_sock = -1;
-	std::shared_ptr<const Endpoint> endpoint;
 	
-	InternalPipe<int> new_sockets;
+	std::shared_ptr<Pipe> new_sockets = Pipe::create();		// output
+	
+	AcceptLoop() : Thread("AcceptLoop") {}
 	
 protected:
 	void main() override {
 		
-		pthread_setname_np(pthread_self(), "AcceptLoop");
-		
-		while(do_run) {
-			const int sock = ::accept(server_sock, 0, 0);
-			if(sock >= 0) {
+		while(vnx_do_run) {
+			auto msg = std::make_shared<NewSocket>();
+			msg->sock = ::accept(server_sock, 0, 0);
+			if(msg->sock >= 0) {
 				const int value = 1;
-				::setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &value, sizeof(value));
-				new_sockets.push(sock);
-				poll_loop->notify();
+				::setsockopt(msg->sock, IPPROTO_TCP, TCP_NODELAY, &value, sizeof(value));
+				vnx::send_msg(new_sockets, msg, BLOCKING);
 			} else {
 				switch(errno) {
 					case EMFILE:
@@ -59,43 +77,47 @@ protected:
 						::usleep(500*1000);
 						break;
 					default:
-						do_run = false;
+						exit();
 				}
 			}
 		}
-		
 		::close(server_sock);
-		
-		poll_loop = 0;
 	}
 	
 };
 
 
-class Frontend::PollLoop : public InternalThread {
+class Frontend::PollLoop : public Thread {
 public:
 	Frontend* frontend = 0;
-	std::shared_ptr<AcceptLoop> accept_loop;
-	std::shared_ptr<ReadLoop> read_loop;
+	int max_num_events = 16 * 1024;
 	
-	int max_num_events = 64 * 1024;
+	std::shared_ptr<Pipe> new_sockets;			// input
+	std::shared_ptr<Pipe> set_poll_in;			// input
+	std::shared_ptr<Pipe> close_stream;			// input
 	
-	InternalPipe<std::pair<Hash128, int>> new_read_avail;
+	std::shared_ptr<Pipe> new_read_avail = Pipe::create();		// output
 	
-	void notify() override {
-		std::lock_guard<std::mutex> lock(mutex);
-		if(notify_pipe[1] >= 0) {
-			const char data = 0;
-			const ssize_t res = ::write(notify_pipe[1], &data, 1);
+	PollLoop() : Thread("PollLoop") {}
+	
+	void notify(std::shared_ptr<Pipe> pipe) override {
+		Thread::notify(pipe);
+		{
+			std::lock_guard<std::mutex> lock(vnx_mutex);
+			const int pipe = notify_pipe[1];
+			if(pipe >= 0) {
+				const char data = 0;
+				const ssize_t res = ::write(pipe, &data, 1);
+			}
 		}
 	}
 
 protected:
 	struct stream_state_t {
 		Hash128 id;
-		int64_t resume_time = -1;
 		int64_t last_write_time = -1;
 		int sock = -1;
+		bool is_internal = false;
 		bool is_blocked = false;
 	};
 	
@@ -104,20 +126,72 @@ protected:
 		size_t chunk_index = 0;
 		size_t chunk_offset = 0;
 		size_t vector_index = 0;
+		int64_t backlog = 0;
 	};
 	
-	int epoll_fd = -1;
+	int epoll_sock = -1;
 	int notify_pipe[2] = {-1, -1};
+	size_t write_block_size = 0;
+	int64_t last_timeout_check_time = -1;
 	std::unordered_map<Hash128, size_t> stream_map;
+	std::unordered_map<Hash128, write_state_t> write_set;
 	std::vector<stream_state_t> state_vector;
 	std::vector<epoll_event> new_events;
 	std::vector<size_t> free_list;
 	
-	size_t write_block_size = 0;
-	int64_t last_timeout_check_time = -1;
-	std::unordered_map<Hash128, write_state_t> write_set;
+	std::shared_ptr<Pipe> input_pipe;
 	
-	Hash128 add_stream(int sock, uint32_t events) {
+	void init() override {
+		if(::pipe(notify_pipe) != 0) {
+			throw std::runtime_error("pipe() failed with: " + std::to_string(errno));
+		}
+		set_non_block(notify_pipe[0]);
+		set_non_block(notify_pipe[1]);
+	}
+	
+	void main() override {
+		
+		vnx::connect(new_sockets, this);
+		vnx::connect(set_poll_in, this);
+		vnx::connect(close_stream, this);
+		
+		input_pipe = subscribe(frontend->input);
+		subscribe(frontend->channel);
+		
+		write_block_size = size_t(frontend->write_block_size > 0 ? frontend->write_block_size : 4096);
+		
+		epoll_sock = ::epoll_create(max_num_events);
+		if(epoll_sock < 0) {
+			log_error().out << "Frontend: epoll_create() failed with " << errno;
+			return;
+		}
+		new_events.resize(max_num_events);
+		
+		add_stream(notify_pipe[0], EPOLLIN, true);
+		
+		while(vnx_do_run) {
+			loop();
+		}
+		
+		auto events = StreamEventArray::create();
+		for(stream_state_t& state : state_vector) {
+			if(state.sock >= 0) {
+				events->array.push_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
+				::close(state.sock);
+			}
+		}
+		publish(events, frontend->output);
+		
+		{
+			std::lock_guard<std::mutex> lock(vnx_mutex);
+			::close(notify_pipe[0]);
+			::close(notify_pipe[1]);
+			notify_pipe[0] = -1;
+			notify_pipe[1] = -1;
+		}
+	}
+	
+	Hash128 add_stream(int sock, uint32_t events, bool is_internal = false) {
 		size_t index;
 		if(free_list.empty()) {
 			index = state_vector.size();
@@ -131,12 +205,13 @@ protected:
 		state = stream_state_t();
 		state.id = Hash128::rand();
 		state.sock = sock;
+		state.is_internal = is_internal;
 		stream_map[state.id] = index;
 		
 		epoll_event event = {};
 		event.events = events;
 		event.data.u64 = index;
-		::epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sock, &event);
+		::epoll_ctl(epoll_sock, EPOLL_CTL_ADD, sock, &event);
 		
 		frontend->num_connections++;
 		frontend->num_accept++;
@@ -145,7 +220,7 @@ protected:
 	
 	void remove_stream(size_t index) {
 		stream_state_t& state = state_vector[index];
-		::epoll_ctl(epoll_fd, EPOLL_CTL_DEL, state.sock, 0);
+		::epoll_ctl(epoll_sock, EPOLL_CTL_DEL, state.sock, 0);
 		stream_map.erase(state.id);
 		write_set.erase(state.id);
 		state = stream_state_t();
@@ -154,67 +229,21 @@ protected:
 		frontend->num_close++;
 	}
 	
-	void init() override {
-		std::lock_guard<std::mutex> lock(mutex);
-		if(::pipe(notify_pipe) != 0) {
-			throw std::runtime_error("pipe() failed with: " + std::to_string(errno));
-		}
-		set_non_block(notify_pipe[0]);
-		set_non_block(notify_pipe[1]);
-	}
-	
-	void main() override {
-		
-		pthread_setname_np(pthread_self(), "PollLoop");
-		
-		write_block_size = size_t(frontend->write_block_size > 0 ? frontend->write_block_size : 4096);
-		
-		epoll_fd = ::epoll_create(max_num_events);
-		if(epoll_fd < 0) {
-			log_error().out << "Frontend: epoll_create() failed with " << errno;
-			return;
-		}
-		new_events.resize(max_num_events);
-		
-		add_stream(notify_pipe[0], EPOLLIN);
-		
-		while(do_run) {
-			loop();
-		}
-		
-		auto events = StreamEventArray::create();
-		for(stream_state_t& state : state_vector) {
-			if(state.sock >= 0) {
-				events->array.push_back(stream_event_t::create(state.id, stream_event_t::EVENT_EOF));
-				::close(state.sock);
-			}
-		}
-		publish(events, frontend->output);
-		
-		accept_loop = 0;
-		read_loop = 0;
-		
-		{
-			std::lock_guard<std::mutex> lock(mutex);
-			::close(notify_pipe[0]);
-			::close(notify_pipe[1]);
-			notify_pipe[0] = -1;
-			notify_pipe[1] = -1;
-		}
-	}
-	
 	void loop();
 	
 };
 
 
-class Frontend::ReadLoop : public InternalThread {
+class Frontend::ReadLoop : public Thread {
 public:
 	Frontend* frontend = 0;
-	std::shared_ptr<PollLoop> poll_loop;
 	
-	InternalPipe<Hash128> set_poll_in;
-	InternalPipe<Hash128> close_stream;
+	std::shared_ptr<Pipe> new_read_avail;		// input
+	
+	std::shared_ptr<Pipe> set_poll_in = Pipe::create();		// output
+	std::shared_ptr<Pipe> close_stream = Pipe::create();	// output
+	
+	ReadLoop() : Thread("ReadLoop") {}
 	
 protected:
 	size_t read_block_size = 0;
@@ -222,62 +251,60 @@ protected:
 	
 	void main() override {
 		
-		pthread_setname_np(pthread_self(), "ReadLoop");
+		vnx::connect(new_read_avail, this, 0);		// queue needs to be unlimited since we dont want to block poll loop
 		
 		read_block_size = size_t(frontend->read_block_size > 0 ? frontend->read_block_size : 4096);
 		
-		while(do_run) {
+		while(vnx_do_run) {
 			loop();
 		}
-		
-		poll_loop = 0;
 	}
 	
 	void loop() {
-		bool do_notify = false;
-		{
-			auto input = poll_loop->new_read_avail.pop_all();
-			for(const std::pair<Hash128, int>& entry : *input) {
-				read_set[entry.first] = entry.second;
-			}
-		}
-		{
-			std::vector<Hash128> remove_list;
-			std::shared_ptr<StreamRead> sample;
-			for(const auto& entry : read_set) {
-				if(!sample) {
-					sample = StreamRead::create();
-					sample->channel = frontend->channel;
-					sample->data.reserve(read_block_size);
-				}
-				const ssize_t num_read = ::read(entry.second, sample->data.data(), read_block_size);
-				if(num_read > 0) {
-					sample->stream = entry.first;
-					sample->data.set_size(size_t(num_read));
-					publish(sample, frontend->output, BLOCKING);	// publish needs to be blocking since we cannot drop any samples
-					sample = 0;
-					frontend->num_bytes_read += num_read;
-				}
-				if(num_read < ssize_t(read_block_size)) {
-					remove_list.push_back(entry.first);
-					if(num_read != 0) {
-						set_poll_in.push(entry.first);
-						do_notify = true;
-					} else {
-						close_stream.push(entry.first);
-						do_notify = true;
-					}
+		while(auto msg = (read_set.empty() ? Thread::read_blocking() : Thread::read())) {
+			auto sample = std::dynamic_pointer_cast<const NewReadAvail>(msg);
+			if(sample) {
+				for(const std::pair<Hash128, int>& entry : sample->list) {
+					read_set[entry.first] = entry.second;
 				}
 			}
-			for(const Hash128& id : remove_list) {
-				read_set.erase(id);
+		}
+		
+		std::vector<Hash128> done_list;
+		std::shared_ptr<StreamRead> sample;
+		auto set_poll_in_msg = std::make_shared<SetPollIn>();
+		auto close_stream_msg = std::make_shared<CloseStream>();
+		for(const auto& entry : read_set) {
+			if(!sample) {
+				sample = StreamRead::create();
+				sample->channel = frontend->channel;
+				sample->data.reserve(read_block_size);
+			}
+			const ssize_t num_read = ::read(entry.second, sample->data.data(), read_block_size);
+			if(num_read > 0) {
+				sample->stream = entry.first;
+				sample->data.set_size(size_t(num_read));
+				publish(sample, frontend->output, BLOCKING);	// publish needs to be blocking since we cannot drop any samples
+				sample = 0;
+				frontend->num_bytes_read += num_read;
+			}
+			if(num_read < ssize_t(read_block_size)) {
+				done_list.push_back(entry.first);
+				if(num_read != 0) {
+					set_poll_in_msg->list.push_back(entry.first);
+				} else {
+					close_stream_msg->list.push_back(entry.first);
+				}
 			}
 		}
-		if(do_notify) {
-			poll_loop->notify();
+		for(const Hash128& id : done_list) {
+			read_set.erase(id);
 		}
-		if(read_set.empty()) {
-			wait();
+		if(!set_poll_in_msg->list.empty()) {
+			vnx::send_msg(set_poll_in, set_poll_in_msg, BLOCKING);
+		}
+		if(!close_stream_msg->list.empty()) {
+			vnx::send_msg(close_stream, close_stream_msg, BLOCKING);
 		}
 	}
 	
@@ -285,80 +312,98 @@ protected:
 
 
 void Frontend::PollLoop::loop() {
+	
 	const int64_t now = vnx::get_time_millis();
-	std::shared_ptr<StreamEventArray> stream_events = StreamEventArray::create();
 	std::vector<size_t> close_list;
-	{
-		auto input = accept_loop->new_sockets.pop_all();
-		for(const int sock : *input) {
-			set_non_block(sock);
-			const Hash128 id = add_stream(sock, EPOLLIN | EPOLLONESHOT);
-			stream_events->array.push_back(stream_event_t::create(id, stream_event_t::EVENT_NEW));
-		}
-		if(!do_run) {
-			return;
-		}
-	}
-	{
-		auto input = read_loop->set_poll_in.pop_all();
-		for(const Hash128& id : *input) {
-			auto iter = stream_map.find(id);
-			if(iter != stream_map.end()) {
-				const stream_state_t& state = state_vector[iter->second];
-				epoll_event event = {};
-				if(state.is_blocked) {
-					event.events = EPOLLIN | EPOLLOUT | EPOLLONESHOT;
-				} else {
-					event.events = EPOLLIN | EPOLLONESHOT;
+	auto stream_events = StreamEventArray::create();
+	
+	while(auto msg = Thread::read()) {
+		{
+			auto sample = std::dynamic_pointer_cast<const SetPollIn>(msg);
+			if(sample) {
+				for(const Hash128& id : sample->list) {
+					auto iter = stream_map.find(id);
+					if(iter != stream_map.end()) {
+						const stream_state_t& state = state_vector[iter->second];
+						epoll_event event = {};
+						if(state.is_blocked) {
+							event.events = EPOLLIN | EPOLLOUT | EPOLLONESHOT;
+						} else {
+							event.events = EPOLLIN | EPOLLONESHOT;
+						}
+						event.data.u64 = iter->second;
+						::epoll_ctl(epoll_sock, EPOLL_CTL_MOD, state.sock, &event);
+					}
 				}
-				event.data.u64 = iter->second;
-				::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
-			}
-		}
-	}
-	{
-		auto input = read_loop->close_stream.pop_all();
-		for(const Hash128& id : *input) {
-			auto iter = stream_map.find(id);
-			if(iter != stream_map.end()) {
-				close_list.push_back(iter->second);
-			}
-		}
-	}
-	{
-		auto input = frontend->new_event_list.pop_all();
-		for(const stream_event_t& event : *input) {
-			auto iter = stream_map.find(event.stream);
-			if(iter == stream_map.end()) {
 				continue;
 			}
-			stream_state_t& state = state_vector[iter->second];
-			switch(event.event) {
-				case stream_event_t::EVENT_CLOSE:
-					if(state.sock >= 0) {
+		}
+		{
+			auto sample = std::dynamic_pointer_cast<const NewSocket>(msg);
+			if(sample) {
+				set_non_block(sample->sock);
+				const Hash128 id = add_stream(sample->sock, EPOLLIN | EPOLLONESHOT);
+				stream_events->array.push_back(stream_event_t::create(id, stream_event_t::EVENT_NEW));
+				continue;
+			}
+		}
+		{
+			auto sample = std::dynamic_pointer_cast<const CloseStream>(msg);
+			if(sample) {
+				for(const Hash128& id : sample->list) {
+					auto iter = stream_map.find(id);
+					if(iter != stream_map.end()) {
 						close_list.push_back(iter->second);
 					}
-					break;
-			}
-		}
-	}
-	{
-		auto input = frontend->new_write_data.pop_all();
-		for(const std::shared_ptr<const StreamWrite>& sample : *input) {
-			auto iter = stream_map.find(sample->stream);
-			if(iter == stream_map.end()) {
+				}
 				continue;
 			}
-			write_state_t& state = write_set[sample->stream];
-			state.vector_index = iter->second;
-			state.samples.push(sample);
+		}
+		auto sample = std::dynamic_pointer_cast<const vnx::Sample>(msg);
+		if(sample) {
+			{
+				auto value = std::dynamic_pointer_cast<const StreamWrite>(sample->value);
+				if(value) {
+					auto iter = stream_map.find(value->stream);
+					if(iter == stream_map.end()) {
+						continue;
+					}
+					write_state_t& state = write_set[value->stream];
+					state.vector_index = iter->second;
+					state.samples.push(value);
+					state.backlog += value->get_size();
+					continue;
+				}
+			}
+			{
+				auto value = std::dynamic_pointer_cast<const StreamEventArray>(sample->value);
+				if(value) {
+					for(const stream_event_t& event : value->array) {
+						auto iter = stream_map.find(event.stream);
+						if(iter == stream_map.end()) {
+							continue;
+						}
+						stream_state_t& state = state_vector[iter->second];
+						switch(event.event) {
+							case stream_event_t::EVENT_CLOSE:
+								if(state.sock >= 0) {
+									close_list.push_back(iter->second);
+								}
+								break;
+						}
+					}
+					continue;
+				}
+			}
 		}
 	}
 	{
+		int64_t write_backlog = 0;
 		std::vector<Hash128> done_list;
 		for(auto& entry : write_set) {
 			write_state_t& state = entry.second;
 			stream_state_t& stream = state_vector[state.vector_index];
+			write_backlog += state.backlog;
 			if(stream.is_blocked) {
 				continue;
 			}
@@ -366,8 +411,8 @@ void Frontend::PollLoop::loop() {
 				done_list.push_back(entry.first);
 				continue;
 			}
-			size_t total_written = 0;
-			std::shared_ptr<const StreamWrite> sample = state.samples.front();
+			int64_t total_written = 0;
+			auto sample = state.samples.front();
 			while(state.chunk_index < sample->chunks.size()) {
 				const vnx::Buffer& buffer = sample->chunks[state.chunk_index];
 				if(buffer.size() > state.chunk_offset) {
@@ -376,8 +421,6 @@ void Frontend::PollLoop::loop() {
 					const ssize_t num_written = ::send(stream.sock, buffer.data(state.chunk_offset), size_t(num_to_write), MSG_NOSIGNAL);
 					if(num_written > 0) {
 						total_written += num_written;
-						stream.last_write_time = now;
-						frontend->num_bytes_written += num_written;
 					}
 					if(num_written == num_left) {
 						state.chunk_index++;
@@ -392,7 +435,7 @@ void Frontend::PollLoop::loop() {
 						epoll_event event = {};
 						event.events = EPOLLOUT | EPOLLIN | EPOLLONESHOT;		// EPOLLIN to detect disconnect
 						event.data.u64 = state.vector_index;
-						::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, stream.sock, &event);
+						::epoll_ctl(epoll_sock, EPOLL_CTL_MOD, stream.sock, &event);
 						break;
 					}
 					if(total_written >= write_block_size) {
@@ -402,6 +445,12 @@ void Frontend::PollLoop::loop() {
 					state.chunk_index++;
 					state.chunk_offset = 0;
 				}
+			}
+			if(total_written > 0) {
+				stream.last_write_time = now;
+				state.backlog -= total_written;
+				write_backlog -= total_written;
+				frontend->num_bytes_written += total_written;
 			}
 			if(state.chunk_index >= sample->chunks.size()) {
 				state.chunk_index = 0;
@@ -417,11 +466,23 @@ void Frontend::PollLoop::loop() {
 		for(const Hash128& id : done_list) {
 			write_set.erase(id);
 		}
+		if(write_backlog > frontend->max_write_backlog) {
+			if(!input_pipe->get_is_paused()) {
+				vnx::log_warn().out << "Blocked input: write_backlog=" << write_backlog;
+			}
+			input_pipe->pause();
+		}
+		if(write_backlog <= frontend->max_write_backlog / 2) {
+			if(input_pipe->get_is_paused()) {
+				vnx::log_warn().out << "Resumed input: write_backlog=" << write_backlog;
+			}
+			input_pipe->resume();
+		}
 	}
 	if(now - last_timeout_check_time > frontend->connection_timeout_ms / 5) {
 		for(const auto& entry : stream_map) {
 			stream_state_t& state = state_vector[entry.second];
-			if(state.sock != notify_pipe[0]) {
+			if(!state.is_internal) {
 				if(state.last_write_time < 0) {
 					state.last_write_time = now;
 				}
@@ -448,42 +509,42 @@ void Frontend::PollLoop::loop() {
 		publish(stream_events, frontend->output);
 	}
 	
-	const int num_events = ::epoll_wait(epoll_fd, new_events.data(), new_events.size(), 100);
+	const int num_events = ::epoll_wait(epoll_sock, new_events.data(), new_events.size(), 100);
 	if(num_events < 0) {
-		log_error().out << "Frontend: epoll_wait() failed with " << errno;
-		do_run = false;
+		if(errno != EINTR) {
+			log_error().out << "Frontend: epoll_wait() failed with " << errno;
+		}
+		exit();
 		return;
 	}
 	
 	{
-		bool do_notify = false;
+		auto new_read_avail_msg = std::make_shared<NewReadAvail>();
 		for(int i = 0; i < num_events; ++i) {
 			epoll_event& event = new_events[i];
 			stream_state_t& state = state_vector[event.data.u64];
 			if(state.sock < 0) {
 				continue;
 			}
-			if(state.sock == notify_pipe[0]) {
-				char buf[4096];
-				while(::read(state.sock, buf, sizeof(buf)) == sizeof(buf));
+			if(state.is_internal) {
+				if(state.sock == notify_pipe[0]) {
+					char buf[4096];
+					while(::read(state.sock, buf, sizeof(buf)) == sizeof(buf));
+				}
 				continue;
 			}
 			if(event.events & EPOLLOUT) {
 				state.is_blocked = false;
 			}
 			if(event.events & EPOLLIN) {
-				if(!state.is_blocked) {
-					new_read_avail.push(std::make_pair(state.id, state.sock));
-					do_notify = true;
-				}
-			}
-			if(event.events & EPOLLOUT) {
+				new_read_avail_msg->list.push_back(std::make_pair(state.id, state.sock));
+			} else if(event.events & EPOLLOUT) {
 				event.events = EPOLLIN | EPOLLONESHOT;
-				::epoll_ctl(epoll_fd, EPOLL_CTL_MOD, state.sock, &event);
+				::epoll_ctl(epoll_sock, EPOLL_CTL_MOD, state.sock, &event);
 			}
 		}
-		if(do_notify) {
-			read_loop->notify();
+		if(!new_read_avail_msg->list.empty()) {
+			vnx::send_msg(new_read_avail, new_read_avail_msg, BLOCKING);
 		}
 	}
 	frontend->num_poll_iter++;
@@ -510,13 +571,13 @@ void Frontend::main() {
 		::shutdown(server_sock, SHUT_RDWR);
 	}
 	if(accept_loop) {
-		accept_loop->close();
+		accept_loop->stop();
 	}
 	if(poll_loop) {
-		poll_loop->close();
+		poll_loop->stop();
 	}
 	if(read_loop) {
-		read_loop->close();
+		read_loop->stop();
 	}
 }
 
@@ -537,37 +598,23 @@ void Frontend::setup() {
 	poll_loop = std::make_shared<PollLoop>();
 	read_loop = std::make_shared<ReadLoop>();
 	
-	accept_loop->poll_loop = poll_loop;
 	accept_loop->server_sock = server_sock;
-	accept_loop->endpoint = endpoint;
 	
 	poll_loop->frontend = this;
-	poll_loop->accept_loop = accept_loop;
-	poll_loop->read_loop = read_loop;
+	poll_loop->new_sockets = accept_loop->new_sockets;
+	poll_loop->set_poll_in = read_loop->set_poll_in;
+	poll_loop->close_stream = read_loop->close_stream;
 	
 	read_loop->frontend = this;
-	read_loop->poll_loop = poll_loop;
+	read_loop->new_read_avail = poll_loop->new_read_avail;
 	
 	accept_loop->start();
 	poll_loop->start();
 	read_loop->start();
 	
-	subscribe(input, 1000);
-	subscribe(channel);
-	
 	set_timer_millis(1000, std::bind(&Frontend::update, this));
 	
 	log(INFO).out << "running on " << endpoint->to_url();
-}
-
-void Frontend::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> value) {
-	new_event_list.insert(value->array.begin(), value->array.end());
-	poll_loop->notify();
-}
-
-void Frontend::handle(std::shared_ptr<const ::vnx::web::StreamWrite> value) {
-	new_write_data.push(value);
-	poll_loop->notify();
 }
 
 void Frontend::update() {

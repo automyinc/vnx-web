@@ -16,13 +16,13 @@ module FileSystem {
 	
 	long max_file_size = 268435456;		// zero means unlimited [bytes]
 	
-	long max_history_size = 100;		// how many files to keep in history
+	long max_history_size = 100;		// how many files to keep in history cache
 	
-	int update_interval_ms = 500;
+	int update_interval_ms = 500;		// how often to publish provider info
 	
 	int scan_interval_ms = 10000;		// how often to scan for new/updated files [ms]
 	
-	int max_input_queue_ms = 500;
+	int max_input_queue_ms = 500;		// incoming request queue length
 	
 	
 	void scan();
