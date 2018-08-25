@@ -147,13 +147,13 @@ protected:
 		}
 		set_non_block(notify_pipe[0]);
 		set_non_block(notify_pipe[1]);
-	}
-	
-	void main() override {
 		
 		vnx::connect(new_sockets, this);
 		vnx::connect(set_poll_in, this);
 		vnx::connect(close_stream, this);
+	}
+	
+	void main() override {
 		
 		input_pipe = subscribe(frontend->input);
 		subscribe(frontend->channel);
@@ -251,9 +251,11 @@ protected:
 	size_t read_block_size = 0;
 	std::unordered_map<Hash128, int> read_set;
 	
-	void main() override {
-		
+	void init() override {
 		vnx::connect(new_read_avail, this, 0);		// queue needs to be unlimited since we dont want to block poll loop
+	}
+	
+	void main() override {
 		
 		read_block_size = size_t(frontend->read_block_size > 0 ? frontend->read_block_size : 4096);
 		
