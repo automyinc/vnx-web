@@ -14,6 +14,8 @@ module HttpProcessor {
 	
 	map<string, TopicPtr> domain_map;	// map from web domain name to vnx topic name
 	
+	Path index_path = "/";				// to redirect root path to an index file
+	
 	long max_queue_size = 100;			// maximum number of pending requests per connection
 	
 	long max_pending = 100000;			// maximum number of total pending requests

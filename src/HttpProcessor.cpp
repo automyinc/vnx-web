@@ -132,6 +132,9 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		const std::string payload = request->payload.as_string();
 		parameter = parse_parameter(parameter, payload.c_str(), payload.size());
 	}
+	if(forward->path == "/") {
+		forward->path = index_path;
+	}
 	if(request->method == "GET" || request->method == "POST") {
 		if(!forward->path.empty()) {
 			std::string& str = forward->path.back();
