@@ -17,6 +17,8 @@ void BinaryData::write_value(const vnx::Value& data) {
 	chunks.clear();
 	BinaryDataOutputStream stream(this);
 	TypeOutput out(&stream);
+	vnx::write(out, uint16_t(CODE_NONE));		// optional file header
+	vnx::write(out, uint16_t(CODE_MAGIC));		// optional file header
 	vnx::write(out, data);
 	out.flush();
 }

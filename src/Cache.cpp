@@ -93,6 +93,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	std::shared_ptr<const Provider> provider = find_provider(request->path);
 	if(provider) {
 		std::shared_ptr<Request> forward = vnx::clone(request);
+		forward->path = request->path.get_relative_path(provider->path);
 		forward->channel = channel;
 		publish(forward, provider->input);
 		push_request(request);
@@ -188,7 +189,7 @@ void Cache::update() {
 	for(const auto& entry : provider_map) {
 		auto provider = vnx::clone(entry.second);
 		provider->id = provider_id;
-		provider->channel = channel;
+		provider->input = channel;
 		provider->level = entry.second->level + 1;
 		publish(provider, domain);
 	}

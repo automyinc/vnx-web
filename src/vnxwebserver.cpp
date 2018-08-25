@@ -11,8 +11,6 @@
 #include <vnx/Terminal.h>
 #include <vnx/Server.h>
 
-#include <unistd.h>
-
 
 int main(int argc, char** argv) {
 	

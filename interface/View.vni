@@ -1,0 +1,10 @@
+package vnx.web;
+
+class View {
+	
+	Path path;
+	
+	
+	Response* process(Request* request);
+	
+}

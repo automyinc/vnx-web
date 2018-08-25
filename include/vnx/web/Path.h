@@ -51,11 +51,17 @@ public:
 	
 	bool has_parent_path() const;
 	
+	bool is_relative() const;
+	
 	Path get_parent_path() const;
 	
 	Path get_base_path(size_t N) const;
 	
 	Path get_sub_path(size_t N) const;
+	
+	Path get_relative_path(const Path& base_path) const;
+	
+	Path as_relative_path() const;
 	
 	friend std::ostream& operator<<(std::ostream& out, const Path& path);
 	

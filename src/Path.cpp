@@ -33,10 +33,10 @@ bool Path::operator>(const Path& other) const {
 }
 
 Path& Path::operator+=(const Path& other) {
-	if(!empty() && back().empty()) {
+	if(size() > 1 && back().empty()) {
 		pop_back();
 	}
-	insert(end(), !other.empty() && other.front().empty() ? ++other.begin() : other.begin(), other.end());
+	insert(end(), other.size() > 1 && other.front().empty() ? ++other.begin() : other.begin(), other.end());
 	return *this;
 }
 
@@ -67,6 +67,10 @@ std::string Path::to_string() const {
 
 bool Path::has_parent_path() const {
 	return !get_parent_path().empty();
+}
+
+bool Path::is_relative() const {
+	return empty() || !front().empty() || front() == ".";
 }
 
 Path Path::get_parent_path() const {
@@ -105,6 +109,24 @@ Path Path::get_sub_path(size_t B) const {
 		result.push_back((*this)[i]);
 	}
 	return result;
+}
+
+Path Path::get_relative_path(const Path& base_path) const {
+	Path base = base_path;
+	if(!base.empty() && base.back().empty()) {
+		base.pop_back();
+	}
+	if(size() >= base.size() && get_base_path(base.size()) == base) {
+		return Path("") + get_sub_path(base.size());
+	}
+	return Path();
+}
+
+Path Path::as_relative_path() const {
+	if(!is_relative()) {
+		return get_sub_path(1);
+	}
+	return *this;
 }
 
 std::ostream& operator<<(std::ostream& out, const Path& path) {

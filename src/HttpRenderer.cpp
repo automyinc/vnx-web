@@ -62,11 +62,11 @@ void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const Director
 	std::ostringstream tmp;
 	tmp << "<html>\n<body>\n";
 	if(directory->path.has_parent_path()) {
-		tmp << "<a href=\"" << directory->path.get_parent_path().to_string() << "\">..</a><br>\n";
+		tmp << "<a href=\"..\">..</a><br>\n";
 	}
 	const std::string path = directory->path.to_string();
 	for(const FileInfo& file : directory->files) {
-		tmp << "<a href=\"" << path << file.name << (file.is_directory ? "/" : "") << "\">" << file.name << (file.is_directory ? "/" : "") << "</a><br>\n";
+		tmp << "<a href=\"" << file.name << (file.is_directory ? "/" : "") << "\">" << file.name << (file.is_directory ? "/" : "") << "</a><br>\n";
 	}
 	tmp << "</body>\n</html>\n";
 	

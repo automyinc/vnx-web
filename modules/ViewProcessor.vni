@@ -1,0 +1,23 @@
+package vnx.web;
+
+import vnx.TopicPtr;
+
+module ViewProcessor {
+	
+	TopicPtr domain;
+	
+	TopicPtr input;
+	
+	TopicPtr channel;
+	
+	View* view;
+	
+	int max_input_queue_ms = 500;		// incoming request queue length
+	
+	int update_interval_ms = 500;		// how often to publish provider info
+	
+	
+	void handle(Request sample);
+	void handle(Response sample);
+	
+}

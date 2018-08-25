@@ -10,7 +10,7 @@ module FileSystem {
 	
 	string source_path = ".";			// source root directory
 	
-	Path domain_path = "/";				// where to mount
+	Path domain_path = "/file/";		// where to mount
 	
 	long time_to_live_ms = 60000;		// how long to cache files [ms]
 	

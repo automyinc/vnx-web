@@ -88,7 +88,11 @@ void FileSystem::scan() {
 	const filesystem::path root = source_path;
 	if(filesystem::exists(root)) {
 		if(filesystem::is_directory(root)) {
-			scan_tree(domain_path, root);
+			try {
+				scan_tree("/", root);
+			} catch(const std::exception& ex) {
+				log(WARN).out << ex.what();
+			}
 		} else {
 			log(WARN).out << "Not a directory: " << root;
 		}
