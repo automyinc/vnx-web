@@ -9,6 +9,7 @@
 #include <vnx/TopicPtr.h>
 #include <vnx/web/HttpRequest.hxx>
 #include <vnx/web/HttpResponse.hxx>
+#include <vnx/web/Path.h>
 #include <vnx/web/Response.hxx>
 #include <vnx/web/StreamEventArray.hxx>
 

@@ -23,7 +23,7 @@ public:
 	::std::string source_path = ".";
 	::vnx::web::Path domain_path = "/";
 	::int64_t time_to_live_ms = 60000;
-	::int64_t max_file_size = 268435456;
+	::int64_t max_file_size = 16777216;
 	::int64_t max_history_size = 100;
 	::int32_t update_interval_ms = 500;
 	::int32_t scan_interval_ms = 10000;

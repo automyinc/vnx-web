@@ -9,6 +9,7 @@
 #include <vnx/TopicPtr.h>
 #include <vnx/web/HttpRequest.hxx>
 #include <vnx/web/HttpResponse.hxx>
+#include <vnx/web/Path.h>
 #include <vnx/web/Response.hxx>
 #include <vnx/web/StreamEventArray.hxx>
 
@@ -24,6 +25,7 @@ public:
 	::vnx::TopicPtr output;
 	::std::string default_domain;
 	::std::map<::std::string, ::vnx::TopicPtr> domain_map;
+	::vnx::web::Path index_path = "/";
 	::int64_t max_queue_size = 100;
 	::int64_t max_pending = 100000;
 	::int64_t timeout_ms = 1000;
