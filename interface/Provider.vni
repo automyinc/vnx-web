@@ -9,7 +9,7 @@ class Provider {
 	
 	Path path;
 	
-	TopicPtr channel;
+	TopicPtr input;
 	
 	int level;
 	

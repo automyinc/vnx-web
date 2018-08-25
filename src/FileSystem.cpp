@@ -34,8 +34,8 @@ void FileSystem::main() {
 	{
 		auto provider = Provider::create();
 		provider->id = Hash128::rand();
-		provider->path = domain_path.get_base_path(domain_path.size() - 1);
-		provider->channel = input;
+		provider->path = domain_path;
+		provider->input = input;
 		this->provider = provider;
 	}
 	

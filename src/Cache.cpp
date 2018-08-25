@@ -39,8 +39,12 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Content> content) {
 }
 
 void Cache::handle(std::shared_ptr<const ::vnx::web::Provider> provider) {
-	if(provider->id != provider_id) {
-		provider_map[provider->path] = provider;
+	if(provider->id != provider_id && !provider->path.empty()) {
+		Path path = provider->path;
+		if(path.back().empty()) {
+			path.pop_back();
+		}
+		provider_map[path] = provider;
 	}
 }
 
@@ -65,7 +69,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 				if(provider) {
 					std::shared_ptr<Request> forward = vnx::clone(request);
 					forward->channel = channel;
-					publish(forward, provider->channel);
+					publish(forward, provider->input);
 					entry.last_request_ms = now;
 				}
 			}
@@ -90,7 +94,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	if(provider) {
 		std::shared_ptr<Request> forward = vnx::clone(request);
 		forward->channel = channel;
-		publish(forward, provider->channel);
+		publish(forward, provider->input);
 		push_request(request);
 		return;
 	}
