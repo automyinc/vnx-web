@@ -4,36 +4,13 @@
 #include <vnx/web/Directory.hxx>
 #include <vnx/web/StreamWrite.hxx>
 #include <vnx/web/ErrorCode.hxx>
-
-#include <vnx/Output.h>
+#include <vnx/web/BinaryDataOutputStream.h>
 
 #include <sstream>
 
 
 namespace vnx {
 namespace web {
-
-class HttpRenderer::OutputStream : public vnx::OutputStream {
-public:
-	OutputStream(std::shared_ptr<StreamWrite> out_) : out(out_) {}
-	
-	void write(const void* buf, size_t len) {
-		out->chunks.push_back(vnx::Buffer(len));
-		::memcpy(out->chunks.back().data(), buf, len);
-		out->chunks.back().set_size(len);
-		written += len;
-	}
-	
-	size_t get_output_pos() const {
-		return written;
-	}
-	
-private:
-	std::shared_ptr<StreamWrite> out;
-	size_t written = 0;
-	
-};
-
 
 HttpRenderer::HttpRenderer(const std::string& _vnx_name)
 		: HttpRendererBase(_vnx_name)
@@ -131,7 +108,7 @@ void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::HttpResponse> respon
 	}
 	state = response->sequence;
 	
-	OutputStream stream(sample);
+	BinaryDataOutputStream stream(sample.get());
 	OutputBuffer out(&stream);
 	
 	render(out, "HTTP/1.1 ");

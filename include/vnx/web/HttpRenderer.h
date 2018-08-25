@@ -15,8 +15,6 @@ public:
 	HttpRenderer(const std::string& _vnx_name);
 	
 protected:
-	class OutputStream;
-	
 	void main() override;
 	
 	void handle(std::shared_ptr<const ::vnx::web::HttpResponse> response) override;

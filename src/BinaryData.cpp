@@ -1,5 +1,7 @@
 
 #include <vnx/web/BinaryData.hxx>
+#include <vnx/web/BinaryDataOutputStream.h>
+#include <vnx/Output.h>
 
 #include <cstring>
 
@@ -11,8 +13,17 @@ void BinaryData::append(const BinaryData& data) {
 	chunks.insert(chunks.end(), data.chunks.begin(), data.chunks.end());
 }
 
-void BinaryData::append_string(const std::string& data) {
-	chunks.push_back(Buffer(data.size()));
+void BinaryData::write_value(const vnx::Value& data) {
+	chunks.clear();
+	BinaryDataOutputStream stream(this);
+	TypeOutput out(&stream);
+	vnx::write(out, data);
+	out.flush();
+}
+
+void BinaryData::write_string(const std::string& data) {
+	chunks.clear();
+	chunks.emplace_back(data.size());
 	::memcpy(chunks.back().data(), data.data(), data.size());
 }
 
