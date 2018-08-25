@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
 		endpoint->connect(sock);
 		sockets[i] = sock;
 	}
+	std::cout << "connected with " << C << " sockets" << std::endl;
 	
 	std::ostringstream tmp;
 	tmp << "GET " << url << " HTTP/1.1\r\n";
@@ -73,7 +74,24 @@ int main(int argc, char** argv) {
 	const int64_t end_time = vnx::get_time_millis();
 	std::cout << std::endl;
 	
-	std::cout << (1000 * N / (end_time - start_time)) << " requests/s, " << fail_counter << " failed out of " << N
+	std::cout << "waiting for responses ..." << std::endl;
+	::usleep(3*1000*1000);
+	
+	for(int i = 0; i < C; ++i) {
+		const int sock = sockets[i];
+		while(true) {
+			char buf[16*1024];
+			const int num_read = ::recv(sock, buf, sizeof(buf), MSG_DONTWAIT);
+			if(num_read > 0) {
+				num_bytes_received += num_read;
+			}
+			if(num_read != sizeof(buf)) {
+				break;
+			}
+		}
+	}
+	
+	std::cout << (1000 * N / (end_time - start_time + 1)) << " requests/s, " << fail_counter << " failed out of " << N
 			<< ", " << num_bytes_received << " bytes received" << std::endl;
 	
 	for(int i = 0; i < C; ++i) {
