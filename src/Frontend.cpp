@@ -182,6 +182,8 @@ protected:
 		}
 		publish(events, frontend->output);
 		
+		::close(epoll_sock);
+		
 		{
 			std::lock_guard<std::mutex> lock(vnx_mutex);
 			::close(notify_pipe[0]);
