@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpProcessorBase::VNX_TYPE_HASH(0xea3bdb551f410546ull);
-const vnx::Hash64 HttpProcessorBase::VNX_CODE_HASH(0x881c22b0de50db9aull);
+const vnx::Hash64 HttpProcessorBase::VNX_CODE_HASH(0x8a9c1e732b3f45f3ull);
 
 HttpProcessorBase::HttpProcessorBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -121,7 +121,7 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpProcessor";
 	type_code->type_hash = vnx::Hash64(0xea3bdb551f410546ull);
-	type_code->code_hash = vnx::Hash64(0x881c22b0de50db9aull);
+	type_code->code_hash = vnx::Hash64(0x8a9c1e732b3f45f3ull);
 	type_code->methods.resize(3);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -234,7 +234,7 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 		vnx::TypeField& field = type_code->fields[5];
 		field.is_extended = true;
 		field.name = "index_path";
-		field.value = vnx::to_string("/default/");
+		field.value = vnx::to_string("/default/file/");
 		field.code = {12, 5};
 	}
 	{

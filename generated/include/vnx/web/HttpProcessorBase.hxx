@@ -25,7 +25,7 @@ public:
 	::vnx::TopicPtr output;
 	::std::string default_domain = "test.com";
 	::std::map<::std::string, ::vnx::TopicPtr> domain_map;
-	::vnx::web::Path index_path = "/default/";
+	::vnx::web::Path index_path = "/default/file/";
 	::int64_t max_queue_size = 100;
 	::int64_t max_pending = 100000;
 	::int64_t timeout_ms = 1000;
