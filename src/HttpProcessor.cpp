@@ -132,9 +132,6 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		const std::string payload = request->payload.as_string();
 		parameter = parse_parameter(parameter, payload.c_str(), payload.size());
 	}
-	if(forward->path == "/") {
-		forward->path = index_path;
-	}
 	if(request->method == "GET" || request->method == "POST") {
 		if(!forward->path.empty()) {
 			std::string& str = forward->path.back();
@@ -163,16 +160,22 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		}
 		auto iter = domain_map.find(domain);
 		if(iter != domain_map.end()) {
-			forward->id = request->id;
-			forward->stream = request->stream;
-			forward->source.push_back(channel);
-			forward->time_stamp_ms = request->time_stamp_ms;
-			forward->timeout_ms = timeout_ms;
-			publish(forward, iter->second, BLOCKING);
-			
-			request_entry_t& entry = pending_requests[request->id];
-			entry.stream = state.stream;
-			entry.domain = domain;
+			if(!forward->path.is_root()) {
+				
+				forward->id = request->id;
+				forward->stream = request->stream;
+				forward->source.push_back(channel);
+				forward->time_stamp_ms = request->time_stamp_ms;
+				forward->timeout_ms = timeout_ms;
+				publish(forward, iter->second, BLOCKING);
+				
+				request_entry_t& entry = pending_requests[request->id];
+				entry.stream = state.stream;
+				entry.domain = domain;
+			} else {
+				state.response_map[request->id] = Response::create(request,
+						ErrorCode::create_with_message(ErrorCode::MOVED_PERMANENTLY, index_path.to_string()));
+			}
 		} else {
 			state.response_map[request->id] = Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND));
 		}
@@ -199,12 +202,12 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 	out->sequence = request->sequence;
 	out->is_dynamic = response->is_dynamic;
 	out->time_to_live_ms = response->time_to_live_ms;
-	out->header.push_back(std::make_pair("Host", domain));
-	out->header.push_back(std::make_pair("Server", "vnx::web::server"));
+	out->header.emplace_back("Host", domain);
+	out->header.emplace_back("Server", "vnx::web::server");
 	if(keepalive) {
-		out->header.push_back(std::make_pair("Connection", "keep-alive"));
+		out->header.emplace_back("Connection", "keep-alive");
 	} else {
-		out->header.push_back(std::make_pair("Connection", "close"));
+		out->header.emplace_back("Connection", "close");
 	}
 	out->do_close = !keepalive || do_close;
 	
@@ -214,6 +217,9 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 		if(error) {
 			out->status = error->code;
 			out->content = get_error_content(error->code);
+			if(error->code == ErrorCode::MOVED_PERMANENTLY) {
+				out->header.emplace_back("Location", error->message);
+			}
 			stats.error_counts[error->code]++;
 		} else {
 			out->status = 200;
