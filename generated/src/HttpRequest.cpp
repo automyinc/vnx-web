@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpRequest::VNX_TYPE_HASH(0x84bd8b34f037a33eull);
-const vnx::Hash64 HttpRequest::VNX_CODE_HASH(0xd6afae596cbe1fe5ull);
+const vnx::Hash64 HttpRequest::VNX_CODE_HASH(0xb4eeb23eb54e93f9ull);
 
 vnx::Hash64 HttpRequest::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -48,7 +48,7 @@ void HttpRequest::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, type);
 	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, path);
 	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, parameter);
-	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, channel);
+	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, source);
 	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, time_stamp_ms);
 	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, timeout_ms);
 	_visitor.type_field(_type_code->fields[8], 8); vnx::accept(_visitor, sequence);
@@ -66,7 +66,7 @@ void HttpRequest::write(std::ostream& _out) const {
 	_out << ", \"type\": "; vnx::write(_out, type);
 	_out << ", \"path\": "; vnx::write(_out, path);
 	_out << ", \"parameter\": "; vnx::write(_out, parameter);
-	_out << ", \"channel\": "; vnx::write(_out, channel);
+	_out << ", \"source\": "; vnx::write(_out, source);
 	_out << ", \"time_stamp_ms\": "; vnx::write(_out, time_stamp_ms);
 	_out << ", \"timeout_ms\": "; vnx::write(_out, timeout_ms);
 	_out << ", \"sequence\": "; vnx::write(_out, sequence);
@@ -91,8 +91,8 @@ void HttpRequest::read(std::istream& _in) {
 			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "parameter") {
 			vnx::from_string(_entry.second, parameter);
-		} else if(_entry.first == "channel") {
-			vnx::from_string(_entry.second, channel);
+		} else if(_entry.first == "source") {
+			vnx::from_string(_entry.second, source);
 		} else if(_entry.first == "time_stamp_ms") {
 			vnx::from_string(_entry.second, time_stamp_ms);
 		} else if(_entry.first == "timeout_ms") {
@@ -133,7 +133,7 @@ std::shared_ptr<vnx::TypeCode> HttpRequest::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpRequest";
 	type_code->type_hash = vnx::Hash64(0x84bd8b34f037a33eull);
-	type_code->code_hash = vnx::Hash64(0xd6afae596cbe1fe5ull);
+	type_code->code_hash = vnx::Hash64(0xb4eeb23eb54e93f9ull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Request::get_type_code();
@@ -176,8 +176,8 @@ std::shared_ptr<vnx::TypeCode> HttpRequest::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[5];
 		field.is_extended = true;
-		field.name = "channel";
-		field.code = {12, 5};
+		field.name = "source";
+		field.code = {12, 12, 5};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[6];
@@ -269,7 +269,7 @@ void read(TypeInput& in, ::vnx::web::HttpRequest& value, const TypeCode* type_co
 			case 2: vnx::read(in, value.type, type_code, _field->code.data()); break;
 			case 3: vnx::read(in, value.path, type_code, _field->code.data()); break;
 			case 4: vnx::read(in, value.parameter, type_code, _field->code.data()); break;
-			case 5: vnx::read(in, value.channel, type_code, _field->code.data()); break;
+			case 5: vnx::read(in, value.source, type_code, _field->code.data()); break;
 			case 9: vnx::read(in, value.method, type_code, _field->code.data()); break;
 			case 11: vnx::read(in, value.header, type_code, _field->code.data()); break;
 			case 12: vnx::read(in, value.payload, type_code, _field->code.data()); break;
@@ -296,7 +296,7 @@ void write(TypeOutput& out, const ::vnx::web::HttpRequest& value, const TypeCode
 	vnx::write(out, value.type, type_code, type_code->fields[2].code.data());
 	vnx::write(out, value.path, type_code, type_code->fields[3].code.data());
 	vnx::write(out, value.parameter, type_code, type_code->fields[4].code.data());
-	vnx::write(out, value.channel, type_code, type_code->fields[5].code.data());
+	vnx::write(out, value.source, type_code, type_code->fields[5].code.data());
 	vnx::write(out, value.method, type_code, type_code->fields[9].code.data());
 	vnx::write(out, value.header, type_code, type_code->fields[11].code.data());
 	vnx::write(out, value.payload, type_code, type_code->fields[12].code.data());

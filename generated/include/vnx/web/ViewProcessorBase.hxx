@@ -23,8 +23,9 @@ public:
 	::vnx::TopicPtr domain;
 	::vnx::TopicPtr input;
 	::vnx::TopicPtr channel;
+	::vnx::TopicPtr output;
 	::std::shared_ptr<const ::vnx::web::View> view;
-	::int32_t max_input_queue_ms = 500;
+	::int32_t max_input_queue_ms = 100;
 	::int32_t update_interval_ms = 500;
 	
 	typedef ::vnx::Module Super;

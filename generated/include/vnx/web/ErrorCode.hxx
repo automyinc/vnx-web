@@ -14,6 +14,7 @@ namespace web {
 class ErrorCode : public ::vnx::web::Content {
 public:
 	static const ::int32_t BAD_REQUEST = 400;
+	static const ::int32_t FORBIDDEN = 403;
 	static const ::int32_t NOT_FOUND = 404;
 	static const ::int32_t TIMEOUT = 429;
 	static const ::int32_t INTERNAL_ERROR = 500;

@@ -23,7 +23,7 @@ public:
 	::vnx::web::request_type_e type = ::vnx::web::request_type_e::GENERIC;
 	::vnx::web::Path path;
 	::std::shared_ptr<const ::vnx::Value> parameter;
-	::vnx::TopicPtr channel;
+	::std::vector<::vnx::TopicPtr> source;
 	::int64_t time_stamp_ms = 0;
 	::int64_t timeout_ms = 3000;
 	
@@ -34,6 +34,10 @@ public:
 	
 	vnx::Hash64 get_type_hash() const;
 	const char* get_type_name() const;
+	
+	virtual ::vnx::TopicPtr get_return_channel() const;
+	virtual void forward(const ::std::shared_ptr<const ::vnx::web::Request>& request, const ::vnx::TopicPtr& channel);
+	virtual void forward_relative(const ::std::shared_ptr<const ::vnx::web::Request>& request, const ::vnx::TopicPtr& channel, const ::vnx::web::Path& base_path);
 	
 	static std::shared_ptr<Request> create();
 	std::shared_ptr<vnx::Value> clone() const;

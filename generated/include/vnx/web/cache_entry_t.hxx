@@ -7,6 +7,7 @@
 #include <vnx/Type.h>
 #include <vnx/web/package.hxx>
 #include <vnx/web/Content.hxx>
+#include <vnx/web/Path.h>
 
 
 namespace vnx {
@@ -15,6 +16,7 @@ namespace web {
 struct cache_entry_t {
 	
 	
+	::vnx::web::Path path;
 	::std::shared_ptr<const ::vnx::web::Content> content;
 	::int64_t time_stamp_ms = 0;
 	::int64_t time_to_live_ms = 0;

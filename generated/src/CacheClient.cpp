@@ -20,24 +20,6 @@ CacheClient::CacheClient(vnx::Hash64 service_addr)
 {
 }
 
-void CacheClient::handle(const ::std::shared_ptr<const ::vnx::web::Content>& sample) {
-	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
-	vnx::BinaryOutputStream _stream_out(_argument_data.get());
-	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x584e5d428e66fe95ull));
-	{
-		vnx::write(_out, sample, _type_code, _type_code->fields[0].code.data());
-	}
-	_out.flush();
-	_argument_data->type_code = _type_code;
-	vnx_request(_argument_data);
-}
-
-void CacheClient::handle_async(const ::std::shared_ptr<const ::vnx::web::Content>& sample) {
-	vnx_is_async = true;
-	handle(sample);
-}
-
 void CacheClient::handle(const ::std::shared_ptr<const ::vnx::web::Provider>& sample) {
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());

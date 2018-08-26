@@ -7,18 +7,11 @@
 #include <vnx/Client.h>
 #include <vnx/Module.h>
 #include <vnx/TopicPtr.h>
-#include <vnx/web/Content.hxx>
-#include <vnx/web/Directory.hxx>
-#include <vnx/web/ErrorCode.hxx>
-#include <vnx/web/File.hxx>
 #include <vnx/web/HttpRequest.hxx>
 #include <vnx/web/HttpResponse.hxx>
-#include <vnx/web/ObjectFile.hxx>
 #include <vnx/web/Provider.hxx>
 #include <vnx/web/Request.hxx>
 #include <vnx/web/Response.hxx>
-#include <vnx/web/TextFile.hxx>
-#include <vnx/web/ValueFile.hxx>
 
 
 namespace vnx {
@@ -29,10 +22,6 @@ public:
 	CacheClient(const std::string& service_name);
 	
 	CacheClient(vnx::Hash64 service_addr);
-	
-	void handle(const ::std::shared_ptr<const ::vnx::web::Content>& sample);
-	
-	void handle_async(const ::std::shared_ptr<const ::vnx::web::Content>& sample);
 	
 	void handle(const ::std::shared_ptr<const ::vnx::web::Provider>& sample);
 	

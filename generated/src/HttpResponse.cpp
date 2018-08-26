@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpResponse::VNX_TYPE_HASH(0x5f05cae7dd441511ull);
-const vnx::Hash64 HttpResponse::VNX_CODE_HASH(0xb3a2e4692ecb021aull);
+const vnx::Hash64 HttpResponse::VNX_CODE_HASH(0x1843c34537ea638full);
 
 vnx::Hash64 HttpResponse::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -45,13 +45,14 @@ void HttpResponse::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_begin(*_type_code);
 	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, id);
 	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, content);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, time_to_live_ms);
-	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, is_dynamic);
-	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, stream);
-	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, sequence);
-	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, status);
-	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, header);
-	_visitor.type_field(_type_code->fields[8], 8); vnx::accept(_visitor, do_close);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, destination);
+	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, time_to_live_ms);
+	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, is_dynamic);
+	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, stream);
+	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, sequence);
+	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, status);
+	_visitor.type_field(_type_code->fields[8], 8); vnx::accept(_visitor, header);
+	_visitor.type_field(_type_code->fields[9], 9); vnx::accept(_visitor, do_close);
 	_visitor.type_end(*_type_code);
 }
 
@@ -59,6 +60,7 @@ void HttpResponse::write(std::ostream& _out) const {
 	_out << "{";
 	_out << "\"id\": "; vnx::write(_out, id);
 	_out << ", \"content\": "; vnx::write(_out, content);
+	_out << ", \"destination\": "; vnx::write(_out, destination);
 	_out << ", \"time_to_live_ms\": "; vnx::write(_out, time_to_live_ms);
 	_out << ", \"is_dynamic\": "; vnx::write(_out, is_dynamic);
 	_out << ", \"stream\": "; vnx::write(_out, stream);
@@ -77,6 +79,8 @@ void HttpResponse::read(std::istream& _in) {
 			vnx::from_string(_entry.second, id);
 		} else if(_entry.first == "content") {
 			vnx::from_string(_entry.second, content);
+		} else if(_entry.first == "destination") {
+			vnx::from_string(_entry.second, destination);
 		} else if(_entry.first == "time_to_live_ms") {
 			vnx::from_string(_entry.second, time_to_live_ms);
 		} else if(_entry.first == "is_dynamic") {
@@ -117,12 +121,12 @@ std::shared_ptr<vnx::TypeCode> HttpResponse::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpResponse";
 	type_code->type_hash = vnx::Hash64(0x5f05cae7dd441511ull);
-	type_code->code_hash = vnx::Hash64(0xb3a2e4692ecb021aull);
+	type_code->code_hash = vnx::Hash64(0x1843c34537ea638full);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Response::get_type_code();
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<HttpResponse>(); };
-	type_code->fields.resize(9);
+	type_code->fields.resize(10);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -137,40 +141,46 @@ std::shared_ptr<vnx::TypeCode> HttpResponse::create_type_code() {
 	}
 	{
 		vnx::TypeField& field = type_code->fields[2];
+		field.is_extended = true;
+		field.name = "destination";
+		field.code = {12, 12, 5};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[3];
 		field.name = "time_to_live_ms";
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[3];
+		vnx::TypeField& field = type_code->fields[4];
 		field.name = "is_dynamic";
 		field.value = vnx::to_string(true);
 		field.code = {1};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[4];
+		vnx::TypeField& field = type_code->fields[5];
 		field.is_extended = true;
 		field.name = "stream";
 		field.code = {11, 2, 4};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[5];
+		vnx::TypeField& field = type_code->fields[6];
 		field.name = "sequence";
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[6];
+		vnx::TypeField& field = type_code->fields[7];
 		field.name = "status";
 		field.value = vnx::to_string(500);
 		field.code = {7};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[7];
+		vnx::TypeField& field = type_code->fields[8];
 		field.is_extended = true;
 		field.name = "header";
 		field.code = {12, 23, 2, 4, 6, 12, 5, 12, 5};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[8];
+		vnx::TypeField& field = type_code->fields[9];
 		field.name = "do_close";
 		field.code = {1};
 	}
@@ -195,31 +205,31 @@ void read(TypeInput& in, ::vnx::web::HttpResponse& value, const TypeCode* type_c
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{
-		const vnx::TypeField* const _field = type_code->field_map[2];
+		const vnx::TypeField* const _field = type_code->field_map[3];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.time_to_live_ms, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[3];
+		const vnx::TypeField* const _field = type_code->field_map[4];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.is_dynamic, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[5];
+		const vnx::TypeField* const _field = type_code->field_map[6];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.sequence, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[6];
+		const vnx::TypeField* const _field = type_code->field_map[7];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.status, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[8];
+		const vnx::TypeField* const _field = type_code->field_map[9];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.do_close, _field->code.data());
 		}
@@ -228,8 +238,9 @@ void read(TypeInput& in, ::vnx::web::HttpResponse& value, const TypeCode* type_c
 		switch(_field->native_index) {
 			case 0: vnx::read(in, value.id, type_code, _field->code.data()); break;
 			case 1: vnx::read(in, value.content, type_code, _field->code.data()); break;
-			case 4: vnx::read(in, value.stream, type_code, _field->code.data()); break;
-			case 7: vnx::read(in, value.header, type_code, _field->code.data()); break;
+			case 2: vnx::read(in, value.destination, type_code, _field->code.data()); break;
+			case 5: vnx::read(in, value.stream, type_code, _field->code.data()); break;
+			case 8: vnx::read(in, value.header, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -251,8 +262,9 @@ void write(TypeOutput& out, const ::vnx::web::HttpResponse& value, const TypeCod
 	vnx::write_value(_buf + 21, value.do_close);
 	vnx::write(out, value.id, type_code, type_code->fields[0].code.data());
 	vnx::write(out, value.content, type_code, type_code->fields[1].code.data());
-	vnx::write(out, value.stream, type_code, type_code->fields[4].code.data());
-	vnx::write(out, value.header, type_code, type_code->fields[7].code.data());
+	vnx::write(out, value.destination, type_code, type_code->fields[2].code.data());
+	vnx::write(out, value.stream, type_code, type_code->fields[5].code.data());
+	vnx::write(out, value.header, type_code, type_code->fields[8].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::HttpResponse& value) {

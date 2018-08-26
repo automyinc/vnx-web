@@ -7,18 +7,11 @@
 #include <vnx/web/package.hxx>
 #include <vnx/Module.h>
 #include <vnx/TopicPtr.h>
-#include <vnx/web/Content.hxx>
-#include <vnx/web/Directory.hxx>
-#include <vnx/web/ErrorCode.hxx>
-#include <vnx/web/File.hxx>
 #include <vnx/web/HttpRequest.hxx>
 #include <vnx/web/HttpResponse.hxx>
-#include <vnx/web/ObjectFile.hxx>
 #include <vnx/web/Provider.hxx>
 #include <vnx/web/Request.hxx>
 #include <vnx/web/Response.hxx>
-#include <vnx/web/TextFile.hxx>
-#include <vnx/web/ValueFile.hxx>
 
 
 namespace vnx {
@@ -58,8 +51,6 @@ public:
 	static std::shared_ptr<vnx::TypeCode> create_type_code();
 	
 protected:
-	virtual void handle(std::shared_ptr<const ::vnx::web::Content> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
-	virtual void handle(std::shared_ptr<const ::vnx::web::Content> _value) {}
 	virtual void handle(std::shared_ptr<const ::vnx::web::Provider> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
 	virtual void handle(std::shared_ptr<const ::vnx::web::Provider> _value) {}
 	virtual void handle(std::shared_ptr<const ::vnx::web::Request> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }

@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 TextFile::VNX_TYPE_HASH(0xf05376b178a4a968ull);
-const vnx::Hash64 TextFile::VNX_CODE_HASH(0x84607afd4d263f45ull);
+const vnx::Hash64 TextFile::VNX_CODE_HASH(0xa36f906d664a1094ull);
 
 vnx::Hash64 TextFile::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -43,18 +43,16 @@ void TextFile::write(vnx::TypeOutput& _out, const vnx::TypeCode* _type_code, con
 void TextFile::accept(vnx::Visitor& _visitor) const {
 	const vnx::TypeCode* _type_code = get_type_code();
 	_visitor.type_begin(*_type_code);
-	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, path);
-	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, mime_type);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, time_stamp_ms);
-	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, data);
-	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, type);
+	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, mime_type);
+	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, time_stamp_ms);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, data);
+	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, type);
 	_visitor.type_end(*_type_code);
 }
 
 void TextFile::write(std::ostream& _out) const {
 	_out << "{";
-	_out << "\"path\": "; vnx::write(_out, path);
-	_out << ", \"mime_type\": "; vnx::write(_out, mime_type);
+	_out << "\"mime_type\": "; vnx::write(_out, mime_type);
 	_out << ", \"time_stamp_ms\": "; vnx::write(_out, time_stamp_ms);
 	_out << ", \"data\": "; vnx::write(_out, data);
 	_out << ", \"type\": "; vnx::write(_out, type);
@@ -65,9 +63,7 @@ void TextFile::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "path") {
-			vnx::from_string(_entry.second, path);
-		} else if(_entry.first == "mime_type") {
+		if(_entry.first == "mime_type") {
 			vnx::from_string(_entry.second, mime_type);
 		} else if(_entry.first == "time_stamp_ms") {
 			vnx::from_string(_entry.second, time_stamp_ms);
@@ -101,37 +97,31 @@ std::shared_ptr<vnx::TypeCode> TextFile::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.TextFile";
 	type_code->type_hash = vnx::Hash64(0xf05376b178a4a968ull);
-	type_code->code_hash = vnx::Hash64(0x84607afd4d263f45ull);
+	type_code->code_hash = vnx::Hash64(0xa36f906d664a1094ull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Content::get_type_code();
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<TextFile>(); };
-	type_code->fields.resize(5);
+	type_code->fields.resize(4);
 	{
 		vnx::TypeField& field = type_code->fields[0];
-		field.is_extended = true;
-		field.name = "path";
-		field.code = {12, 5};
-	}
-	{
-		vnx::TypeField& field = type_code->fields[1];
 		field.is_extended = true;
 		field.name = "mime_type";
 		field.code = {12, 5};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[2];
+		vnx::TypeField& field = type_code->fields[1];
 		field.name = "time_stamp_ms";
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[3];
+		vnx::TypeField& field = type_code->fields[2];
 		field.is_extended = true;
 		field.name = "data";
 		field.code = {12, 5};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[4];
+		vnx::TypeField& field = type_code->fields[3];
 		field.is_extended = true;
 		field.name = "type";
 		field.code = {12, 5};
@@ -157,17 +147,16 @@ void read(TypeInput& in, ::vnx::web::TextFile& value, const TypeCode* type_code,
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{
-		const vnx::TypeField* const _field = type_code->field_map[2];
+		const vnx::TypeField* const _field = type_code->field_map[1];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.time_stamp_ms, _field->code.data());
 		}
 	}
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
-			case 0: vnx::read(in, value.path, type_code, _field->code.data()); break;
-			case 1: vnx::read(in, value.mime_type, type_code, _field->code.data()); break;
-			case 3: vnx::read(in, value.data, type_code, _field->code.data()); break;
-			case 4: vnx::read(in, value.type, type_code, _field->code.data()); break;
+			case 0: vnx::read(in, value.mime_type, type_code, _field->code.data()); break;
+			case 2: vnx::read(in, value.data, type_code, _field->code.data()); break;
+			case 3: vnx::read(in, value.type, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -183,10 +172,9 @@ void write(TypeOutput& out, const ::vnx::web::TextFile& value, const TypeCode* t
 	}
 	char* const _buf = out.write(8);
 	vnx::write_value(_buf + 0, value.time_stamp_ms);
-	vnx::write(out, value.path, type_code, type_code->fields[0].code.data());
-	vnx::write(out, value.mime_type, type_code, type_code->fields[1].code.data());
-	vnx::write(out, value.data, type_code, type_code->fields[3].code.data());
-	vnx::write(out, value.type, type_code, type_code->fields[4].code.data());
+	vnx::write(out, value.mime_type, type_code, type_code->fields[0].code.data());
+	vnx::write(out, value.data, type_code, type_code->fields[2].code.data());
+	vnx::write(out, value.type, type_code, type_code->fields[3].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::TextFile& value) {

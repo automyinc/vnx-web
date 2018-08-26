@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 Request::VNX_TYPE_HASH(0x53f584c8e4fef49dull);
-const vnx::Hash64 Request::VNX_CODE_HASH(0x660ae3ebe8847abcull);
+const vnx::Hash64 Request::VNX_CODE_HASH(0x509c926eb40ae3f8ull);
 
 vnx::Hash64 Request::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -48,7 +48,7 @@ void Request::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, type);
 	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, path);
 	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, parameter);
-	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, channel);
+	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, source);
 	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, time_stamp_ms);
 	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, timeout_ms);
 	_visitor.type_end(*_type_code);
@@ -61,7 +61,7 @@ void Request::write(std::ostream& _out) const {
 	_out << ", \"type\": "; vnx::write(_out, type);
 	_out << ", \"path\": "; vnx::write(_out, path);
 	_out << ", \"parameter\": "; vnx::write(_out, parameter);
-	_out << ", \"channel\": "; vnx::write(_out, channel);
+	_out << ", \"source\": "; vnx::write(_out, source);
 	_out << ", \"time_stamp_ms\": "; vnx::write(_out, time_stamp_ms);
 	_out << ", \"timeout_ms\": "; vnx::write(_out, timeout_ms);
 	_out << "}";
@@ -81,8 +81,8 @@ void Request::read(std::istream& _in) {
 			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "parameter") {
 			vnx::from_string(_entry.second, parameter);
-		} else if(_entry.first == "channel") {
-			vnx::from_string(_entry.second, channel);
+		} else if(_entry.first == "source") {
+			vnx::from_string(_entry.second, source);
 		} else if(_entry.first == "time_stamp_ms") {
 			vnx::from_string(_entry.second, time_stamp_ms);
 		} else if(_entry.first == "timeout_ms") {
@@ -113,7 +113,7 @@ std::shared_ptr<vnx::TypeCode> Request::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Request";
 	type_code->type_hash = vnx::Hash64(0x53f584c8e4fef49dull);
-	type_code->code_hash = vnx::Hash64(0x660ae3ebe8847abcull);
+	type_code->code_hash = vnx::Hash64(0x509c926eb40ae3f8ull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<Request>(); };
 	type_code->depends.resize(1);
@@ -153,8 +153,8 @@ std::shared_ptr<vnx::TypeCode> Request::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[5];
 		field.is_extended = true;
-		field.name = "channel";
-		field.code = {12, 5};
+		field.name = "source";
+		field.code = {12, 12, 5};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[6];
@@ -206,7 +206,7 @@ void read(TypeInput& in, ::vnx::web::Request& value, const TypeCode* type_code, 
 			case 2: vnx::read(in, value.type, type_code, _field->code.data()); break;
 			case 3: vnx::read(in, value.path, type_code, _field->code.data()); break;
 			case 4: vnx::read(in, value.parameter, type_code, _field->code.data()); break;
-			case 5: vnx::read(in, value.channel, type_code, _field->code.data()); break;
+			case 5: vnx::read(in, value.source, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -228,7 +228,7 @@ void write(TypeOutput& out, const ::vnx::web::Request& value, const TypeCode* ty
 	vnx::write(out, value.type, type_code, type_code->fields[2].code.data());
 	vnx::write(out, value.path, type_code, type_code->fields[3].code.data());
 	vnx::write(out, value.parameter, type_code, type_code->fields[4].code.data());
-	vnx::write(out, value.channel, type_code, type_code->fields[5].code.data());
+	vnx::write(out, value.source, type_code, type_code->fields[5].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::Request& value) {

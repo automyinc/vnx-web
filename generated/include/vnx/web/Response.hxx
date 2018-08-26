@@ -6,6 +6,7 @@
 
 #include <vnx/web/package.hxx>
 #include <vnx/Hash128.h>
+#include <vnx/TopicPtr.h>
 #include <vnx/Value.h>
 #include <vnx/web/Content.hxx>
 #include <vnx/web/Request.hxx>
@@ -19,6 +20,7 @@ public:
 	
 	::vnx::Hash128 id;
 	::std::shared_ptr<const ::vnx::web::Content> content;
+	::std::vector<::vnx::TopicPtr> destination;
 	::int64_t time_to_live_ms = 0;
 	::vnx::bool_t is_dynamic = true;
 	
@@ -30,6 +32,9 @@ public:
 	vnx::Hash64 get_type_hash() const;
 	const char* get_type_name() const;
 	
+	virtual ::vnx::TopicPtr get_return_channel() const;
+	virtual void is_for_request(const ::std::shared_ptr<const ::vnx::web::Request>& request);
+	virtual void forward(const ::std::shared_ptr<const ::vnx::web::Response>& response);
 	static ::std::shared_ptr<const ::vnx::web::Response> create(const ::std::shared_ptr<const ::vnx::web::Request>& request, const ::std::shared_ptr<const ::vnx::web::Content>& content);
 	
 	static std::shared_ptr<Response> create();

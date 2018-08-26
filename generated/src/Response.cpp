@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 Response::VNX_TYPE_HASH(0x2a23ede4ff56e0a2ull);
-const vnx::Hash64 Response::VNX_CODE_HASH(0x74ff7cd4454e40c0ull);
+const vnx::Hash64 Response::VNX_CODE_HASH(0x700005c916f0c2deull);
 
 vnx::Hash64 Response::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -45,8 +45,9 @@ void Response::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_begin(*_type_code);
 	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, id);
 	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, content);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, time_to_live_ms);
-	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, is_dynamic);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, destination);
+	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, time_to_live_ms);
+	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, is_dynamic);
 	_visitor.type_end(*_type_code);
 }
 
@@ -54,6 +55,7 @@ void Response::write(std::ostream& _out) const {
 	_out << "{";
 	_out << "\"id\": "; vnx::write(_out, id);
 	_out << ", \"content\": "; vnx::write(_out, content);
+	_out << ", \"destination\": "; vnx::write(_out, destination);
 	_out << ", \"time_to_live_ms\": "; vnx::write(_out, time_to_live_ms);
 	_out << ", \"is_dynamic\": "; vnx::write(_out, is_dynamic);
 	_out << "}";
@@ -67,6 +69,8 @@ void Response::read(std::istream& _in) {
 			vnx::from_string(_entry.second, id);
 		} else if(_entry.first == "content") {
 			vnx::from_string(_entry.second, content);
+		} else if(_entry.first == "destination") {
+			vnx::from_string(_entry.second, destination);
 		} else if(_entry.first == "time_to_live_ms") {
 			vnx::from_string(_entry.second, time_to_live_ms);
 		} else if(_entry.first == "is_dynamic") {
@@ -97,10 +101,10 @@ std::shared_ptr<vnx::TypeCode> Response::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Response";
 	type_code->type_hash = vnx::Hash64(0x2a23ede4ff56e0a2ull);
-	type_code->code_hash = vnx::Hash64(0x74ff7cd4454e40c0ull);
+	type_code->code_hash = vnx::Hash64(0x700005c916f0c2deull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<Response>(); };
-	type_code->fields.resize(4);
+	type_code->fields.resize(5);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -115,11 +119,17 @@ std::shared_ptr<vnx::TypeCode> Response::create_type_code() {
 	}
 	{
 		vnx::TypeField& field = type_code->fields[2];
+		field.is_extended = true;
+		field.name = "destination";
+		field.code = {12, 12, 5};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[3];
 		field.name = "time_to_live_ms";
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[3];
+		vnx::TypeField& field = type_code->fields[4];
 		field.name = "is_dynamic";
 		field.value = vnx::to_string(true);
 		field.code = {1};
@@ -145,13 +155,13 @@ void read(TypeInput& in, ::vnx::web::Response& value, const TypeCode* type_code,
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{
-		const vnx::TypeField* const _field = type_code->field_map[2];
+		const vnx::TypeField* const _field = type_code->field_map[3];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.time_to_live_ms, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[3];
+		const vnx::TypeField* const _field = type_code->field_map[4];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.is_dynamic, _field->code.data());
 		}
@@ -160,6 +170,7 @@ void read(TypeInput& in, ::vnx::web::Response& value, const TypeCode* type_code,
 		switch(_field->native_index) {
 			case 0: vnx::read(in, value.id, type_code, _field->code.data()); break;
 			case 1: vnx::read(in, value.content, type_code, _field->code.data()); break;
+			case 2: vnx::read(in, value.destination, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -178,6 +189,7 @@ void write(TypeOutput& out, const ::vnx::web::Response& value, const TypeCode* t
 	vnx::write_value(_buf + 8, value.is_dynamic);
 	vnx::write(out, value.id, type_code, type_code->fields[0].code.data());
 	vnx::write(out, value.content, type_code, type_code->fields[1].code.data());
+	vnx::write(out, value.destination, type_code, type_code->fields[2].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::Response& value) {

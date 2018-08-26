@@ -8,7 +8,6 @@
 #include <vnx/Hash128.h>
 #include <vnx/Object.h>
 #include <vnx/Value.h>
-#include <vnx/web/Path.h>
 
 
 namespace vnx {
@@ -17,7 +16,6 @@ namespace web {
 class Content : public ::vnx::Value {
 public:
 	
-	::vnx::web::Path path;
 	::std::string mime_type;
 	::int64_t time_stamp_ms = 0;
 	

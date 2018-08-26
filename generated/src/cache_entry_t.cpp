@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 cache_entry_t::VNX_TYPE_HASH(0xeff20f62431cce98ull);
-const vnx::Hash64 cache_entry_t::VNX_CODE_HASH(0xcdf844d2ddf67ec2ull);
+const vnx::Hash64 cache_entry_t::VNX_CODE_HASH(0xfb142aacfd5b35d4ull);
 
 vnx::Hash64 cache_entry_t::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -43,18 +43,20 @@ void cache_entry_t::write(vnx::TypeOutput& _out, const vnx::TypeCode* _type_code
 void cache_entry_t::accept(vnx::Visitor& _visitor) const {
 	const vnx::TypeCode* _type_code = get_type_code();
 	_visitor.type_begin(*_type_code);
-	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, content);
-	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, time_stamp_ms);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, time_to_live_ms);
-	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, last_request_ms);
-	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, num_pending);
-	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, num_hits);
+	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, path);
+	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, content);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, time_stamp_ms);
+	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, time_to_live_ms);
+	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, last_request_ms);
+	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, num_pending);
+	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, num_hits);
 	_visitor.type_end(*_type_code);
 }
 
 void cache_entry_t::write(std::ostream& _out) const {
 	_out << "{";
-	_out << "\"content\": "; vnx::write(_out, content);
+	_out << "\"path\": "; vnx::write(_out, path);
+	_out << ", \"content\": "; vnx::write(_out, content);
 	_out << ", \"time_stamp_ms\": "; vnx::write(_out, time_stamp_ms);
 	_out << ", \"time_to_live_ms\": "; vnx::write(_out, time_to_live_ms);
 	_out << ", \"last_request_ms\": "; vnx::write(_out, last_request_ms);
@@ -67,7 +69,9 @@ void cache_entry_t::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "content") {
+		if(_entry.first == "path") {
+			vnx::from_string(_entry.second, path);
+		} else if(_entry.first == "content") {
 			vnx::from_string(_entry.second, content);
 		} else if(_entry.first == "time_stamp_ms") {
 			vnx::from_string(_entry.second, time_stamp_ms);
@@ -105,37 +109,43 @@ std::shared_ptr<vnx::TypeCode> cache_entry_t::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.cache_entry_t";
 	type_code->type_hash = vnx::Hash64(0xeff20f62431cce98ull);
-	type_code->code_hash = vnx::Hash64(0xcdf844d2ddf67ec2ull);
+	type_code->code_hash = vnx::Hash64(0xfb142aacfd5b35d4ull);
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<vnx::Struct<cache_entry_t>>(); };
-	type_code->fields.resize(6);
+	type_code->fields.resize(7);
 	{
 		vnx::TypeField& field = type_code->fields[0];
+		field.is_extended = true;
+		field.name = "path";
+		field.code = {12, 5};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[1];
 		field.is_extended = true;
 		field.name = "content";
 		field.code = {16};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[1];
+		vnx::TypeField& field = type_code->fields[2];
 		field.name = "time_stamp_ms";
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[2];
+		vnx::TypeField& field = type_code->fields[3];
 		field.name = "time_to_live_ms";
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[3];
+		vnx::TypeField& field = type_code->fields[4];
 		field.name = "last_request_ms";
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[4];
+		vnx::TypeField& field = type_code->fields[5];
 		field.name = "num_pending";
 		field.code = {8};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[5];
+		vnx::TypeField& field = type_code->fields[6];
 		field.name = "num_hits";
 		field.code = {8};
 	}
@@ -160,38 +170,39 @@ void read(TypeInput& in, ::vnx::web::cache_entry_t& value, const TypeCode* type_
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{
-		const vnx::TypeField* const _field = type_code->field_map[1];
+		const vnx::TypeField* const _field = type_code->field_map[2];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.time_stamp_ms, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[2];
+		const vnx::TypeField* const _field = type_code->field_map[3];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.time_to_live_ms, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[3];
+		const vnx::TypeField* const _field = type_code->field_map[4];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.last_request_ms, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[4];
+		const vnx::TypeField* const _field = type_code->field_map[5];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.num_pending, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[5];
+		const vnx::TypeField* const _field = type_code->field_map[6];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.num_hits, _field->code.data());
 		}
 	}
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
-			case 0: vnx::read(in, value.content, type_code, _field->code.data()); break;
+			case 0: vnx::read(in, value.path, type_code, _field->code.data()); break;
+			case 1: vnx::read(in, value.content, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -211,7 +222,8 @@ void write(TypeOutput& out, const ::vnx::web::cache_entry_t& value, const TypeCo
 	vnx::write_value(_buf + 16, value.last_request_ms);
 	vnx::write_value(_buf + 24, value.num_pending);
 	vnx::write_value(_buf + 32, value.num_hits);
-	vnx::write(out, value.content, type_code, type_code->fields[0].code.data());
+	vnx::write(out, value.path, type_code, type_code->fields[0].code.data());
+	vnx::write(out, value.content, type_code, type_code->fields[1].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::cache_entry_t& value) {

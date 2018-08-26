@@ -15,6 +15,7 @@ namespace web {
 class Directory : public ::vnx::web::Content {
 public:
 	
+	::vnx::bool_t is_root = 0;
 	::std::vector<::vnx::web::FileInfo> files;
 	
 	typedef ::vnx::web::Content Super;
