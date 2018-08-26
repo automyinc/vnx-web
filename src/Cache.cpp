@@ -162,15 +162,16 @@ void Cache::erase_request(const Hash128& id) {
 void Cache::update() {
 	const int64_t now = vnx::get_time_millis();
 	{
-		std::vector<std::shared_ptr<const Request>> list;
+		std::vector<Hash128> list;
 		for(const auto& entry : pending_requests) {
 			if(now > entry.second->time_stamp_ms + entry.second->timeout_ms) {
-				list.push_back(entry.second);
+				list.push_back(entry.first);
 			}
 		}
-		for(const auto& request : list) {
+		for(const Hash128& id : list) {
+			auto request = pending_requests[id];
 			publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->get_return_channel());
-			erase_request(request->id);
+			erase_request(id);
 		}
 		num_timeout += list.size();
 	}
