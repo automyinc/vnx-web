@@ -25,16 +25,18 @@ std::ostream& render(std::ostream& out, std::shared_ptr<const Directory> directo
 	for(const FileInfo& file : list) {
 		out << "<tr>\n";
 		out << "<td><a href=\"" << file.name << (file.is_directory ? "/" : "") << "\">" << file.name << (file.is_directory ? "/" : "") << "</a></td>\n";
-		out << "<td style=\"padding-left:50px;\">" << file.mime_type << "</td>\n";
+		out << "<td style=\"padding-left:50px;\">" << (file.is_directory ? "" : file.mime_type) << "</td>\n";
 		out << "<td style=\"padding-left:50px;text-align:right;\">";
-		if(file.num_bytes < 10 * 1024) {
-			out << std::to_string(file.num_bytes) << " B</td>\n";
-		} else if(file.num_bytes < 10 * 1024 * 1024) {
-			out << std::to_string(file.num_bytes / 1024) << " K</td>\n";
-		} else {
-			out << std::to_string(file.num_bytes / 1024 / 1024) << " M</td>\n";
+		if(!file.is_directory) {
+			if(file.num_bytes < 10 * 1024) {
+				out << std::to_string(file.num_bytes) << " B";
+			} else if(file.num_bytes < 10 * 1024 * 1024) {
+				out << std::to_string(file.num_bytes / 1024) << " K";
+			} else {
+				out << std::to_string(file.num_bytes / 1024 / 1024) << " M";
+			}
 		}
-		out << "</tr>\n";
+		out << "</td>\n</tr>\n";
 	}
 	out << "</table>\n";
 	out << "</body>\n</html>\n";
