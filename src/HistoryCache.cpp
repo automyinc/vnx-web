@@ -18,10 +18,10 @@ std::shared_ptr<const Content> HistoryCache::query(const Path& path) const {
 	return 0;
 }
 
-void HistoryCache::insert(std::shared_ptr<const Content> content) {
+void HistoryCache::insert(const Path& path, std::shared_ptr<const Content> content) {
 	if(max_size > 0) {
-		content_map[content->path] = content;
-		history.push(content->path);
+		content_map[path] = content;
+		history.push(path);
 	}
 	while(history.size() > max_size) {
 		content_map.erase(history.front());

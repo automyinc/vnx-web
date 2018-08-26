@@ -25,15 +25,20 @@ void ViewProcessor::main() {
 		this->provider = provider;
 	}
 	
+	subscribe(input);
+	subscribe(channel);
+	
+	set_timer_millis(update_interval_ms, std::bind(&ViewProcessor::update, this));
+	
 	Super::main();
 }
 
 void ViewProcessor::handle(std::shared_ptr<const ::vnx::web::Request> request) {
-	
+	publish(view->forward(request, channel), output);
 }
 
 void ViewProcessor::handle(std::shared_ptr<const ::vnx::web::Response> response) {
-	
+	publish(view->process(response), response->get_return_channel());
 }
 
 void ViewProcessor::update() {

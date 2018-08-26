@@ -40,13 +40,6 @@ void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const Content>
 			return;
 		}
 	}
-	{
-		auto value = std::dynamic_pointer_cast<const Directory>(content);
-		if(value) {
-			render(out, value);
-			return;
-		}
-	}
 	render_header(out, "Content-Length", "0");
 	render(out, "\r\n");
 }
@@ -56,24 +49,6 @@ void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const File> fi
 	render_header(out, "Content-Type", file->mime_type);
 	render(out, "\r\n");
 	out.write(file->data.data(), file->data.size());
-}
-
-void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const Directory> directory) {
-	std::ostringstream tmp;
-	tmp << "<html>\n<body>\n";
-	if(directory->path.has_parent_path()) {
-		tmp << "<a href=\"..\">..</a><br>\n";
-	}
-	const std::string path = directory->path.to_string();
-	for(const FileInfo& file : directory->files) {
-		tmp << "<a href=\"" << file.name << (file.is_directory ? "/" : "") << "\">" << file.name << (file.is_directory ? "/" : "") << "</a><br>\n";
-	}
-	tmp << "</body>\n</html>\n";
-	
-	render_header(out, "Content-Length", std::to_string(tmp.str().size()));
-	render_header(out, "Content-Type", "text/html");
-	render(out, "\r\n");
-	out.write(tmp.str().data(), tmp.str().size());
 }
 
 void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::pair<std::string, std::string> &field) {

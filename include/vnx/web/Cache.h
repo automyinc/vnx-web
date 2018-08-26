@@ -22,8 +22,6 @@ protected:
 	
 	void main() override;
 	
-	void handle(std::shared_ptr<const ::vnx::web::Content> content) override;
-	
 	void handle(std::shared_ptr<const ::vnx::web::Provider> value) override;
 	
 	void handle(std::shared_ptr<const ::vnx::web::Request> request) override;
@@ -37,7 +35,7 @@ private:
 	
 	std::shared_ptr<const Provider> find_provider(const Path& path);
 	
-	void push_request(std::shared_ptr<const Request> request);
+	void push_request(const Hash128& id, std::shared_ptr<const Request> request);
 	
 	void erase_request(const Hash128& id);
 	

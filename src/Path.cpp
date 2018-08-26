@@ -73,6 +73,10 @@ bool Path::is_relative() const {
 	return empty() || !front().empty() || front() == ".";
 }
 
+bool Path::is_root() const {
+	return size() == 2 && (*this)[0].empty() && (*this)[1].empty();
+}
+
 Path Path::get_parent_path() const {
 	Path parent = *this;
 	if(!empty()) {

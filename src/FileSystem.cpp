@@ -57,12 +57,12 @@ void FileSystem::main() {
 void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	std::shared_ptr<Response> response = Response::create();
 	response->is_for_request(request);
-	response->is_dynamic = false;
-	response->time_to_live_ms = time_to_live_ms;
 	try {
 		switch(request->type) {
 			case request_type_e::READ:
 				response->content = read_file(request->path);
+				response->is_dynamic = false;
+				response->time_to_live_ms = time_to_live_ms;
 				break;
 			case request_type_e::WRITE: {
 				auto content = std::dynamic_pointer_cast<const BinaryData>(request->parameter);
@@ -127,6 +127,7 @@ std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
 		std::shared_ptr<Content> result;
 		if(filesystem::is_directory(file_path)) {
 			std::shared_ptr<Directory> directory = Directory::create();
+			directory->is_root = path.is_root();
 			for(auto it = filesystem::directory_iterator(file_path); it != filesystem::directory_iterator(); ++it) {
 				const filesystem::path file = it->path();
 				const std::string file_name = file.filename().generic_string();
@@ -159,10 +160,9 @@ std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
 			result = file;
 			num_read_bytes += num_read;
 		}
-		result->path = path;
 		result->mime_type = entry->second.mime_type;
 		result->time_stamp_ms = entry->second.time_stamp_ms;
-		cache->insert(result);
+		cache->insert(path, result);
 		return result;
 	} else {
 		return vnx::clone(ErrorCode::create(ErrorCode::NOT_FOUND));

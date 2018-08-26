@@ -30,8 +30,6 @@ private:
 	
 	void render(vnx::OutputBuffer& out, std::shared_ptr<const File> file);
 	
-	void render(vnx::OutputBuffer& out, std::shared_ptr<const Directory> directory);
-	
 	void render_header(vnx::OutputBuffer &out, const std::string &key, const std::string &value);
 	
 	void render_header(vnx::OutputBuffer &out, const std::pair<std::string, std::string> &field);

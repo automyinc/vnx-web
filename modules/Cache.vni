@@ -26,6 +26,5 @@ module Cache {
 	void handle(Request sample);
 	void handle(Response sample);
 	void handle(Provider sample);
-	void handle(Content sample);
 	
 }

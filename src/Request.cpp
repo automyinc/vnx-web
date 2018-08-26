@@ -16,6 +16,7 @@ void Request::forward(	const ::std::shared_ptr<const ::vnx::web::Request>& reque
 						const ::vnx::TopicPtr& channel)
 {
 	*this = *request;
+	this->id.B() = Hash64(this->id.B().value + 1);
 	this->source.push_back(channel);
 }
 

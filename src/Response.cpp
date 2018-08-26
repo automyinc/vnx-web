@@ -22,6 +22,7 @@ void Response::is_for_request(const ::std::shared_ptr<const ::vnx::web::Request>
 
 void Response::forward(const ::std::shared_ptr<const ::vnx::web::Response>& response) {
 	*this = *response;
+	this->id.B() = Hash64(response->id.B().value - 1);
 	if(!this->destination.empty()) {
 		this->destination.pop_back();
 	}

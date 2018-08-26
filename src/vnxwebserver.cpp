@@ -5,6 +5,8 @@
 #include <vnx/web/HttpRenderer.h>
 #include <vnx/web/Cache.h>
 #include <vnx/web/FileSystem.h>
+#include <vnx/web/ViewProcessor.h>
+#include <vnx/web/DefaultView.hxx>
 
 #include <vnx/Config.h>
 #include <vnx/Process.h>
@@ -34,43 +36,56 @@ int main(int argc, char** argv) {
 	
 	{
 		vnx::Handle<vnx::web::FileSystem> module = new vnx::web::FileSystem("FileSystem");
-		module->domain = "test.domain";
-		module->input = "test.filesystem.request";
+		module->domain = "server.domain";
+		module->input = "server.filesystem.request";
+		module.start_detached();
+	}
+	{
+		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("ViewProcessor");
+		module->domain = "server.domain";
+		module->input = "server.default.request";
+		module->channel = "server.default.channel";
+		module->output = "server.cache.request";
+		{
+			auto view = vnx::web::DefaultView::create();
+			view->path = "/default/";
+			vnx::read_config("DefaultView", view);
+			module->view = view;
+		}
 		module.start_detached();
 	}
 	{
 		vnx::Handle<vnx::web::Cache> module = new vnx::web::Cache("Cache");
-		module->domain = "test.domain";
-		module->input = "test.cache.request";
-		module->channel = "test.cache.channel";
+		module->domain = "server.domain";
+		module->input = "server.cache.request";
+		module->channel = "server.cache.channel";
 		module.start_detached();
 	}
 	{
 		vnx::Handle<vnx::web::HttpRenderer> module = new vnx::web::HttpRenderer("HttpRenderer");
-		module->input = "test.http.response";
-		module->output = "test.frontend.return_data";
+		module->input = "server.http.response";
+		module->output = "server.frontend.return_data";
 		module.start_detached();
 	}
 	{
 		vnx::Handle<vnx::web::HttpProcessor> module = new vnx::web::HttpProcessor("HttpProcessor");
-		module->input = "test.http.request";
-		module->channel = "test.http.processor";
-		module->output = "test.http.response";
-		module->default_domain = "test.com";
-		module->domain_map["test.com"] = "test.cache.request";
+		module->input = "server.http.request";
+		module->channel = "server.http.processor";
+		module->output = "server.http.response";
+		module->domain_map["test.com"] = "server.cache.request";	// for testing
 		module.start_detached();
 	}
 	{
 		vnx::Handle<vnx::web::HttpParser> module = new vnx::web::HttpParser("HttpParser");
-		module->input = "test.frontend.client_data";
-		module->output = "test.http.request";
+		module->input = "server.frontend.client_data";
+		module->output = "server.http.request";
 		module.start_detached();
 	}
 	{
 		vnx::Handle<vnx::web::Frontend> module = new vnx::web::Frontend("Frontend");
-		module->input = "test.frontend.return_data";
-		module->channel = "test.frontend.channel";
-		module->output = "test.frontend.client_data";
+		module->input = "server.frontend.return_data";
+		module->channel = "server.frontend.channel";
+		module->output = "server.frontend.client_data";
 		module.start_detached();
 	}
 	

@@ -53,6 +53,8 @@ public:
 	
 	bool is_relative() const;
 	
+	bool is_root() const;
+	
 	Path get_parent_path() const;
 	
 	Path get_base_path(size_t N) const;

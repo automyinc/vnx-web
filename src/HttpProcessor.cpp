@@ -164,6 +164,7 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		auto iter = domain_map.find(domain);
 		if(iter != domain_map.end()) {
 			forward->id = request->id;
+			forward->stream = request->stream;
 			forward->source.push_back(channel);
 			forward->time_stamp_ms = request->time_stamp_ms;
 			forward->timeout_ms = timeout_ms;
@@ -244,7 +245,6 @@ void HttpProcessor::print_stats() {
 
 std::shared_ptr<File> create_error_page(int code) {
 	std::shared_ptr<File> file = File::create();
-	file->path = "/error/" + std::to_string(code);
 	file->mime_type = "text/html";
 	file->time_stamp_ms = vnx::get_time_millis();
 	

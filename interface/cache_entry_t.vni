@@ -2,6 +2,8 @@ package vnx.web;
 
 struct cache_entry_t {
 	
+	Path path;
+	
 	Content* content;
 	
 	long time_stamp_ms;

@@ -5,6 +5,8 @@ class View {
 	Path path;
 	
 	
-	Response* process(Request* request);
+	Request* forward(Request* request, vnx.TopicPtr channel) const;
+	
+	Response* process(Response* response) const;
 	
 }

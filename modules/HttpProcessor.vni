@@ -10,11 +10,11 @@ module HttpProcessor {
 	
 	TopicPtr output;
 	
-	string default_domain;				// default web domain for this server
+	string default_domain = "test.com";		// default web domain for this server
 	
 	map<string, TopicPtr> domain_map;	// map from web domain name to vnx topic name
 	
-	Path index_path = "/";				// to redirect root path to an index file
+	Path index_path = "/default/";		// to redirect root path to an index file or path
 	
 	long max_queue_size = 100;			// maximum number of pending requests per connection
 	

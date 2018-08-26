@@ -3,6 +3,7 @@ package vnx.web;
 class ErrorCode extends Content {
 	
 	static const int BAD_REQUEST = 400;
+	static const int FORBIDDEN = 403;
 	static const int NOT_FOUND = 404;
 	static const int TIMEOUT = 429;
 	static const int INTERNAL_ERROR = 500;

@@ -3,6 +3,7 @@
 #define INCLUDE_VNX_WEB_HISTORYCACHE_H
 
 #include <vnx/web/Content.hxx>
+#include <vnx/web/Path.h>
 
 #include <queue>
 #include <unordered_map>
@@ -17,7 +18,7 @@ public:
 	
 	std::shared_ptr<const Content> query(const Path& path) const;
 	
-	void insert(std::shared_ptr<const Content> content);
+	void insert(const Path& path, std::shared_ptr<const Content> content);
 	
 	void remove(const Path& path);
 	

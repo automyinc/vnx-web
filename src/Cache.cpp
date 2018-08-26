@@ -28,16 +28,6 @@ void Cache::main() {
 	Super::main();
 }
 
-void Cache::handle(std::shared_ptr<const ::vnx::web::Content> content) {
-	cache_entry_t& entry = cache_lookup(content->path);
-	if(	entry.content
-		&& content->path == entry.content->path
-		&& content->time_stamp_ms >= entry.content->time_stamp_ms)
-	{
-		entry.content = content;
-	}
-}
-
 void Cache::handle(std::shared_ptr<const ::vnx::web::Provider> provider) {
 	if(provider->id != provider_id && !provider->path.empty()) {
 		Path path = provider->path;
@@ -54,7 +44,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	if(request->type == request_type_e::READ) {
 		cache_entry_t& entry = cache_lookup(request->path);
 		if(	entry.content
-			&& request->path == entry.content->path
+			&& request->path == entry.path
 			&& now < entry.time_stamp_ms + entry.time_to_live_ms)
 		{
 			std::shared_ptr<Response> response = Response::create();
@@ -81,7 +71,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	if(request->type == request_type_e::WRITE) {
 		cache_entry_t& entry = cache_lookup(request->path);
 		if(	entry.content
-			&& request->path == entry.content->path)
+			&& request->path == entry.path)
 		{
 			entry = cache_entry_t();	// purge old data
 		}
@@ -95,7 +85,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		std::shared_ptr<Request> new_request = Request::create();
 		new_request->forward_relative(request, channel, provider->path);
 		publish(new_request, provider->input);
-		push_request(request);
+		push_request(new_request->id, request);
 		return;
 	}
 	publish(Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND)), request->get_return_channel());
@@ -104,23 +94,30 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 	auto iter = pending_requests.find(response->id);
 	if(iter != pending_requests.end()) {
-		publish(response, response->get_return_channel());
-		erase_request(response->id);
-	}
-	if(	!response->is_dynamic
-		&& response->content
-		&& response->content->get_num_bytes() <= max_entry_size)
-	{
-		cache_entry_t& entry = cache_lookup(response->content->path);
-		if(entry.content) {
-			if(response->content->path != entry.content->path) {
-				entry = cache_entry_t();
+		std::shared_ptr<const Request> request = iter->second;
+		
+		std::shared_ptr<Response> new_response = Response::create();
+		new_response->forward(response);
+		publish(new_response, response->get_return_channel());
+		
+		if(	!response->is_dynamic
+			&& response->content
+			&& response->content->get_num_bytes() <= max_entry_size)
+		{
+			cache_entry_t& entry = cache_lookup(request->path);
+			if(entry.content) {
+				if(request->path != entry.path) {
+					entry = cache_entry_t();
+				}
 			}
+			entry.path = request->path;
+			entry.content = response->content;
+			entry.time_stamp_ms = vnx::get_time_millis();
+			entry.time_to_live_ms = response->time_to_live_ms;
+			entry.last_request_ms = entry.time_stamp_ms;
 		}
-		entry.content = response->content;
-		entry.time_stamp_ms = vnx::get_time_millis();
-		entry.time_to_live_ms = response->time_to_live_ms;
-		entry.last_request_ms = entry.time_stamp_ms;
+		
+		erase_request(response->id);
 	}
 }
 
@@ -144,8 +141,8 @@ std::shared_ptr<const Provider> Cache::find_provider(const Path& path) {
 	return 0;
 }
 
-void Cache::push_request(std::shared_ptr<const Request> request) {
-	pending_requests[request->id] = request;
+void Cache::push_request(const Hash128& id, std::shared_ptr<const Request> request) {
+	pending_requests[id] = request;
 	if(input_pipe) {
 		const size_t backlog = pending_requests.size();
 		if(backlog >= max_pending) {
