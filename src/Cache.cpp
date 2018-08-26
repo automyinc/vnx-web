@@ -58,18 +58,18 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 			&& now < entry.time_stamp_ms + entry.time_to_live_ms)
 		{
 			std::shared_ptr<Response> response = Response::create();
-			response->id = request->id;
+			response->is_for_request(request);
 			response->content = entry.content;
 			response->time_to_live_ms = entry.time_to_live_ms;
-			publish(response, request->channel);
+			publish(response, request->get_return_channel());
 			
 			// check if to pre-fetch
 			if(now - entry.last_request_ms > entry.time_to_live_ms / 2) {
 				std::shared_ptr<const Provider> provider = find_provider(request->path);
 				if(provider) {
-					std::shared_ptr<Request> forward = vnx::clone(request);
-					forward->channel = channel;
-					publish(forward, provider->input);
+					std::shared_ptr<Request> new_request = Request::create();
+					new_request->forward_relative(request, channel, provider->path);
+					publish(new_request, provider->input);
 					entry.last_request_ms = now;
 				}
 			}
@@ -87,25 +87,24 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		}
 	}
 	if(now > request->time_stamp_ms + request->timeout_ms) {
-		publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->channel);
+		publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->get_return_channel());
 		return;
 	}
 	std::shared_ptr<const Provider> provider = find_provider(request->path);
 	if(provider) {
-		std::shared_ptr<Request> forward = vnx::clone(request);
-		forward->path = request->path.get_relative_path(provider->path);
-		forward->channel = channel;
-		publish(forward, provider->input);
+		std::shared_ptr<Request> new_request = Request::create();
+		new_request->forward_relative(request, channel, provider->path);
+		publish(new_request, provider->input);
 		push_request(request);
 		return;
 	}
-	publish(Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND)), request->channel);
+	publish(Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND)), request->get_return_channel());
 }
 
 void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 	auto iter = pending_requests.find(response->id);
 	if(iter != pending_requests.end()) {
-		publish(response, iter->second->channel);
+		publish(response, response->get_return_channel());
 		erase_request(response->id);
 	}
 	if(	!response->is_dynamic
@@ -181,7 +180,7 @@ void Cache::update() {
 			}
 		}
 		for(const auto& request : list) {
-			publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->channel);
+			publish(Response::create(request, ErrorCode::create(ErrorCode::TIMEOUT)), request->get_return_channel());
 			erase_request(request->id);
 		}
 		num_timeout += list.size();

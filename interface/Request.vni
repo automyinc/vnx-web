@@ -16,10 +16,17 @@ class Request {
 	
 	Value* parameter;
 	
-	TopicPtr channel;				// where to return response
+	vector<TopicPtr> source;		// where to return response
 	
 	long time_stamp_ms;				// time when request was sent [ms]
 	
 	long timeout_ms = 3000;			// how long to wait until fail [ms]
+	
+	
+	TopicPtr get_return_channel() const;
+	
+	void forward(Request* request, TopicPtr channel);
+	
+	void forward_relative(Request* request, TopicPtr channel, Path base_path);
 	
 }

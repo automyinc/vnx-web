@@ -13,7 +13,7 @@ namespace web {
 
 void HttpProcessor::init() {
 	input_pipe = subscribe(input);
-	subscribe(channel, 0);
+	subscribe(channel, 0);				// we never want to miss a response
 }
 
 void HttpProcessor::main() {
@@ -164,7 +164,7 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		auto iter = domain_map.find(domain);
 		if(iter != domain_map.end()) {
 			forward->id = request->id;
-			forward->channel = channel;
+			forward->source.push_back(channel);
 			forward->time_stamp_ms = request->time_stamp_ms;
 			forward->timeout_ms = timeout_ms;
 			publish(forward, iter->second, BLOCKING);

@@ -29,6 +29,7 @@ add_library(vnx_web SHARED
 	src/HttpRenderer.cpp
 	src/View.cpp
 	src/ViewProcessor.cpp
+	src/Request.cpp
 )
 
 target_include_directories(vnx_web

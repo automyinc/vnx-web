@@ -132,7 +132,7 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
 	
 	for(const auto& request : state.complete) {
 		request->stream = input->stream;
-		request->channel = input->channel;
+		request->source.push_back(input->channel);
 		request->time_stamp_ms = vnx::get_time_millis();
 		publish(request, output, BLOCKING);
 	}

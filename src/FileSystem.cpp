@@ -56,7 +56,7 @@ void FileSystem::main() {
 
 void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	std::shared_ptr<Response> response = Response::create();
-	response->id = request->id;
+	response->is_for_request(request);
 	response->is_dynamic = false;
 	response->time_to_live_ms = time_to_live_ms;
 	try {
@@ -80,7 +80,7 @@ void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		response->content = ErrorCode::create_with_message(ErrorCode::INTERNAL_ERROR, ex.what());
 		log(WARN).out << ex.what();
 	}
-	publish(response, request->channel);
+	publish(response, request->get_return_channel());
 	request_counter++;
 }
 

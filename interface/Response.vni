@@ -1,6 +1,7 @@
 package vnx.web;
 
 import vnx.Hash128;
+import vnx.TopicPtr;
 
 class Response {
 	
@@ -8,10 +9,18 @@ class Response {
 	
 	Content* content;
 	
+	vector<TopicPtr> destination;	// channel where to forward response to
+	
 	long time_to_live_ms;		// how long to cache, zero means no caching [ms]
 	
 	bool is_dynamic = true;
 	
+	
+	TopicPtr get_return_channel() const;
+	
+	void is_for_request(Request* request);
+	
+	void forward(Response* response);
 	
 	static Response* create(Request* request, Content* content);
 	
