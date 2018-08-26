@@ -54,17 +54,8 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 			response->time_to_live_ms = entry.time_to_live_ms;
 			publish(response, request->get_return_channel());
 			
-			// check if to pre-fetch
-			if(now - entry.last_request_ms > entry.time_to_live_ms / 2) {
-				std::shared_ptr<const Provider> provider = find_provider(request->path);
-				if(provider) {
-					std::shared_ptr<Request> new_request = Request::create();
-					new_request->forward_relative(request, channel, provider->path);
-					publish(new_request, provider->input);
-					entry.last_request_ms = now;
-				}
-			}
 			entry.num_hits++;
+			entry.last_request_ms = now;
 			hit_counter++;
 			return;
 		}
