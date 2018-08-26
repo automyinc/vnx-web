@@ -25,10 +25,6 @@ public:
 	
 	void handle_async(const ::std::shared_ptr<const ::vnx::web::Request>& Sample);
 	
-	void scan();
-	
-	void scan_async();
-	
 };
 
 

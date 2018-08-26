@@ -15,6 +15,7 @@ namespace web {
 class File : public ::vnx::web::Content {
 public:
 	
+	::std::string name;
 	::vnx::Buffer data;
 	
 	typedef ::vnx::web::Content Super;
@@ -26,6 +27,7 @@ public:
 	const char* get_type_name() const;
 	
 	virtual ::int64_t get_num_bytes() const;
+	virtual ::std::string get_name_extension() const;
 	
 	static std::shared_ptr<File> create();
 	std::shared_ptr<vnx::Value> clone() const;

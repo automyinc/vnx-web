@@ -26,7 +26,6 @@ public:
 	::int64_t max_file_size = 16777216;
 	::int64_t max_history_size = 100;
 	::int32_t update_interval_ms = 500;
-	::int32_t scan_interval_ms = 10000;
 	::int32_t max_input_queue_ms = 500;
 	
 	typedef ::vnx::Module Super;
@@ -53,7 +52,6 @@ public:
 protected:
 	virtual void handle(std::shared_ptr<const ::vnx::web::Request> _value, std::shared_ptr<const ::vnx::Sample> _sample) { handle(_value); }
 	virtual void handle(std::shared_ptr<const ::vnx::web::Request> _value) {}
-	virtual void scan() = 0;
 	
 	void handle_switch(std::shared_ptr<const ::vnx::Sample> _sample);
 	bool call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const vnx::TypeCode* _call_type, const vnx::TypeCode* _return_type);

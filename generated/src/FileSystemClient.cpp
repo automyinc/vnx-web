@@ -38,23 +38,6 @@ void FileSystemClient::handle_async(const ::std::shared_ptr<const ::vnx::web::Re
 	handle(Sample);
 }
 
-void FileSystemClient::scan() {
-	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
-	vnx::BinaryOutputStream _stream_out(_argument_data.get());
-	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xe179bbc7ce76e37cull));
-	{
-	}
-	_out.flush();
-	_argument_data->type_code = _type_code;
-	vnx_request(_argument_data);
-}
-
-void FileSystemClient::scan_async() {
-	vnx_is_async = true;
-	scan();
-}
-
 
 } // namespace vnx
 } // namespace web
