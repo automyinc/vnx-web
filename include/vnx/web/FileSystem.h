@@ -30,8 +30,6 @@ protected:
 	
 	void handle(std::shared_ptr<const ::vnx::web::Request> request) override;
 	
-	void scan() override;
-	
 private:
 	void update();
 	
@@ -41,26 +39,15 @@ private:
 	
 	void write_file(const Path& path, std::shared_ptr<const BinaryData> content);
 	
-	void scan_tree(const Path& current, const boost::filesystem::path& file_path);
-	
 	bool is_valid_file(const std::string& file_name);
 	
 	std::string get_mime_type(const std::string& path, const std::string& extension);
 	
-	std::string get_mime_type(std::shared_ptr<const BinaryData> content, const std::string& extension);
-	
 	std::string get_mime_type_based_on_extension(const std::string& extension);
 	
 private:
-	struct file_entry_t {
-		boost::filesystem::path path;
-		std::string mime_type;
-		int64_t time_stamp_ms = 0;
-	};
-	
 	std::shared_ptr<HistoryCache> cache;
 	std::shared_ptr<const Provider> provider;
-	std::unordered_map<Path, file_entry_t> file_map;
 	
 	::magic_set* magic = 0;
 	size_t request_counter = 0;

@@ -20,12 +20,8 @@ module FileSystem {
 	
 	int update_interval_ms = 500;		// how often to publish provider info
 	
-	int scan_interval_ms = 10000;		// how often to scan for new/updated files [ms]
-	
 	int max_input_queue_ms = 500;		// incoming request queue length
 	
-	
-	void scan();
 	
 	void handle(Request Sample);
 	
