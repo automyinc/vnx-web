@@ -264,10 +264,18 @@ std::string FileSystem::get_mime_type(std::shared_ptr<const BinaryData> content,
 }
 
 std::string FileSystem::get_mime_type_based_on_extension(const std::string& extension) {
-	if(extension == ".css") {
+	if(extension == ".html") {
+		return "text/html";
+	} else if(extension == ".css") {
 		return "text/css";
 	} else if(extension == ".js") {
 		return "application/javascript";
+	} else if(extension == ".png") {
+		return "image/png";
+	} else if(extension == ".jpg") {
+		return "image/jpeg";
+	} else if(extension == ".jpeg") {
+		return "image/jpeg";
 	}
 	return std::string();
 }
