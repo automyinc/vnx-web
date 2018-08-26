@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 Directory::VNX_TYPE_HASH(0x1fd4ef6be645a155ull);
-const vnx::Hash64 Directory::VNX_CODE_HASH(0x79551a8141eeb601ull);
+const vnx::Hash64 Directory::VNX_CODE_HASH(0xb34f5da66e0133ccull);
 
 vnx::Hash64 Directory::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -97,7 +97,7 @@ std::shared_ptr<vnx::TypeCode> Directory::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Directory";
 	type_code->type_hash = vnx::Hash64(0x1fd4ef6be645a155ull);
-	type_code->code_hash = vnx::Hash64(0x79551a8141eeb601ull);
+	type_code->code_hash = vnx::Hash64(0xb34f5da66e0133ccull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Content::get_type_code();

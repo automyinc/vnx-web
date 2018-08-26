@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 FileInfo::VNX_TYPE_HASH(0x78c84256cbab6799ull);
-const vnx::Hash64 FileInfo::VNX_CODE_HASH(0xd1b464654ebcef9aull);
+const vnx::Hash64 FileInfo::VNX_CODE_HASH(0x9bd2362f7afb41aaull);
 
 vnx::Hash64 FileInfo::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -44,14 +44,16 @@ void FileInfo::accept(vnx::Visitor& _visitor) const {
 	const vnx::TypeCode* _type_code = get_type_code();
 	_visitor.type_begin(*_type_code);
 	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, name);
-	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, is_directory);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, num_bytes);
+	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, mime_type);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, is_directory);
+	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, num_bytes);
 	_visitor.type_end(*_type_code);
 }
 
 void FileInfo::write(std::ostream& _out) const {
 	_out << "{";
 	_out << "\"name\": "; vnx::write(_out, name);
+	_out << ", \"mime_type\": "; vnx::write(_out, mime_type);
 	_out << ", \"is_directory\": "; vnx::write(_out, is_directory);
 	_out << ", \"num_bytes\": "; vnx::write(_out, num_bytes);
 	_out << "}";
@@ -63,6 +65,8 @@ void FileInfo::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "name") {
 			vnx::from_string(_entry.second, name);
+		} else if(_entry.first == "mime_type") {
+			vnx::from_string(_entry.second, mime_type);
 		} else if(_entry.first == "is_directory") {
 			vnx::from_string(_entry.second, is_directory);
 		} else if(_entry.first == "num_bytes") {
@@ -93,10 +97,10 @@ std::shared_ptr<vnx::TypeCode> FileInfo::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.FileInfo";
 	type_code->type_hash = vnx::Hash64(0x78c84256cbab6799ull);
-	type_code->code_hash = vnx::Hash64(0xd1b464654ebcef9aull);
+	type_code->code_hash = vnx::Hash64(0x9bd2362f7afb41aaull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<FileInfo>(); };
-	type_code->fields.resize(3);
+	type_code->fields.resize(4);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -105,11 +109,17 @@ std::shared_ptr<vnx::TypeCode> FileInfo::create_type_code() {
 	}
 	{
 		vnx::TypeField& field = type_code->fields[1];
+		field.is_extended = true;
+		field.name = "mime_type";
+		field.code = {12, 5};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[2];
 		field.name = "is_directory";
 		field.code = {1};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[2];
+		vnx::TypeField& field = type_code->fields[3];
 		field.name = "num_bytes";
 		field.code = {8};
 	}
@@ -134,13 +144,13 @@ void read(TypeInput& in, ::vnx::web::FileInfo& value, const TypeCode* type_code,
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{
-		const vnx::TypeField* const _field = type_code->field_map[1];
+		const vnx::TypeField* const _field = type_code->field_map[2];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.is_directory, _field->code.data());
 		}
 	}
 	{
-		const vnx::TypeField* const _field = type_code->field_map[2];
+		const vnx::TypeField* const _field = type_code->field_map[3];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.num_bytes, _field->code.data());
 		}
@@ -148,6 +158,7 @@ void read(TypeInput& in, ::vnx::web::FileInfo& value, const TypeCode* type_code,
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
 			case 0: vnx::read(in, value.name, type_code, _field->code.data()); break;
+			case 1: vnx::read(in, value.mime_type, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -165,6 +176,7 @@ void write(TypeOutput& out, const ::vnx::web::FileInfo& value, const TypeCode* t
 	vnx::write_value(_buf + 0, value.is_directory);
 	vnx::write_value(_buf + 1, value.num_bytes);
 	vnx::write(out, value.name, type_code, type_code->fields[0].code.data());
+	vnx::write(out, value.mime_type, type_code, type_code->fields[1].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::FileInfo& value) {
