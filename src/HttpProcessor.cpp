@@ -203,7 +203,7 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 	out->is_dynamic = response->is_dynamic;
 	out->time_to_live_ms = response->time_to_live_ms;
 	out->header.emplace_back("Host", domain);
-	out->header.emplace_back("Server", "vnx::web::server");
+	out->header.emplace_back("Server", "vnx::web");
 	if(keepalive) {
 		out->header.emplace_back("Connection", "keep-alive");
 	} else {
