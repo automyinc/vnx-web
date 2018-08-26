@@ -42,6 +42,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	request_counter++;
 	const int64_t now = vnx::get_time_millis();
 	if(request->type == request_type_e::READ) {
+		read_request_counter++;
 		cache_entry_t& entry = cache_lookup(request->path);
 		if(	entry.content
 			&& request->path == entry.path
@@ -204,8 +205,9 @@ void Cache::maintain() {
 
 void Cache::print_stats() {
 	log(INFO).out << "requests=" << request_counter << "/s, pending=" << pending_requests.size()
-			<< ", num_timeout=" << num_timeout << ", hitrate=" << (100 * float(hit_counter) / float(request_counter)) << " %";
+			<< ", num_timeout=" << num_timeout << ", hitrate=" << (100 * float(hit_counter) / float(read_request_counter)) << " %";
 	request_counter = 0;
+	read_request_counter = 0;
 	hit_counter = 0;
 	num_timeout = 0;
 }

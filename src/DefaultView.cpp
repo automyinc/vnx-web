@@ -51,6 +51,7 @@ std::shared_ptr<const Response> DefaultView::process(const std::shared_ptr<const
 			if(allow_directory_index) {
 				std::ostringstream stream;
 				render(stream, directory);
+				
 				auto file = File::create();
 				file->mime_type = "text/html";
 				file->time_stamp_ms = directory->time_stamp_ms;
@@ -78,11 +79,11 @@ std::shared_ptr<const Response> DefaultView::process(const std::shared_ptr<const
 						vnx::PrettyPrinter printer(json);
 						vnx::accept(printer, in);
 						
-						auto file = File::create();
-						file->mime_type = "application/json";
-						file->time_stamp_ms = file->time_stamp_ms;
-						file->data = json.str();
-						new_response->content = file;
+						auto new_file = File::create();
+						new_file->mime_type = "application/json";
+						new_file->time_stamp_ms = file->time_stamp_ms;
+						new_file->data = json.str();
+						new_response->content = new_file;
 						new_response->time_to_live_ms /= 2;
 						return new_response;
 					}

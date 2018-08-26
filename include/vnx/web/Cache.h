@@ -54,6 +54,7 @@ private:
 	std::unordered_map<Hash128, std::shared_ptr<const Request>> pending_requests;
 	
 	size_t request_counter = 0;
+	size_t read_request_counter = 0;
 	size_t hit_counter = 0;
 	size_t num_timeout = 0;
 	
