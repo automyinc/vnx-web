@@ -3,6 +3,7 @@
 #include <vnx/web/ErrorCode.hxx>
 #include <vnx/web/Directory.hxx>
 #include <vnx/web/File.hxx>
+#include <vnx/PrettyPrinter.h>
 
 #include <sstream>
 #include <algorithm>
@@ -59,6 +60,36 @@ std::shared_ptr<const Response> DefaultView::process(const std::shared_ptr<const
 				new_response->content = ErrorCode::create(ErrorCode::FORBIDDEN);
 			}
 			new_response->time_to_live_ms /= 2;
+			return new_response;
+		}
+	}
+	{
+		auto file = std::dynamic_pointer_cast<const File>(response->content);
+		if(file) {
+			if(file->mime_type == "application/octet-stream") {
+				try {
+					vnx::BufferInputStream stream(&file->data);
+					vnx::TypeInput in(&stream);
+					uint16_t code[2] = {};
+					vnx::read(in, code[0]);
+					vnx::read(in, code[1]);
+					if(code[0] == vnx::CODE_NONE && code[1] == vnx::CODE_MAGIC) {
+						std::ostringstream json;
+						vnx::PrettyPrinter printer(json);
+						vnx::accept(printer, in);
+						
+						auto file = File::create();
+						file->mime_type = "application/json";
+						file->time_stamp_ms = file->time_stamp_ms;
+						file->data = json.str();
+						new_response->content = file;
+						new_response->time_to_live_ms /= 2;
+						return new_response;
+					}
+				} catch(...) {
+					// just ignore
+				}
+			}
 		}
 	}
 	

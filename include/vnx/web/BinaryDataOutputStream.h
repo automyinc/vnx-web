@@ -11,12 +11,12 @@ namespace web {
 
 class BinaryDataOutputStream : public vnx::OutputStream {
 public:
-	BinaryDataOutputStream(BinaryData* out_) : out(out_) {}
+	BinaryDataOutputStream(BinaryData* data_) : data(data_) {}
 	
 	void write(const void* buf, size_t len) override {
-		out->chunks.emplace_back(len);
-		::memcpy(out->chunks.back().data(), buf, len);
-		out->chunks.back().set_size(len);
+		data->chunks.emplace_back(len);
+		::memcpy(data->chunks.back().data(), buf, len);
+		data->chunks.back().set_size(len);
 		written += len;
 	}
 	
@@ -25,12 +25,12 @@ public:
 	}
 	
 private:
-	BinaryData* out = 0;
+	BinaryData* data = 0;
 	size_t written = 0;
 	
 };
 
-}
-}
+} // web
+} // vnx
 
 #endif // INCLUDE_VNX_WEB_BINARYDATAOUTPUTSTREAM_H
