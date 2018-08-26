@@ -5,6 +5,7 @@
 #include <vnx/web/File.hxx>
 
 #include <sstream>
+#include <algorithm>
 
 
 namespace vnx {
@@ -12,12 +13,29 @@ namespace web {
 
 std::ostream& render(std::ostream& out, std::shared_ptr<const Directory> directory) {
 	out << "<html>\n<body>\n";
+	out << "<table>\n";
 	if(!directory->is_root) {
-		out << "<a href=\"..\">..</a><br>\n";
+		out << "<tr><td><a href=\"..\">..</a></td></tr>\n";
 	}
-	for(const FileInfo& file : directory->files) {
-		out << "<a href=\"" << file.name << (file.is_directory ? "/" : "") << "\">" << file.name << (file.is_directory ? "/" : "") << "</a><br>\n";
+	std::vector<FileInfo> list = directory->files;
+	std::sort(list.begin(), list.end(), [](const FileInfo& A, const FileInfo& B) -> bool {
+		return A.is_directory ? (B.is_directory ? A.name < B.name : true) : (B.is_directory ? false : A.name < B.name);
+	});
+	for(const FileInfo& file : list) {
+		out << "<tr>\n";
+		out << "<td><a href=\"" << file.name << (file.is_directory ? "/" : "") << "\">" << file.name << (file.is_directory ? "/" : "") << "</a></td>\n";
+		out << "<td style=\"padding-left:50px;\">" << file.mime_type << "</td>\n";
+		out << "<td style=\"padding-left:50px;text-align:right;\">";
+		if(file.num_bytes < 10 * 1024) {
+			out << std::to_string(file.num_bytes) << " B</td>\n";
+		} else if(file.num_bytes < 10 * 1024 * 1024) {
+			out << std::to_string(file.num_bytes / 1024) << " K</td>\n";
+		} else {
+			out << std::to_string(file.num_bytes / 1024 / 1024) << " M</td>\n";
+		}
+		out << "</tr>\n";
 	}
+	out << "</table>\n";
 	out << "</body>\n</html>\n";
 }
 

@@ -4,6 +4,8 @@ class FileInfo {
 	
 	string name;
 	
+	string mime_type;
+	
 	bool is_directory;
 	
 	long num_bytes;
