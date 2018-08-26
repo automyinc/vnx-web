@@ -18,11 +18,7 @@ void FileSystem::main() {
 	magic = ::magic_open(MAGIC_MIME_TYPE);
 	if(magic) {
 		if(::magic_load(magic, nullptr) == 0) {
-			if(::magic_compile(magic, nullptr) == 0) {
-				// success
-			} else {
-				log(ERROR).out << "magic_compile() failed!";
-			}
+			// success
 		} else {
 			log(ERROR).out << "magic_load() failed!";
 		}
@@ -153,6 +149,7 @@ std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
 				throw std::runtime_error("file too big: " + path.to_string() + " (" + std::to_string(file_size) + ")");
 			}
 			std::shared_ptr<File> file = File::create();
+			file->name = file_path.filename().generic_string();
 			file->data.reserve(file_size);
 			::FILE* p_file = ::fopen(file_path_str.c_str(), "r");
 			if(!p_file) {
@@ -200,7 +197,7 @@ void FileSystem::write_file(const Path& path, std::shared_ptr<const BinaryData> 
 	
 	file_entry_t& entry = file_map[path];
 	entry.path = file_path;
-	entry.mime_type = get_mime_type(content);
+	entry.mime_type = get_mime_type(content, file_path.extension().generic_string());
 	entry.time_stamp_ms = int64_t(filesystem::last_write_time(file_path)) * 1000;
 	cache->remove(path);
 }
@@ -230,7 +227,7 @@ void FileSystem::scan_tree(const Path& current, const filesystem::path& file_pat
 				log(INFO).out << "NEW " << current << " => " << file_path;
 			}
 			entry->path = file_path;
-			entry->mime_type = get_mime_type(file_path.generic_string());
+			entry->mime_type = get_mime_type(file_path.generic_string(), file_path.extension().generic_string());
 			entry->time_stamp_ms = time;
 		}
 	}
@@ -240,22 +237,39 @@ bool FileSystem::is_valid_file(const std::string& file_name) {
 	return !file_name.empty() && file_name[0] != '.';
 }
 
-std::string FileSystem::get_mime_type(const std::string& path) {
-	char const * mime = ::magic_file(magic, path.c_str());
-	if(mime) {
-		return std::string(mime);
-	}
-	return "application/octet-stream";
-}
-
-std::string FileSystem::get_mime_type(std::shared_ptr<const BinaryData> content) {
-	if(content && !content->chunks.empty()) {
-		char const * mime = ::magic_buffer(magic, content->chunks.front().data(), content->chunks.front().size());
+std::string FileSystem::get_mime_type(const std::string& path, const std::string& extension) {
+	const std::string mime = get_mime_type_based_on_extension(extension);
+	if(mime.empty()) {
+		char const * mime = ::magic_file(magic, path.c_str());
 		if(mime) {
 			return std::string(mime);
 		}
+		return "application/octet-stream";
 	}
-	return "application/octet-stream";
+	return mime;
+}
+
+std::string FileSystem::get_mime_type(std::shared_ptr<const BinaryData> content, const std::string& extension) {
+	const std::string mime = get_mime_type_based_on_extension(extension);
+	if(mime.empty()) {
+		if(content && !content->chunks.empty()) {
+			char const * mime = ::magic_buffer(magic, content->chunks.front().data(), content->chunks.front().size());
+			if(mime) {
+				return std::string(mime);
+			}
+		}
+		return "application/octet-stream";
+	}
+	return mime;
+}
+
+std::string FileSystem::get_mime_type_based_on_extension(const std::string& extension) {
+	if(extension == ".css") {
+		return "text/css";
+	} else if(extension == ".js") {
+		return "application/javascript";
+	}
+	return std::string();
 }
 
 

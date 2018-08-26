@@ -80,6 +80,7 @@ std::shared_ptr<const Response> DefaultView::process(const std::shared_ptr<const
 						vnx::accept(printer, in);
 						
 						auto new_file = File::create();
+						new_file->name = file->name;
 						new_file->mime_type = "application/json";
 						new_file->time_stamp_ms = file->time_stamp_ms;
 						new_file->data = json.str();

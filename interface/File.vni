@@ -2,9 +2,13 @@ package vnx.web;
 
 class File extends Content {
 	
+	string name;
+	
 	vnx.Buffer data;
 	
 	
 	long get_num_bytes() const;
+	
+	string get_name_extension() const;
 	
 }

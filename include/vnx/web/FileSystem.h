@@ -45,9 +45,11 @@ private:
 	
 	bool is_valid_file(const std::string& file_name);
 	
-	std::string get_mime_type(const std::string& path);
+	std::string get_mime_type(const std::string& path, const std::string& extension);
 	
-	std::string get_mime_type(std::shared_ptr<const BinaryData> content);
+	std::string get_mime_type(std::shared_ptr<const BinaryData> content, const std::string& extension);
+	
+	std::string get_mime_type_based_on_extension(const std::string& extension);
 	
 private:
 	struct file_entry_t {
