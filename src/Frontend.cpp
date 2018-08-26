@@ -612,9 +612,9 @@ void Frontend::setup() {
 	read_loop->frontend = this;
 	read_loop->new_read_avail = poll_loop->new_read_avail;
 	
-	accept_loop->start();
-	poll_loop->start();
 	read_loop->start();
+	poll_loop->start();
+	accept_loop->start();
 	
 	set_timer_millis(1000, std::bind(&Frontend::update, this));
 	
