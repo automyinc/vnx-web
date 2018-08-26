@@ -276,6 +276,22 @@ std::string FileSystem::get_mime_type_based_on_extension(const std::string& exte
 		return "image/jpeg";
 	} else if(extension == ".jpeg") {
 		return "image/jpeg";
+	} else if(extension == ".h") {
+		return "text/plain";
+	} else if(extension == ".hxx") {
+		return "text/plain";
+	} else if(extension == ".c") {
+		return "text/plain";
+	} else if(extension == ".cpp") {
+		return "text/plain";
+	} else if(extension == ".md5") {
+		return "text/plain";
+	} else if(extension == ".map") {
+		return "text/plain";
+	} else if(extension == ".tex") {
+		return "text/x-tex";
+	} else if(extension == ".pdf") {
+		return "application/pdf";
 	}
 	return std::string();
 }
