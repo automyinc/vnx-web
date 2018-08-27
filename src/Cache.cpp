@@ -94,7 +94,8 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 		
 		if(	!response->is_dynamic
 			&& response->content
-			&& response->content->get_num_bytes() <= max_entry_size)
+			&& response->content->get_num_bytes() <= max_entry_size
+			&& std::dynamic_pointer_cast<const ErrorCode>(response->content) == nullptr)
 		{
 			cache_entry_t& entry = cache_lookup(request->path);
 			if(entry.content) {
