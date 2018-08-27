@@ -24,6 +24,8 @@ module HttpProcessor {
 	
 	bool keepalive = true;
 	
+	long max_num_pages = 10000;			// maximum number of pages for statistics
+	
 	
 	void handle(StreamEventArray sample);
 	void handle(HttpRequest sample);

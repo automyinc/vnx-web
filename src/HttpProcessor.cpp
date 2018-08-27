@@ -121,7 +121,7 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	
 	std::shared_ptr<Request> forward;
 	std::shared_ptr<Parameter> parameter;
-	if(request->method == "GET") {
+	if(request->method == "GET" || request->method == "HEAD") {
 		forward = Request::create();
 		forward->path = request->path;
 		forward->type = request_type_e::READ;
@@ -149,15 +149,31 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	}
 	
 	std::string domain = default_domain;
-	if(forward) {
-		{
-			auto iter = header_fields.find("Host");
-			if(iter != header_fields.end()) {
-				if(domain_map.count(iter->second)) {
-					domain = iter->second;
+	{
+		auto iter = header_fields.find("Host");
+		if(iter != header_fields.end()) {
+			if(domain_map.count(iter->second)) {
+				domain = iter->second;
+			}
+		}
+	}
+	
+	HttpDomainStats& stats = domain_stats[domain];
+	{
+		auto iter = header_fields.find("Referer");
+		if(iter != header_fields.end()) {
+			if(iter->second.size() < 256) {
+				auto it = stats.referral_count.find(iter->second);
+				if(it != stats.referral_count.end()) {
+					it->second++;
+				} else if(stats.referral_count.size() < max_num_pages) {
+					stats.referral_count[iter->second]++;
 				}
 			}
 		}
+	}
+	
+	if(forward) {
 		auto iter = domain_map.find(domain);
 		if(iter != domain_map.end()) {
 			if(!forward->path.is_root()) {
@@ -172,6 +188,7 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 				request_entry_t& entry = pending_requests[request->id];
 				entry.stream = state.stream;
 				entry.domain = domain;
+				
 			} else {
 				state.response_map[request->id] = Response::create(request,
 						ErrorCode::create_with_message(ErrorCode::MOVED_PERMANENTLY, index_path.to_string()));
@@ -211,21 +228,38 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 	}
 	out->do_close = !keepalive || do_close;
 	
+	auto content = response->content;
 	HttpDomainStats& stats = domain_stats[domain];
 	{
-		auto error = std::dynamic_pointer_cast<const ErrorCode>(response->content);
+		auto error = std::dynamic_pointer_cast<const ErrorCode>(content);
 		if(error) {
 			out->status = error->code;
 			out->content = get_error_content(error->code);
 			if(error->code == ErrorCode::MOVED_PERMANENTLY) {
 				out->header.emplace_back("Location", error->message);
 			}
-			stats.error_counts[error->code]++;
+			stats.error_count[error->code]++;
 		} else {
 			out->status = 200;
-			out->content = response->content;
-			stats.page_hits[request->path.to_string()]++;
+			out->content = content;
+			if(content) {
+				out->header.emplace_back("ETag", "\"" + std::to_string(content->time_stamp_ms) + "\"");
+			}
+			{
+				const std::string path = request->path.to_string();
+				if(path.size() < 256) {
+					auto iter = stats.page_count.find(path);
+					if(iter != stats.page_count.end()) {
+						iter->second++;
+					} else if(stats.page_count.size() < max_num_pages) {
+						stats.page_count[path]++;
+					}
+				}
+			}
 		}
+	}
+	if(request->method == "HEAD") {
+		out->is_head_response = true;
 	}
 	publish(out, output, BLOCKING);
 }

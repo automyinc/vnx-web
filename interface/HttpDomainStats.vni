@@ -2,8 +2,10 @@ package vnx.web;
 
 class HttpDomainStats {
 	
-	map<int, long> error_counts;
+	map<int, long> error_count;
 	
-	map<string, long> page_hits;
+	map<string, long> page_count;
+	
+	map<string, long> referral_count;
 	
 }

@@ -48,7 +48,9 @@ void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const File> fi
 	render_header(out, "Content-Length", std::to_string(file->get_num_bytes()));
 	render_header(out, "Content-Type", file->mime_type);
 	render(out, "\r\n");
-	out.write(file->data.data(), file->data.size());
+	if(!is_head_response) {
+		out.write(file->data.data(), file->data.size());
+	}
 }
 
 void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::pair<std::string, std::string> &field) {
@@ -82,6 +84,8 @@ void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::HttpResponse> respon
 		return;
 	}
 	state = response->sequence;
+	
+	is_head_response = response->is_head_response;
 	
 	BinaryDataOutputStream stream(sample.get());
 	OutputBuffer out(&stream);

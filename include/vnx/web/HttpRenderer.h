@@ -37,6 +37,8 @@ private:
 private:
 	std::unordered_map<Hash128, int64_t> state_map;
 	
+	bool is_head_response = false;
+	
 };
 
 

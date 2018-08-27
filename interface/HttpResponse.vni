@@ -15,4 +15,6 @@ class HttpResponse extends Response {
 	
 	bool do_close;
 	
+	bool is_head_response;
+	
 }
