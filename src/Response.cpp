@@ -30,11 +30,11 @@ void Response::forward(const ::std::shared_ptr<const ::vnx::web::Response>& resp
 
 std::shared_ptr<const Response> Response::create(
 		const ::std::shared_ptr<const ::vnx::web::Request>& request,
-		const ::std::shared_ptr<const ::vnx::web::Content>& content)
+		const ::std::shared_ptr<const ::vnx::Value>& result)
 {
 	std::shared_ptr<Response> response = Response::create();
 	response->is_for_request(request);
-	response->content = content;
+	response->result = result;
 	return response;
 }
 

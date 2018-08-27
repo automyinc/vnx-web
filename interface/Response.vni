@@ -7,7 +7,7 @@ class Response {
 	
 	Hash128 id;
 	
-	Content* content;
+	Value* result;
 	
 	vector<TopicPtr> destination;	// channel where to forward response to
 	
@@ -22,6 +22,6 @@ class Response {
 	
 	void forward(Response* response);
 	
-	static Response* create(Request* request, Content* content);
+	static Response* create(Request* request, Value* result);
 	
 }

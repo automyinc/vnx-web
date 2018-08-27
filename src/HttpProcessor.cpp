@@ -229,20 +229,21 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 	}
 	out->do_close = !keepalive || do_close;
 	
-	auto content = response->content;
+	auto result = response->result;
 	HttpDomainStats& stats = domain_stats[domain];
 	{
-		auto error = std::dynamic_pointer_cast<const ErrorCode>(content);
+		auto error = std::dynamic_pointer_cast<const ErrorCode>(result);
 		if(error) {
 			out->status = error->code;
-			out->content = get_error_content(error->code);
+			out->result = get_error_content(error->code);
 			if(error->code == ErrorCode::MOVED_PERMANENTLY) {
 				out->header.emplace_back("Location", error->message);
 			}
 			stats.error_count[error->code]++;
 		} else {
 			out->status = 200;
-			out->content = content;
+			out->result = result;
+			auto content = std::dynamic_pointer_cast<const Content>(result);
 			if(content) {
 				out->header.emplace_back("ETag", "\"" + std::to_string(content->time_stamp_ms) + "\"");
 			}

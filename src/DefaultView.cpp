@@ -48,7 +48,7 @@ std::shared_ptr<const Response> DefaultView::process(const std::shared_ptr<const
 	new_response->forward(response);
 	
 	{
-		auto directory = std::dynamic_pointer_cast<const Directory>(response->content);
+		auto directory = std::dynamic_pointer_cast<const Directory>(response->result);
 		if(directory) {
 			if(allow_directory_index) {
 				std::ostringstream stream;
@@ -58,16 +58,16 @@ std::shared_ptr<const Response> DefaultView::process(const std::shared_ptr<const
 				file->mime_type = "text/html";
 				file->time_stamp_ms = directory->time_stamp_ms;
 				file->data = stream.str();
-				new_response->content = file;
+				new_response->result = file;
 			} else {
-				new_response->content = ErrorCode::create(ErrorCode::FORBIDDEN);
+				new_response->result = ErrorCode::create(ErrorCode::FORBIDDEN);
 			}
 			new_response->time_to_live_ms /= 2;
 			return new_response;
 		}
 	}
 	{
-		auto file = std::dynamic_pointer_cast<const File>(response->content);
+		auto file = std::dynamic_pointer_cast<const File>(response->result);
 		if(file) {
 			if(file->mime_type == "application/octet-stream") {
 				try {
@@ -86,7 +86,7 @@ std::shared_ptr<const Response> DefaultView::process(const std::shared_ptr<const
 						new_file->mime_type = "application/json";
 						new_file->time_stamp_ms = file->time_stamp_ms;
 						new_file->data = json.str();
-						new_response->content = new_file;
+						new_response->result = new_file;
 						new_response->time_to_live_ms /= 2;
 						return new_response;
 					}

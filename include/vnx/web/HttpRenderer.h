@@ -26,7 +26,7 @@ private:
 	
 	void render(vnx::OutputBuffer& out, const std::string& str);
 	
-	void render(vnx::OutputBuffer& out, std::shared_ptr<const Content> content);
+	void render(vnx::OutputBuffer& out, std::shared_ptr<const vnx::Value> result);
 	
 	void render(vnx::OutputBuffer& out, std::shared_ptr<const File> file);
 	

@@ -32,9 +32,9 @@ void HttpRenderer::render(vnx::OutputBuffer& out, const std::string& str) {
 	out.write(str.c_str(), str.size());
 }
 
-void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const Content> content) {
+void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const vnx::Value> result) {
 	{
-		auto value = std::dynamic_pointer_cast<const File>(content);
+		auto value = std::dynamic_pointer_cast<const File>(result);
 		if(value) {
 			render(out, value);
 			return;
@@ -103,7 +103,7 @@ void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::HttpResponse> respon
 		render_header(out, field);
 	}
 	
-	render(out, response->content);
+	render(out, response->result);
 	
 	out.flush();
 	

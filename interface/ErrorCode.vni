@@ -1,6 +1,6 @@
 package vnx.web;
 
-class ErrorCode extends Content {
+class ErrorCode {
 	
 	static const int MOVED_PERMANENTLY = 301;
 	static const int BAD_REQUEST = 400;

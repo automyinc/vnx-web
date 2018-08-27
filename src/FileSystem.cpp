@@ -53,7 +53,7 @@ void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	try {
 		switch(request->type) {
 			case request_type_e::READ:
-				response->content = read_file(request->path);
+				response->result = read_file(request->path);
 				response->is_dynamic = false;
 				response->time_to_live_ms = time_to_live_ms;
 				break;
@@ -62,15 +62,15 @@ void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 				if(content) {
 					write_file(request->path, content);
 				} else {
-					response->content = ErrorCode::create(ErrorCode::BAD_REQUEST);
+					response->result = ErrorCode::create(ErrorCode::BAD_REQUEST);
 				}
 				break;
 			}
 			default:
-				response->content = ErrorCode::create(ErrorCode::BAD_REQUEST);
+				response->result = ErrorCode::create(ErrorCode::BAD_REQUEST);
 		}
 	} catch(const std::exception& ex) {
-		response->content = ErrorCode::create_with_message(ErrorCode::INTERNAL_ERROR, ex.what());
+		response->result = ErrorCode::create_with_message(ErrorCode::INTERNAL_ERROR, ex.what());
 		log(WARN).out << ex.what();
 	}
 	publish(response, request->get_return_channel());
@@ -90,7 +90,7 @@ void FileSystem::print_stats() {
 	num_write_bytes = 0;
 }
 
-std::shared_ptr<const Content> FileSystem::read_file(const Path& path) {
+std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 	
 	const filesystem::path file_path = source_path + path.to_string();
 	if(!filesystem::exists(file_path)) {

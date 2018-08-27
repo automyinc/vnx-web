@@ -50,7 +50,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		{
 			std::shared_ptr<Response> response = Response::create();
 			response->is_for_request(request);
-			response->content = entry.content;
+			response->result = entry.content;
 			response->time_to_live_ms = entry.time_to_live_ms;
 			publish(response, request->get_return_channel());
 			
@@ -87,29 +87,26 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Response> response) {
 	auto iter = pending_requests.find(response->id);
 	if(iter != pending_requests.end()) {
 		std::shared_ptr<const Request> request = iter->second;
-		
 		std::shared_ptr<Response> new_response = Response::create();
 		new_response->forward(response);
 		publish(new_response, response->get_return_channel());
 		
-		if(	!response->is_dynamic
-			&& response->content
-			&& response->content->get_num_bytes() <= max_entry_size
-			&& std::dynamic_pointer_cast<const ErrorCode>(response->content) == nullptr)
-		{
-			cache_entry_t& entry = cache_lookup(request->path);
-			if(entry.content) {
-				if(request->path != entry.path) {
-					entry = cache_entry_t();
+		if(!response->is_dynamic) {
+			auto content = std::dynamic_pointer_cast<const Content>(response->result);
+			if(content && content->get_num_bytes() <= max_entry_size) {
+				cache_entry_t& entry = cache_lookup(request->path);
+				if(entry.content) {
+					if(request->path != entry.path) {
+						entry = cache_entry_t();
+					}
 				}
+				entry.path = request->path;
+				entry.content = content;
+				entry.time_stamp_ms = vnx::get_time_millis();
+				entry.time_to_live_ms = response->time_to_live_ms;
+				entry.last_request_ms = entry.time_stamp_ms;
 			}
-			entry.path = request->path;
-			entry.content = response->content;
-			entry.time_stamp_ms = vnx::get_time_millis();
-			entry.time_to_live_ms = response->time_to_live_ms;
-			entry.last_request_ms = entry.time_stamp_ms;
 		}
-		
 		erase_request(response->id);
 	}
 }
