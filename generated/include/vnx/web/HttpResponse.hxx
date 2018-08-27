@@ -21,6 +21,7 @@ public:
 	::int32_t status = 500;
 	::std::vector<::std::pair<::std::string, ::std::string>> header;
 	::vnx::bool_t do_close = 0;
+	::vnx::bool_t is_head_response = 0;
 	
 	typedef ::vnx::web::Response Super;
 	

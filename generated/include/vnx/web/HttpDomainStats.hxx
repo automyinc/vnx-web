@@ -14,8 +14,9 @@ namespace web {
 class HttpDomainStats : public ::vnx::Value {
 public:
 	
-	::std::map<::int32_t, ::int64_t> error_counts;
-	::std::map<::std::string, ::int64_t> page_hits;
+	::std::map<::int32_t, ::int64_t> error_count;
+	::std::map<::std::string, ::int64_t> page_count;
+	::std::map<::std::string, ::int64_t> referral_count;
 	
 	typedef ::vnx::Value Super;
 	

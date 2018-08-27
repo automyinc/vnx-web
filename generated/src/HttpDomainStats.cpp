@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpDomainStats::VNX_TYPE_HASH(0x992d5238380ae57cull);
-const vnx::Hash64 HttpDomainStats::VNX_CODE_HASH(0x66809d19769a56dfull);
+const vnx::Hash64 HttpDomainStats::VNX_CODE_HASH(0x6317d28f58b388faull);
 
 vnx::Hash64 HttpDomainStats::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -43,15 +43,17 @@ void HttpDomainStats::write(vnx::TypeOutput& _out, const vnx::TypeCode* _type_co
 void HttpDomainStats::accept(vnx::Visitor& _visitor) const {
 	const vnx::TypeCode* _type_code = get_type_code();
 	_visitor.type_begin(*_type_code);
-	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, error_counts);
-	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, page_hits);
+	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, error_count);
+	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, page_count);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, referral_count);
 	_visitor.type_end(*_type_code);
 }
 
 void HttpDomainStats::write(std::ostream& _out) const {
 	_out << "{";
-	_out << "\"error_counts\": "; vnx::write(_out, error_counts);
-	_out << ", \"page_hits\": "; vnx::write(_out, page_hits);
+	_out << "\"error_count\": "; vnx::write(_out, error_count);
+	_out << ", \"page_count\": "; vnx::write(_out, page_count);
+	_out << ", \"referral_count\": "; vnx::write(_out, referral_count);
 	_out << "}";
 }
 
@@ -59,10 +61,12 @@ void HttpDomainStats::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "error_counts") {
-			vnx::from_string(_entry.second, error_counts);
-		} else if(_entry.first == "page_hits") {
-			vnx::from_string(_entry.second, page_hits);
+		if(_entry.first == "error_count") {
+			vnx::from_string(_entry.second, error_count);
+		} else if(_entry.first == "page_count") {
+			vnx::from_string(_entry.second, page_count);
+		} else if(_entry.first == "referral_count") {
+			vnx::from_string(_entry.second, referral_count);
 		}
 	}
 }
@@ -89,20 +93,26 @@ std::shared_ptr<vnx::TypeCode> HttpDomainStats::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpDomainStats";
 	type_code->type_hash = vnx::Hash64(0x992d5238380ae57cull);
-	type_code->code_hash = vnx::Hash64(0x66809d19769a56dfull);
+	type_code->code_hash = vnx::Hash64(0x6317d28f58b388faull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<HttpDomainStats>(); };
-	type_code->fields.resize(2);
+	type_code->fields.resize(3);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
-		field.name = "error_counts";
+		field.name = "error_count";
 		field.code = {13, 3, 7, 8};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[1];
 		field.is_extended = true;
-		field.name = "page_hits";
+		field.name = "page_count";
+		field.code = {13, 4, 12, 5, 8};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[2];
+		field.is_extended = true;
+		field.name = "referral_count";
 		field.code = {13, 4, 12, 5, 8};
 	}
 	type_code->build();
@@ -127,8 +137,9 @@ void read(TypeInput& in, ::vnx::web::HttpDomainStats& value, const TypeCode* typ
 	const char* const _buf = in.read(type_code->total_field_size);
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
-			case 0: vnx::read(in, value.error_counts, type_code, _field->code.data()); break;
-			case 1: vnx::read(in, value.page_hits, type_code, _field->code.data()); break;
+			case 0: vnx::read(in, value.error_count, type_code, _field->code.data()); break;
+			case 1: vnx::read(in, value.page_count, type_code, _field->code.data()); break;
+			case 2: vnx::read(in, value.referral_count, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -142,8 +153,9 @@ void write(TypeOutput& out, const ::vnx::web::HttpDomainStats& value, const Type
 	if(code && code[0] == CODE_STRUCT) {
 		type_code = type_code->depends[code[1]];
 	}
-	vnx::write(out, value.error_counts, type_code, type_code->fields[0].code.data());
-	vnx::write(out, value.page_hits, type_code, type_code->fields[1].code.data());
+	vnx::write(out, value.error_count, type_code, type_code->fields[0].code.data());
+	vnx::write(out, value.page_count, type_code, type_code->fields[1].code.data());
+	vnx::write(out, value.referral_count, type_code, type_code->fields[2].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::HttpDomainStats& value) {

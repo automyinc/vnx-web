@@ -30,6 +30,7 @@ public:
 	::int64_t max_pending = 100000;
 	::int64_t timeout_ms = 1000;
 	::vnx::bool_t keepalive = true;
+	::int64_t max_num_pages = 10000;
 	
 	typedef ::vnx::Module Super;
 	
