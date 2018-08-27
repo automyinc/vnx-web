@@ -21,6 +21,7 @@ void HttpProcessor::main() {
 	server_start_time_ms = vnx::get_time_millis();
 	
 	set_timer_millis(1000, std::bind(&HttpProcessor::print_stats, this));
+	set_timer_millis(10000, std::bind(&HttpProcessor::write_stats, this));
 	
 	Super::main();
 }
@@ -265,6 +266,13 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 }
 
 void HttpProcessor::print_stats() {
+	log(INFO).out << "requests=" << request_counter << "/s, pending=" << pending_requests.size()
+			<< ", reject=" << reject_counter << "/s";
+	request_counter = 0;
+	reject_counter = 0;
+}
+
+void HttpProcessor::write_stats() {
 	for(const auto& entry : domain_stats) {
 		auto request = Request::create();
 		request->id = Hash128::rand();
@@ -276,11 +284,6 @@ void HttpProcessor::print_stats() {
 		request->time_stamp_ms = vnx::get_time_millis();
 		publish(request, domain_map[entry.first]);
 	}
-	
-	log(INFO).out << "requests=" << request_counter << "/s, pending=" << pending_requests.size()
-			<< ", reject=" << reject_counter << "/s";
-	request_counter = 0;
-	reject_counter = 0;
 }
 
 std::shared_ptr<File> create_error_page(int code) {

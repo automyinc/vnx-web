@@ -54,6 +54,8 @@ private:
 	
 	void print_stats();
 	
+	void write_stats();
+	
 	std::shared_ptr<File> get_error_content(int code);
 	
 private:
