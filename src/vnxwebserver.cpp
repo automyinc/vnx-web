@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 		module->input = "server.http.request";
 		module->channel = "server.http.processor";
 		module->output = "server.http.response";
-		module->domain_map["test.com"] = "server.cache.request";	// for testing
+		module->domain_map[module->default_domain] = "server.cache.request";
 		module.start_detached();
 	}
 	{
