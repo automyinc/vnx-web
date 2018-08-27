@@ -12,8 +12,6 @@ struct cache_entry_t {
 	
 	long last_request_ms;
 	
-	long num_pending;
-	
 	long num_hits;
 	
 }

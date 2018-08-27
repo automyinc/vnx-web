@@ -3,6 +3,7 @@
 #include <vnx/web/ErrorCode.hxx>
 #include <vnx/web/Directory.hxx>
 #include <vnx/web/File.hxx>
+#include <vnx/web/Generic.hxx>
 #include <vnx/PrettyPrinter.h>
 
 #include <sstream>
@@ -96,6 +97,23 @@ std::shared_ptr<const Response> DefaultView::process(const std::shared_ptr<const
 					// just ignore
 				}
 			}
+		}
+	}
+	{
+		auto generic = std::dynamic_pointer_cast<const Generic>(response->result);
+		if(generic) {
+			std::ostringstream json;
+			vnx::PrettyPrinter printer(json);
+			vnx::accept(printer, generic->value);
+			
+			auto new_file = File::create();
+			new_file->name = generic->name;
+			new_file->mime_type = "application/json";
+			new_file->time_stamp_ms = generic->time_stamp_ms;
+			new_file->data = json.str();
+			new_response->result = new_file;
+			new_response->time_to_live_ms /= 2;
+			return new_response;
 		}
 	}
 	

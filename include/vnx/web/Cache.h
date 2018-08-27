@@ -33,6 +33,8 @@ protected:
 private:
 	cache_entry_t& cache_lookup(const Path& path);
 	
+	void cache_update(std::shared_ptr<const Request> request, std::shared_ptr<const Response> response);
+	
 	std::shared_ptr<const Provider> find_provider(const Path& path);
 	
 	void push_request(const Hash128& id, std::shared_ptr<const Request> request);

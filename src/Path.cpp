@@ -77,6 +77,13 @@ bool Path::is_root() const {
 	return size() == 2 && (*this)[0].empty() && (*this)[1].empty();
 }
 
+Path Path::get_file_name() const {
+	if(!empty()) {
+		return back();
+	}
+	return Path();
+}
+
 Path Path::get_parent_path() const {
 	Path parent = *this;
 	if(!empty()) {

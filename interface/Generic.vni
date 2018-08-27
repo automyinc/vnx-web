@@ -1,0 +1,9 @@
+package vnx.web;
+
+class Generic extends Content {
+	
+	string name;
+	
+	Value* value;
+	
+}

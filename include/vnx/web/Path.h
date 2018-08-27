@@ -55,6 +55,8 @@ public:
 	
 	bool is_root() const;
 	
+	Path get_file_name() const;
+	
 	Path get_parent_path() const;
 	
 	Path get_base_path(size_t N) const;
