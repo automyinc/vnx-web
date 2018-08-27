@@ -20,10 +20,9 @@ void Request::forward(	const ::std::shared_ptr<const ::vnx::web::Request>& reque
 	this->source.push_back(channel);
 }
 
-void Request::forward_relative(
-		const ::std::shared_ptr<const ::vnx::web::Request>& request,
-		const ::vnx::TopicPtr& channel,
-		const ::vnx::web::Path& base_path)
+void Request::forward_relative(	const ::std::shared_ptr<const ::vnx::web::Request>& request,
+								const ::vnx::TopicPtr& channel,
+								const ::vnx::web::Path& base_path)
 {
 	forward(request, channel);
 	this->path = request->path.get_relative_path(base_path);

@@ -18,10 +18,12 @@ std::ostream& render(std::ostream& out, std::shared_ptr<const Directory> directo
 	if(!directory->is_root) {
 		out << "<tr><td><a href=\"..\">..</a></td></tr>\n";
 	}
+	
 	std::vector<FileInfo> list = directory->files;
 	std::sort(list.begin(), list.end(), [](const FileInfo& A, const FileInfo& B) -> bool {
 		return A.is_directory ? (B.is_directory ? A.name < B.name : true) : (B.is_directory ? false : A.name < B.name);
 	});
+	
 	for(const FileInfo& file : list) {
 		out << "<tr>\n";
 		out << "<td><a href=\"" << file.name << (file.is_directory ? "/" : "") << "\">" << file.name << (file.is_directory ? "/" : "") << "</a></td>\n";

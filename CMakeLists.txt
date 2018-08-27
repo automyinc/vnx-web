@@ -13,12 +13,9 @@ add_library(vnx_web SHARED
 	src/Path.cpp
 	src/Cache.cpp
 	src/FileSystem.cpp
-	src/ValueFile.cpp
-	src/ObjectFile.cpp
 	src/ErrorCode.cpp
 	src/Content.cpp
 	src/File.cpp
-	src/TextFile.cpp
 	src/Response.cpp
 	src/HttpParser.cpp
 	src/HttpProcessor.cpp

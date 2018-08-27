@@ -5,9 +5,8 @@
 namespace vnx {
 namespace web {
 
-::std::shared_ptr<const ::vnx::web::Request> View::forward(
-		const ::std::shared_ptr<const ::vnx::web::Request>& request,
-		const ::vnx::TopicPtr& channel) const
+std::shared_ptr<const Request> View::forward(	const std::shared_ptr<const Request>& request,
+												const vnx::TopicPtr& channel) const
 {
 	std::shared_ptr<Request> new_request = Request::create();
 	new_request->forward(request, channel);
