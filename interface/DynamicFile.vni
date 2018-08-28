@@ -1,0 +1,24 @@
+package vnx.web;
+
+import vnx.Variant;
+import vnx.Object;
+
+class DynamicFile extends File {
+	
+	vector<int> code;
+	
+	vector<string> keys;
+	
+	vector<string> chunks;
+	
+	Object static_context;
+	
+	
+	void parse();
+	
+	File* execute(Object context) const;
+	
+	static const int CODE_TEXT = 1;
+	static const int CODE_INSERT = 2;
+	
+}

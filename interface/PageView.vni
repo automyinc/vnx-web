@@ -1,19 +1,17 @@
 package vnx.web;
 
-import vnx.Value;
+import vnx.TopicPtr;
 
-class View {
+class PageView extends View {
 	
-	Path path;
+	Path domain_path = "/page/";
 	
-	map<Path, Value*> resource;
+	Path source_path = "/dynamic/file/";
 	
+	Path index_path = "index.html";
 	
-	void require(Path file);
 	
 	void initialize();
-	
-	Value* get_resource(Path file) const;
 	
 	Request* forward(Request* request, vnx.TopicPtr channel) const;
 	

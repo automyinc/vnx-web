@@ -63,7 +63,7 @@ public:
 	
 	Path get_sub_path(size_t N) const;
 	
-	Path get_relative_path(const Path& base_path) const;
+	Path get_sub_path(const Path &base_path) const;
 	
 	Path as_relative_path() const;
 	

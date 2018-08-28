@@ -88,6 +88,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 			response->is_for_request(request);
 			{
 				std::vector<Object> result;
+				result.reserve(table.size());
 				for(const auto& entry : table) {
 					if(entry.content) {
 						result.emplace_back();
@@ -140,7 +141,7 @@ cache_entry_t& Cache::cache_lookup(const Path& path) {
 }
 
 void Cache::cache_update(std::shared_ptr<const Request> request, std::shared_ptr<const Response> response) {
-	if(!response->is_dynamic) {
+	if(!response->is_dynamic && response->time_to_live_ms > 0) {
 		auto content = std::dynamic_pointer_cast<const Content>(response->result);
 		if(content && content->get_num_bytes() <= max_entry_size) {
 			cache_entry_t& entry = cache_lookup(request->path);

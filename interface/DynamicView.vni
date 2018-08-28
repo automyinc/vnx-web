@@ -1,0 +1,7 @@
+package vnx.web;
+
+class DynamicView extends View {
+	
+	Response* process(Response* response) const;
+	
+}

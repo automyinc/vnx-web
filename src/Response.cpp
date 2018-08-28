@@ -13,18 +13,18 @@ namespace web {
 }
 
 void Response::is_for_request(const ::std::shared_ptr<const ::vnx::web::Request>& request) {
-	this->id = request->id;
-	this->destination = request->source;
-	if(!this->destination.empty()) {
-		this->destination.pop_back();
+	id = request->id;
+	destination = request->source;
+	if(!destination.empty()) {
+		destination.pop_back();
 	}
 }
 
 void Response::forward(const ::std::shared_ptr<const ::vnx::web::Response>& response) {
 	*this = *response;
-	this->id.B() = Hash64(response->id.B().value - 1);
-	if(!this->destination.empty()) {
-		this->destination.pop_back();
+	id.B() = Hash64(response->id.B().value - 1);
+	if(!destination.empty()) {
+		destination.pop_back();
 	}
 }
 

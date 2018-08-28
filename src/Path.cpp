@@ -29,7 +29,7 @@ bool Path::operator<(const Path& other) const {
 }
 
 bool Path::operator>(const Path& other) const {
-	return other < *this;
+	return to_string() > other.to_string();
 }
 
 Path& Path::operator+=(const Path& other) {
@@ -122,7 +122,7 @@ Path Path::get_sub_path(size_t B) const {
 	return result;
 }
 
-Path Path::get_relative_path(const Path& base_path) const {
+Path Path::get_sub_path(const Path &base_path) const {
 	Path base = base_path;
 	if(!base.empty() && base.back().empty()) {
 		base.pop_back();

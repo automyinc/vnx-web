@@ -28,6 +28,9 @@ add_library(vnx_web SHARED
 	src/ViewProcessor.cpp
 	src/Request.cpp
 	src/DefaultView.cpp
+	src/PageView.cpp
+	src/DynamicFile.cpp
+	src/DynamicView.cpp
 )
 
 target_include_directories(vnx_web

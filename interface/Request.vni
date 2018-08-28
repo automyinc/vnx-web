@@ -25,6 +25,8 @@ class Request {
 	
 	TopicPtr get_return_channel() const;
 	
+	void initialize(request_type_e type, Path path, TopicPtr source, long timeout_ms);
+	
 	void forward(Request* request, TopicPtr channel);
 	
 	void forward_relative(Request* request, TopicPtr channel, Path base_path);

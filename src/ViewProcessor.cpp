@@ -16,6 +16,7 @@ void ViewProcessor::main() {
 		log(ERROR).out << "view == null";
 		return;
 	}
+	view->initialize();
 	
 	{
 		auto provider = Provider::create();
@@ -25,20 +26,46 @@ void ViewProcessor::main() {
 		this->provider = provider;
 	}
 	
-	subscribe(input);
+	subscribe(input, max_input_queue_ms);
 	subscribe(channel);
 	
+	set_timer_millis(render_interval_ms, std::bind(&ViewProcessor::render, this));
 	set_timer_millis(update_interval_ms, std::bind(&ViewProcessor::update, this));
+	
+	render();
 	
 	Super::main();
 }
 
 void ViewProcessor::handle(std::shared_ptr<const ::vnx::web::Request> request) {
-	publish(view->forward(request, channel), output);
+	auto forward = view->forward(request, channel);
+	if(forward) {
+		publish(forward, output);
+	}
 }
 
 void ViewProcessor::handle(std::shared_ptr<const ::vnx::web::Response> response) {
-	publish(view->process(response), response->get_return_channel());
+	{
+		auto iter = pending_resource.find(response->id);
+		if(iter != pending_resource.end()) {
+			view->resource[iter->second] = response->result;
+			pending_resource.erase(response->id);
+			return;
+		}
+	}
+	auto forward = view->process(response);
+	if(forward) {
+		publish(forward, response->get_return_channel());
+	}
+}
+
+void ViewProcessor::render() {
+	for(const auto& entry : view->resource) {
+		auto request = Request::create();
+		request->initialize(request_type_e::READ, entry.first, channel, render_interval_ms);
+		pending_resource[request->id] = entry.first;
+		publish(request, output, BLOCKING);
+	}
 }
 
 void ViewProcessor::update() {

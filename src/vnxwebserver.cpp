@@ -7,6 +7,8 @@
 #include <vnx/web/FileSystem.h>
 #include <vnx/web/ViewProcessor.h>
 #include <vnx/web/DefaultView.hxx>
+#include <vnx/web/DynamicView.hxx>
+#include <vnx/web/PageView.hxx>
 
 #include <vnx/Config.h>
 #include <vnx/Process.h>
@@ -41,7 +43,14 @@ int main(int argc, char** argv) {
 		module.start_detached();
 	}
 	{
-		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("ViewProcessor");
+		vnx::Handle<vnx::web::Cache> module = new vnx::web::Cache("Cache");
+		module->domain = "server.domain";
+		module->input = "server.cache.request";
+		module->channel = "server.cache.channel";
+		module.start_detached();
+	}
+	{
+		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("DefaultViewProcessor");
 		module->domain = "server.domain";
 		module->input = "server.default.request";
 		module->channel = "server.default.channel";
@@ -55,10 +64,31 @@ int main(int argc, char** argv) {
 		module.start_detached();
 	}
 	{
-		vnx::Handle<vnx::web::Cache> module = new vnx::web::Cache("Cache");
+		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("DynamicViewProcessor");
 		module->domain = "server.domain";
-		module->input = "server.cache.request";
-		module->channel = "server.cache.channel";
+		module->input = "server.dynamic.request";
+		module->channel = "server.dynamic.channel";
+		module->output = "server.cache.request";
+		{
+			auto view = vnx::web::DynamicView::create();
+			view->path = "/dynamic/";
+			vnx::read_config("DynamicView", view);
+			module->view = view;
+		}
+		module.start_detached();
+	}
+	{
+		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("PageViewProcessor");
+		module->domain = "server.domain";
+		module->input = "server.page.request";
+		module->channel = "server.page.channel";
+		module->output = "server.cache.request";
+		{
+			auto view = vnx::web::PageView::create();
+			view->path = "/page/";
+			vnx::read_config("PageView", view);
+			module->view = view;
+		}
 		module.start_detached();
 	}
 	{

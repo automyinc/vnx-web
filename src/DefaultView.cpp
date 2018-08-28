@@ -6,6 +6,7 @@
 #include <vnx/web/Generic.hxx>
 #include <vnx/PrettyPrinter.h>
 
+#include <cstring>
 #include <sstream>
 #include <algorithm>
 
