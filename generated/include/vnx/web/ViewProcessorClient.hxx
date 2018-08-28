@@ -11,7 +11,6 @@
 #include <vnx/web/HttpResponse.hxx>
 #include <vnx/web/Request.hxx>
 #include <vnx/web/Response.hxx>
-#include <vnx/web/View.hxx>
 
 
 namespace vnx {

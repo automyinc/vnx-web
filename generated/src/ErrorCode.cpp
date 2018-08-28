@@ -21,7 +21,7 @@ const ::int32_t ErrorCode::INTERNAL_ERROR;
 const ::int32_t ErrorCode::OVERLOAD;
 
 const vnx::Hash64 ErrorCode::VNX_TYPE_HASH(0x91aec7d2ce28e5e3ull);
-const vnx::Hash64 ErrorCode::VNX_CODE_HASH(0x58a6f479325cdb14ull);
+const vnx::Hash64 ErrorCode::VNX_CODE_HASH(0x15d770d93aeefca4ull);
 
 vnx::Hash64 ErrorCode::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -50,18 +50,14 @@ void ErrorCode::write(vnx::TypeOutput& _out, const vnx::TypeCode* _type_code, co
 void ErrorCode::accept(vnx::Visitor& _visitor) const {
 	const vnx::TypeCode* _type_code = get_type_code();
 	_visitor.type_begin(*_type_code);
-	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, mime_type);
-	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, time_stamp_ms);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, code);
-	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, message);
+	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, code);
+	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, message);
 	_visitor.type_end(*_type_code);
 }
 
 void ErrorCode::write(std::ostream& _out) const {
 	_out << "{";
-	_out << "\"mime_type\": "; vnx::write(_out, mime_type);
-	_out << ", \"time_stamp_ms\": "; vnx::write(_out, time_stamp_ms);
-	_out << ", \"code\": "; vnx::write(_out, code);
+	_out << "\"code\": "; vnx::write(_out, code);
 	_out << ", \"message\": "; vnx::write(_out, message);
 	_out << "}";
 }
@@ -70,11 +66,7 @@ void ErrorCode::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "mime_type") {
-			vnx::from_string(_entry.second, mime_type);
-		} else if(_entry.first == "time_stamp_ms") {
-			vnx::from_string(_entry.second, time_stamp_ms);
-		} else if(_entry.first == "code") {
+		if(_entry.first == "code") {
 			vnx::from_string(_entry.second, code);
 		} else if(_entry.first == "message") {
 			vnx::from_string(_entry.second, message);
@@ -104,30 +96,17 @@ std::shared_ptr<vnx::TypeCode> ErrorCode::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.ErrorCode";
 	type_code->type_hash = vnx::Hash64(0x91aec7d2ce28e5e3ull);
-	type_code->code_hash = vnx::Hash64(0x58a6f479325cdb14ull);
+	type_code->code_hash = vnx::Hash64(0x15d770d93aeefca4ull);
 	type_code->is_class = true;
-	type_code->parents.resize(1);
-	type_code->parents[0] = ::vnx::web::Content::get_type_code();
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<ErrorCode>(); };
-	type_code->fields.resize(4);
+	type_code->fields.resize(2);
 	{
 		vnx::TypeField& field = type_code->fields[0];
-		field.is_extended = true;
-		field.name = "mime_type";
-		field.code = {12, 5};
-	}
-	{
-		vnx::TypeField& field = type_code->fields[1];
-		field.name = "time_stamp_ms";
-		field.code = {8};
-	}
-	{
-		vnx::TypeField& field = type_code->fields[2];
 		field.name = "code";
 		field.code = {7};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[3];
+		vnx::TypeField& field = type_code->fields[1];
 		field.is_extended = true;
 		field.name = "message";
 		field.code = {12, 5};
@@ -153,21 +132,14 @@ void read(TypeInput& in, ::vnx::web::ErrorCode& value, const TypeCode* type_code
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{
-		const vnx::TypeField* const _field = type_code->field_map[1];
-		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.time_stamp_ms, _field->code.data());
-		}
-	}
-	{
-		const vnx::TypeField* const _field = type_code->field_map[2];
+		const vnx::TypeField* const _field = type_code->field_map[0];
 		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.code, _field->code.data());
 		}
 	}
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
-			case 0: vnx::read(in, value.mime_type, type_code, _field->code.data()); break;
-			case 3: vnx::read(in, value.message, type_code, _field->code.data()); break;
+			case 1: vnx::read(in, value.message, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -181,11 +153,9 @@ void write(TypeOutput& out, const ::vnx::web::ErrorCode& value, const TypeCode* 
 	if(code && code[0] == CODE_STRUCT) {
 		type_code = type_code->depends[code[1]];
 	}
-	char* const _buf = out.write(12);
-	vnx::write_value(_buf + 0, value.time_stamp_ms);
-	vnx::write_value(_buf + 8, value.code);
-	vnx::write(out, value.mime_type, type_code, type_code->fields[0].code.data());
-	vnx::write(out, value.message, type_code, type_code->fields[3].code.data());
+	char* const _buf = out.write(4);
+	vnx::write_value(_buf + 0, value.code);
+	vnx::write(out, value.message, type_code, type_code->fields[1].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::ErrorCode& value) {

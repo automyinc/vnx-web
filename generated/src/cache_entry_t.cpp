@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 cache_entry_t::VNX_TYPE_HASH(0xeff20f62431cce98ull);
-const vnx::Hash64 cache_entry_t::VNX_CODE_HASH(0xfb142aacfd5b35d4ull);
+const vnx::Hash64 cache_entry_t::VNX_CODE_HASH(0x7397b87f8d56e4d3ull);
 
 vnx::Hash64 cache_entry_t::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -48,8 +48,7 @@ void cache_entry_t::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, time_stamp_ms);
 	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, time_to_live_ms);
 	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, last_request_ms);
-	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, num_pending);
-	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, num_hits);
+	_visitor.type_field(_type_code->fields[5], 5); vnx::accept(_visitor, num_hits);
 	_visitor.type_end(*_type_code);
 }
 
@@ -60,7 +59,6 @@ void cache_entry_t::write(std::ostream& _out) const {
 	_out << ", \"time_stamp_ms\": "; vnx::write(_out, time_stamp_ms);
 	_out << ", \"time_to_live_ms\": "; vnx::write(_out, time_to_live_ms);
 	_out << ", \"last_request_ms\": "; vnx::write(_out, last_request_ms);
-	_out << ", \"num_pending\": "; vnx::write(_out, num_pending);
 	_out << ", \"num_hits\": "; vnx::write(_out, num_hits);
 	_out << "}";
 }
@@ -79,8 +77,6 @@ void cache_entry_t::read(std::istream& _in) {
 			vnx::from_string(_entry.second, time_to_live_ms);
 		} else if(_entry.first == "last_request_ms") {
 			vnx::from_string(_entry.second, last_request_ms);
-		} else if(_entry.first == "num_pending") {
-			vnx::from_string(_entry.second, num_pending);
 		} else if(_entry.first == "num_hits") {
 			vnx::from_string(_entry.second, num_hits);
 		}
@@ -109,9 +105,9 @@ std::shared_ptr<vnx::TypeCode> cache_entry_t::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.cache_entry_t";
 	type_code->type_hash = vnx::Hash64(0xeff20f62431cce98ull);
-	type_code->code_hash = vnx::Hash64(0xfb142aacfd5b35d4ull);
+	type_code->code_hash = vnx::Hash64(0x7397b87f8d56e4d3ull);
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<vnx::Struct<cache_entry_t>>(); };
-	type_code->fields.resize(7);
+	type_code->fields.resize(6);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -141,11 +137,6 @@ std::shared_ptr<vnx::TypeCode> cache_entry_t::create_type_code() {
 	}
 	{
 		vnx::TypeField& field = type_code->fields[5];
-		field.name = "num_pending";
-		field.code = {8};
-	}
-	{
-		vnx::TypeField& field = type_code->fields[6];
 		field.name = "num_hits";
 		field.code = {8};
 	}
@@ -190,12 +181,6 @@ void read(TypeInput& in, ::vnx::web::cache_entry_t& value, const TypeCode* type_
 	{
 		const vnx::TypeField* const _field = type_code->field_map[5];
 		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.num_pending, _field->code.data());
-		}
-	}
-	{
-		const vnx::TypeField* const _field = type_code->field_map[6];
-		if(_field) {
 			vnx::read_value(_buf + _field->offset, value.num_hits, _field->code.data());
 		}
 	}
@@ -216,12 +201,11 @@ void write(TypeOutput& out, const ::vnx::web::cache_entry_t& value, const TypeCo
 	if(code && code[0] == CODE_STRUCT) {
 		type_code = type_code->depends[code[1]];
 	}
-	char* const _buf = out.write(40);
+	char* const _buf = out.write(32);
 	vnx::write_value(_buf + 0, value.time_stamp_ms);
 	vnx::write_value(_buf + 8, value.time_to_live_ms);
 	vnx::write_value(_buf + 16, value.last_request_ms);
-	vnx::write_value(_buf + 24, value.num_pending);
-	vnx::write_value(_buf + 32, value.num_hits);
+	vnx::write_value(_buf + 24, value.num_hits);
 	vnx::write(out, value.path, type_code, type_code->fields[0].code.data());
 	vnx::write(out, value.content, type_code, type_code->fields[1].code.data());
 }

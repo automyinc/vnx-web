@@ -8,7 +8,6 @@
 #include <vnx/Hash128.h>
 #include <vnx/TopicPtr.h>
 #include <vnx/Value.h>
-#include <vnx/web/Content.hxx>
 #include <vnx/web/Request.hxx>
 
 
@@ -19,7 +18,7 @@ class Response : public ::vnx::Value {
 public:
 	
 	::vnx::Hash128 id;
-	::std::shared_ptr<const ::vnx::web::Content> content;
+	::std::shared_ptr<const ::vnx::Value> result;
 	::std::vector<::vnx::TopicPtr> destination;
 	::int64_t time_to_live_ms = 0;
 	::vnx::bool_t is_dynamic = true;
@@ -35,7 +34,7 @@ public:
 	virtual ::vnx::TopicPtr get_return_channel() const;
 	virtual void is_for_request(const ::std::shared_ptr<const ::vnx::web::Request>& request);
 	virtual void forward(const ::std::shared_ptr<const ::vnx::web::Response>& response);
-	static ::std::shared_ptr<const ::vnx::web::Response> create(const ::std::shared_ptr<const ::vnx::web::Request>& request, const ::std::shared_ptr<const ::vnx::web::Content>& content);
+	static ::std::shared_ptr<const ::vnx::web::Response> create(const ::std::shared_ptr<const ::vnx::web::Request>& request, const ::std::shared_ptr<const ::vnx::Value>& result);
 	
 	static std::shared_ptr<Response> create();
 	std::shared_ptr<vnx::Value> clone() const;

@@ -36,6 +36,7 @@ public:
 	const char* get_type_name() const;
 	
 	virtual ::vnx::TopicPtr get_return_channel() const;
+	virtual void initialize(const ::vnx::web::request_type_e& type, const ::vnx::web::Path& path, const ::vnx::TopicPtr& source, const ::int64_t& timeout_ms);
 	virtual void forward(const ::std::shared_ptr<const ::vnx::web::Request>& request, const ::vnx::TopicPtr& channel);
 	virtual void forward_relative(const ::std::shared_ptr<const ::vnx::web::Request>& request, const ::vnx::TopicPtr& channel, const ::vnx::web::Path& base_path);
 	

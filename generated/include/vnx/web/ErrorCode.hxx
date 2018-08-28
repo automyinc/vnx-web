@@ -5,13 +5,13 @@
 #define INCLUDE_vnx_web_ErrorCode_HXX_
 
 #include <vnx/web/package.hxx>
-#include <vnx/web/Content.hxx>
+#include <vnx/Value.h>
 
 
 namespace vnx {
 namespace web {
 
-class ErrorCode : public ::vnx::web::Content {
+class ErrorCode : public ::vnx::Value {
 public:
 	static const ::int32_t MOVED_PERMANENTLY = 301;
 	static const ::int32_t BAD_REQUEST = 400;
@@ -24,7 +24,7 @@ public:
 	::int32_t code = 0;
 	::std::string message;
 	
-	typedef ::vnx::web::Content Super;
+	typedef ::vnx::Value Super;
 	
 	static const vnx::Hash64 VNX_TYPE_HASH;
 	static const vnx::Hash64 VNX_CODE_HASH;

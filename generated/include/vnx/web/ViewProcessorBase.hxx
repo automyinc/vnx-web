@@ -11,7 +11,6 @@
 #include <vnx/web/HttpResponse.hxx>
 #include <vnx/web/Request.hxx>
 #include <vnx/web/Response.hxx>
-#include <vnx/web/View.hxx>
 
 
 namespace vnx {
@@ -24,8 +23,8 @@ public:
 	::vnx::TopicPtr input;
 	::vnx::TopicPtr channel;
 	::vnx::TopicPtr output;
-	::std::shared_ptr<const ::vnx::web::View> view;
 	::int32_t max_input_queue_ms = 100;
+	::int32_t render_interval_ms = 3000;
 	::int32_t update_interval_ms = 500;
 	
 	typedef ::vnx::Module Super;

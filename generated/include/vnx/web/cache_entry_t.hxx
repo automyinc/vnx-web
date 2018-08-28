@@ -21,7 +21,6 @@ struct cache_entry_t {
 	::int64_t time_stamp_ms = 0;
 	::int64_t time_to_live_ms = 0;
 	::int64_t last_request_ms = 0;
-	::int64_t num_pending = 0;
 	::int64_t num_hits = 0;
 	
 	static const vnx::Hash64 VNX_TYPE_HASH;
