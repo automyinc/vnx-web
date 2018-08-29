@@ -72,9 +72,8 @@ int HttpParser::on_header_value(http_parser* parser, const char* at, size_t len)
 
 int HttpParser::on_body(http_parser* parser, const char* at, size_t len) {
 	state_t* state = (state_t*)parser->data;
-	BinaryData& payload = state->request->payload;
-	payload.chunks.push_back(vnx::Buffer(len));
-	::memcpy(payload.chunks.back().data(), at, len);
+	vnx::Memory& payload = state->request->payload;
+	::memcpy(payload.add_chunk(len), at, len);
 	return 0;
 }
 

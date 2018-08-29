@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -24,7 +25,7 @@ namespace web {
 
 void set_non_block(int fd) {
 	if(::fcntl(fd, F_SETFL, ::fcntl(fd, F_GETFL) | O_NONBLOCK) != 0) {
-		throw std::runtime_error("fcntl(F_SETFL, O_NONBLOCK) failed with: " + std::to_string(errno));
+		throw std::runtime_error("fcntl(F_SETFL, O_NONBLOCK) failed with: " + std::string(::strerror(errno)));
 	}
 }
 
@@ -73,7 +74,7 @@ protected:
 					case ENFILE:
 					case ENOBUFS:
 					case ENOMEM:
-						vnx::log_warn().out << "Frontend: accept() failed with: " << errno;
+						vnx::log_warn().out << "Frontend: accept() failed with: " << ::strerror(errno);
 						::usleep(500*1000);
 						break;
 					default:
@@ -123,7 +124,7 @@ protected:
 	
 	struct write_state_t {
 		std::queue<std::shared_ptr<const StreamWrite>> samples;
-		size_t chunk_index = 0;
+		const vnx::Memory::chunk_t* chunk = 0;
 		size_t chunk_offset = 0;
 		size_t vector_index = 0;
 		int64_t backlog = 0;
@@ -143,7 +144,7 @@ protected:
 	
 	void init() override {
 		if(::pipe(notify_pipe) != 0) {
-			throw std::runtime_error("pipe() failed with: " + std::to_string(errno));
+			throw std::runtime_error("pipe() failed with: " + std::string(::strerror(errno)));
 		}
 		set_non_block(notify_pipe[0]);
 		set_non_block(notify_pipe[1]);
@@ -417,17 +418,19 @@ void Frontend::PollLoop::loop() {
 			}
 			int64_t total_written = 0;
 			auto sample = state.samples.front();
-			while(state.chunk_index < sample->chunks.size()) {
-				const vnx::Buffer& buffer = sample->chunks[state.chunk_index];
-				if(buffer.size() > state.chunk_offset) {
-					const ssize_t num_left = buffer.size() - state.chunk_offset;
+			if(!state.chunk) {
+				state.chunk = sample->data.front;
+			}
+			while(state.chunk) {
+				if(state.chunk->size > state.chunk_offset) {
+					const ssize_t num_left = state.chunk->size - state.chunk_offset;
 					const ssize_t num_to_write = num_left > write_block_size ? write_block_size : num_left;
-					const ssize_t num_written = ::send(stream.sock, buffer.data(state.chunk_offset), size_t(num_to_write), MSG_NOSIGNAL);
+					const ssize_t num_written = ::send(stream.sock, state.chunk->data + state.chunk_offset, size_t(num_to_write), MSG_NOSIGNAL);
 					if(num_written > 0) {
 						total_written += num_written;
 					}
 					if(num_written == num_left) {
-						state.chunk_index++;
+						state.chunk = state.chunk->next;
 						state.chunk_offset = 0;
 					} else if(num_written == num_to_write) {
 						state.chunk_offset += num_written;
@@ -446,7 +449,7 @@ void Frontend::PollLoop::loop() {
 						break;
 					}
 				} else {
-					state.chunk_index++;
+					state.chunk = state.chunk->next;
 					state.chunk_offset = 0;
 				}
 			}
@@ -456,8 +459,7 @@ void Frontend::PollLoop::loop() {
 				write_backlog -= total_written;
 				frontend->num_bytes_written += total_written;
 			}
-			if(state.chunk_index >= sample->chunks.size()) {
-				state.chunk_index = 0;
+			if(state.chunk == 0) {
 				state.samples.pop();
 				if(state.samples.empty()) {
 					done_list.push_back(entry.first);

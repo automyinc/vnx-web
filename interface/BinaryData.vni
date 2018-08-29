@@ -1,19 +1,18 @@
 package vnx.web;
 
+import vnx.Memory;
+import vnx.Value;
+
 class BinaryData {
 	
-	vector<vnx.Buffer> chunks;
+	Memory data;
 	
 	
 	void write_string(string data);
 	
-	void write_value(vnx.Value data);
-	
-	void append(BinaryData data);
+	void write_value(Value data);
 	
 	ulong get_size() const;
-	
-	vnx.Buffer as_buffer() const;
 	
 	string as_string() const;
 	

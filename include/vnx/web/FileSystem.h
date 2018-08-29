@@ -9,6 +9,7 @@
 #include <vnx/web/Directory.hxx>
 #include <vnx/web/ErrorCode.hxx>
 #include <vnx/web/HistoryCache.h>
+#include <vnx/Memory.h>
 
 #include <boost/filesystem.hpp>
 
@@ -37,7 +38,7 @@ private:
 	
 	std::shared_ptr<const vnx::Value> read_file(const Path& path);
 	
-	void write_file(const Path& path, std::shared_ptr<const BinaryData> content);
+	void write_file(const Path& path, const vnx::Memory& data);
 	
 	bool is_valid_file(const std::string& file_name);
 	

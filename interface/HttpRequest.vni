@@ -1,6 +1,7 @@
 package vnx.web;
 
 import vnx.Hash128;
+import vnx.Memory;
 
 class HttpRequest extends Request {
 	
@@ -12,6 +13,6 @@ class HttpRequest extends Request {
 	
 	vector<pair<string, string>> header;
 	
-	BinaryData payload;
+	Memory payload;
 	
 }

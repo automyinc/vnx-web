@@ -4,7 +4,6 @@
 #include <vnx/web/Directory.hxx>
 #include <vnx/web/StreamWrite.hxx>
 #include <vnx/web/ErrorCode.hxx>
-#include <vnx/web/BinaryDataOutputStream.h>
 
 #include <sstream>
 
@@ -87,7 +86,7 @@ void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::HttpResponse> respon
 	
 	is_head_response = response->is_head_response;
 	
-	BinaryDataOutputStream stream(sample.get());
+	MemoryOutputStream stream(&sample->data);
 	OutputBuffer out(&stream);
 	
 	render(out, "HTTP/1.1 ");

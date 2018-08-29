@@ -1,5 +1,6 @@
 
 #include <vnx/web/FileSystem.h>
+#include <vnx/web/BinaryData.hxx>
 
 #include <magic.h>
 
@@ -60,7 +61,7 @@ void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 			case request_type_e::WRITE: {
 				auto content = std::dynamic_pointer_cast<const BinaryData>(request->parameter);
 				if(content) {
-					write_file(request->path, content);
+					write_file(request->path, content->data);
 				} else {
 					response->result = ErrorCode::create(ErrorCode::BAD_REQUEST);
 				}
@@ -165,7 +166,7 @@ std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 	return result;
 }
 
-void FileSystem::write_file(const Path& path, std::shared_ptr<const BinaryData> content) {
+void FileSystem::write_file(const Path& path, const vnx::Memory& data) {
 	
 	const filesystem::path file_path = source_path + path.to_string();
 	if(file_path.has_parent_path()) {
@@ -179,13 +180,15 @@ void FileSystem::write_file(const Path& path, std::shared_ptr<const BinaryData> 
 	if(!p_file) {
 		throw std::runtime_error("fopen() failed for: " + path.to_string());
 	}
-	for(const vnx::Buffer& chunk : content->chunks) {
-		const size_t num_write = ::fwrite(chunk.data(), 1, chunk.size(), p_file);
-		if(num_write != chunk.size()) {
+	Memory::chunk_t* chunk = data.front;
+	while(chunk) {
+		const size_t num_write = ::fwrite(chunk->data, 1, chunk->size, p_file);
+		if(num_write != chunk->size) {
 			::fclose(p_file);
 			throw std::runtime_error("fwrite() failed for: " + path.to_string());
 		}
 		num_write_bytes += num_write;
+		chunk = chunk->next;
 	}
 	::fclose(p_file);
 	
