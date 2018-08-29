@@ -6,7 +6,7 @@
 
 #include <vnx/web/package.hxx>
 #include <vnx/Hash128.h>
-#include <vnx/web/BinaryData.hxx>
+#include <vnx/Memory.h>
 #include <vnx/web/Request.hxx>
 
 
@@ -20,7 +20,7 @@ public:
 	::std::string method;
 	::int32_t version = 0;
 	::std::vector<::std::pair<::std::string, ::std::string>> header;
-	::vnx::web::BinaryData payload;
+	::vnx::Memory payload;
 	
 	typedef ::vnx::web::Request Super;
 	

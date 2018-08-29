@@ -5,7 +5,7 @@
 #define INCLUDE_vnx_web_BinaryData_HXX_
 
 #include <vnx/web/package.hxx>
-#include <vnx/Buffer.h>
+#include <vnx/Memory.h>
 #include <vnx/Value.h>
 
 
@@ -15,7 +15,7 @@ namespace web {
 class BinaryData : public ::vnx::Value {
 public:
 	
-	::std::vector<::vnx::Buffer> chunks;
+	::vnx::Memory data;
 	
 	typedef ::vnx::Value Super;
 	
@@ -27,9 +27,7 @@ public:
 	
 	virtual void write_string(const ::std::string& data);
 	virtual void write_value(const ::vnx::Value& data);
-	virtual void append(const ::vnx::web::BinaryData& data);
 	virtual ::uint64_t get_size() const;
-	virtual ::vnx::Buffer as_buffer() const;
 	virtual ::std::string as_string() const;
 	
 	static std::shared_ptr<BinaryData> create();

@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 StreamWrite::VNX_TYPE_HASH(0x6bf24232cab955eeull);
-const vnx::Hash64 StreamWrite::VNX_CODE_HASH(0x28c6d1f4a773f23dull);
+const vnx::Hash64 StreamWrite::VNX_CODE_HASH(0x77e5c5aed4f311eaull);
 
 vnx::Hash64 StreamWrite::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -43,7 +43,7 @@ void StreamWrite::write(vnx::TypeOutput& _out, const vnx::TypeCode* _type_code, 
 void StreamWrite::accept(vnx::Visitor& _visitor) const {
 	const vnx::TypeCode* _type_code = get_type_code();
 	_visitor.type_begin(*_type_code);
-	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, chunks);
+	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, data);
 	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, stream);
 	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, is_eof);
 	_visitor.type_end(*_type_code);
@@ -51,7 +51,7 @@ void StreamWrite::accept(vnx::Visitor& _visitor) const {
 
 void StreamWrite::write(std::ostream& _out) const {
 	_out << "{";
-	_out << "\"chunks\": "; vnx::write(_out, chunks);
+	_out << "\"data\": "; vnx::write(_out, data);
 	_out << ", \"stream\": "; vnx::write(_out, stream);
 	_out << ", \"is_eof\": "; vnx::write(_out, is_eof);
 	_out << "}";
@@ -61,8 +61,8 @@ void StreamWrite::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "chunks") {
-			vnx::from_string(_entry.second, chunks);
+		if(_entry.first == "data") {
+			vnx::from_string(_entry.second, data);
 		} else if(_entry.first == "stream") {
 			vnx::from_string(_entry.second, stream);
 		} else if(_entry.first == "is_eof") {
@@ -93,7 +93,7 @@ std::shared_ptr<vnx::TypeCode> StreamWrite::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.StreamWrite";
 	type_code->type_hash = vnx::Hash64(0x6bf24232cab955eeull);
-	type_code->code_hash = vnx::Hash64(0x28c6d1f4a773f23dull);
+	type_code->code_hash = vnx::Hash64(0x77e5c5aed4f311eaull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::BinaryData::get_type_code();
@@ -102,8 +102,8 @@ std::shared_ptr<vnx::TypeCode> StreamWrite::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
-		field.name = "chunks";
-		field.code = {12, 12, 1};
+		field.name = "data";
+		field.code = {12, 1};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[1];
@@ -128,12 +128,15 @@ std::shared_ptr<vnx::TypeCode> StreamWrite::create_type_code() {
 namespace vnx {
 
 void read(TypeInput& in, ::vnx::web::StreamWrite& value, const TypeCode* type_code, const uint16_t* code) {
-	if(!type_code || (code && code[0] != CODE_STRUCT)) {
-		vnx::skip(in, type_code, code);
-		return;
+	if(!type_code) {
+		throw std::logic_error("read(): type_code == 0");
 	}
-	if(code && code[0] == CODE_STRUCT) {
-		type_code = type_code->depends[code[1]];
+	if(code) {
+		switch(code[0]) {
+			case CODE_STRUCT: type_code = type_code->depends[code[1]]; break;
+			case CODE_ALT_STRUCT: type_code = type_code->depends[vnx::flip_bytes(code[1])]; break;
+			default: vnx::skip(in, type_code, code); return;
+		}
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{
@@ -144,7 +147,7 @@ void read(TypeInput& in, ::vnx::web::StreamWrite& value, const TypeCode* type_co
 	}
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
-			case 0: vnx::read(in, value.chunks, type_code, _field->code.data()); break;
+			case 0: vnx::read(in, value.data, type_code, _field->code.data()); break;
 			case 1: vnx::read(in, value.stream, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
@@ -161,7 +164,7 @@ void write(TypeOutput& out, const ::vnx::web::StreamWrite& value, const TypeCode
 	}
 	char* const _buf = out.write(1);
 	vnx::write_value(_buf + 0, value.is_eof);
-	vnx::write(out, value.chunks, type_code, type_code->fields[0].code.data());
+	vnx::write(out, value.data, type_code, type_code->fields[0].code.data());
 	vnx::write(out, value.stream, type_code, type_code->fields[1].code.data());
 }
 

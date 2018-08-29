@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpRequest::VNX_TYPE_HASH(0x84bd8b34f037a33eull);
-const vnx::Hash64 HttpRequest::VNX_CODE_HASH(0xb4eeb23eb54e93f9ull);
+const vnx::Hash64 HttpRequest::VNX_CODE_HASH(0xed65b60b8658a223ull);
 
 vnx::Hash64 HttpRequest::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -133,14 +133,13 @@ std::shared_ptr<vnx::TypeCode> HttpRequest::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpRequest";
 	type_code->type_hash = vnx::Hash64(0x84bd8b34f037a33eull);
-	type_code->code_hash = vnx::Hash64(0xb4eeb23eb54e93f9ull);
+	type_code->code_hash = vnx::Hash64(0xed65b60b8658a223ull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Request::get_type_code();
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<HttpRequest>(); };
-	type_code->depends.resize(2);
+	type_code->depends.resize(1);
 	type_code->depends[0] = ::vnx::web::request_type_e::get_type_code();
-	type_code->depends[1] = ::vnx::web::BinaryData::get_type_code();
 	type_code->fields.resize(13);
 	{
 		vnx::TypeField& field = type_code->fields[0];
@@ -216,7 +215,7 @@ std::shared_ptr<vnx::TypeCode> HttpRequest::create_type_code() {
 		vnx::TypeField& field = type_code->fields[12];
 		field.is_extended = true;
 		field.name = "payload";
-		field.code = {19, 1};
+		field.code = {12, 1};
 	}
 	type_code->build();
 	return type_code;
@@ -230,12 +229,15 @@ std::shared_ptr<vnx::TypeCode> HttpRequest::create_type_code() {
 namespace vnx {
 
 void read(TypeInput& in, ::vnx::web::HttpRequest& value, const TypeCode* type_code, const uint16_t* code) {
-	if(!type_code || (code && code[0] != CODE_STRUCT)) {
-		vnx::skip(in, type_code, code);
-		return;
+	if(!type_code) {
+		throw std::logic_error("read(): type_code == 0");
 	}
-	if(code && code[0] == CODE_STRUCT) {
-		type_code = type_code->depends[code[1]];
+	if(code) {
+		switch(code[0]) {
+			case CODE_STRUCT: type_code = type_code->depends[code[1]]; break;
+			case CODE_ALT_STRUCT: type_code = type_code->depends[vnx::flip_bytes(code[1])]; break;
+			default: vnx::skip(in, type_code, code); return;
+		}
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{

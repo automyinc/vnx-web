@@ -123,12 +123,15 @@ std::shared_ptr<vnx::TypeCode> ErrorCode::create_type_code() {
 namespace vnx {
 
 void read(TypeInput& in, ::vnx::web::ErrorCode& value, const TypeCode* type_code, const uint16_t* code) {
-	if(!type_code || (code && code[0] != CODE_STRUCT)) {
-		vnx::skip(in, type_code, code);
-		return;
+	if(!type_code) {
+		throw std::logic_error("read(): type_code == 0");
 	}
-	if(code && code[0] == CODE_STRUCT) {
-		type_code = type_code->depends[code[1]];
+	if(code) {
+		switch(code[0]) {
+			case CODE_STRUCT: type_code = type_code->depends[code[1]]; break;
+			case CODE_ALT_STRUCT: type_code = type_code->depends[vnx::flip_bytes(code[1])]; break;
+			default: vnx::skip(in, type_code, code); return;
+		}
 	}
 	const char* const _buf = in.read(type_code->total_field_size);
 	{
