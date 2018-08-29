@@ -8,6 +8,6 @@ class FileInfo {
 	
 	bool is_directory;
 	
-	long num_bytes;
+	long num_bytes = -1;
 	
 }

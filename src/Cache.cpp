@@ -1,6 +1,7 @@
 
 #include <vnx/web/Cache.h>
 #include <vnx/web/Generic.hxx>
+#include <vnx/web/Directory.hxx>
 
 
 namespace vnx {
@@ -83,33 +84,45 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		return;
 	}
 	if(request->type == request_type_e::READ) {
-		if(request->path == "/entries") {
-			std::shared_ptr<Response> response = Response::create();
-			response->is_for_request(request);
+		std::shared_ptr<Response> response;
+		if(request->path == "/") {
+			response = Response::create();
+			auto content = Directory::create();
 			{
-				std::vector<Object> result;
-				result.reserve(table.size());
-				for(const auto& entry : table) {
-					if(entry.content) {
-						result.emplace_back();
-						Object& object = result.back();
-						object["path"] = entry.path;
-						object["type"] = entry.content->get_type_name();
-						object["num_hits"] = entry.num_hits;
-						object["num_bytes"] = entry.content->get_num_bytes();
-						object["time_stamp_ms"] = entry.time_stamp_ms;
-						object["time_to_live_ms"] = entry.time_to_live_ms;
-					}
-				}
-				
-				auto content = Generic::create();
-				content->name = "entries";
-				content->value = Variant::create(result);
-				content->time_stamp_ms = now;
-				response->result = content;
+				content->files.emplace_back();
+				FileInfo& info = content->files.back();
+				info.name = "entries";
+				info.mime_type = "application/json";
 			}
+			content->time_stamp_ms = now;
+			response->result = content;
+		}
+		if(request->path == "/entries") {
+			response = Response::create();
+			std::vector<Object> result;
+			result.reserve(table.size());
+			for(const auto& entry : table) {
+				if(entry.content) {
+					result.emplace_back();
+					Object& object = result.back();
+					object["path"] = entry.path;
+					object["type"] = entry.content->get_type_name();
+					object["num_hits"] = entry.num_hits;
+					object["num_bytes"] = entry.content->get_num_bytes();
+					object["time_stamp_ms"] = entry.time_stamp_ms;
+					object["time_to_live_ms"] = entry.time_to_live_ms;
+				}
+			}
+			auto content = Generic::create();
+			content->name = "entries";
+			content->value = Variant::create(result);
+			content->time_stamp_ms = now;
+			response->result = content;
+		}
+		if(response) {
+			response->is_for_request(request);
 			response->is_dynamic = false;
-			response->time_to_live_ms = 3000;
+			response->time_to_live_ms = 1000;
 			cache_update(request, response);
 			publish(response, request->get_return_channel());
 			return;
