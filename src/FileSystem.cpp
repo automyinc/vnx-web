@@ -113,7 +113,7 @@ std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 	if(filesystem::is_directory(file_path)) {
 		
 		std::shared_ptr<Directory> directory = Directory::create();
-		directory->is_root = path.is_root();
+		directory->path = path;
 		
 		for(auto it = filesystem::directory_iterator(file_path); it != filesystem::directory_iterator(); ++it) {
 			const filesystem::path file = it->path();

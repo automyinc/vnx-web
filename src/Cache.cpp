@@ -87,15 +87,16 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		std::shared_ptr<Response> response;
 		if(request->path == "/") {
 			response = Response::create();
-			auto content = Directory::create();
+			auto directory = Directory::create();
+			directory->path = "/";
 			{
-				content->files.emplace_back();
-				FileInfo& info = content->files.back();
+				directory->files.emplace_back();
+				FileInfo& info = directory->files.back();
 				info.name = "entries";
 				info.mime_type = "application/json";
 			}
-			content->time_stamp_ms = now;
-			response->result = content;
+			directory->time_stamp_ms = now;
+			response->result = directory;
 		}
 		if(request->path == "/entries") {
 			response = Response::create();

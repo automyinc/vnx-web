@@ -2,7 +2,7 @@ package vnx.web;
 
 class Directory extends Content {
 	
-	bool is_root;
+	Path path;
 	
 	vector<FileInfo> files;
 	
