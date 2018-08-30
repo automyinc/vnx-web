@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 FileInfo::VNX_TYPE_HASH(0x78c84256cbab6799ull);
-const vnx::Hash64 FileInfo::VNX_CODE_HASH(0x9bd2362f7afb41aaull);
+const vnx::Hash64 FileInfo::VNX_CODE_HASH(0xc7c32033d8c275f4ull);
 
 vnx::Hash64 FileInfo::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -97,7 +97,7 @@ std::shared_ptr<vnx::TypeCode> FileInfo::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.FileInfo";
 	type_code->type_hash = vnx::Hash64(0x78c84256cbab6799ull);
-	type_code->code_hash = vnx::Hash64(0x9bd2362f7afb41aaull);
+	type_code->code_hash = vnx::Hash64(0xc7c32033d8c275f4ull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<FileInfo>(); };
 	type_code->fields.resize(4);
@@ -121,6 +121,7 @@ std::shared_ptr<vnx::TypeCode> FileInfo::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[3];
 		field.name = "num_bytes";
+		field.value = vnx::to_string(-1);
 		field.code = {8};
 	}
 	type_code->build();

@@ -17,7 +17,7 @@ public:
 	::std::string name;
 	::std::string mime_type;
 	::vnx::bool_t is_directory = 0;
-	::int64_t num_bytes = 0;
+	::int64_t num_bytes = -1;
 	
 	typedef ::vnx::Value Super;
 	

@@ -7,6 +7,7 @@
 #include <vnx/web/package.hxx>
 #include <vnx/web/Content.hxx>
 #include <vnx/web/FileInfo.hxx>
+#include <vnx/web/Path.h>
 
 
 namespace vnx {
@@ -15,7 +16,7 @@ namespace web {
 class Directory : public ::vnx::web::Content {
 public:
 	
-	::vnx::bool_t is_root = 0;
+	::vnx::web::Path path;
 	::std::vector<::vnx::web::FileInfo> files;
 	
 	typedef ::vnx::web::Content Super;

@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 Directory::VNX_TYPE_HASH(0x1fd4ef6be645a155ull);
-const vnx::Hash64 Directory::VNX_CODE_HASH(0xb34f5da66e0133ccull);
+const vnx::Hash64 Directory::VNX_CODE_HASH(0xf7b98ddbf74f22aaull);
 
 vnx::Hash64 Directory::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -45,7 +45,7 @@ void Directory::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_begin(*_type_code);
 	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, mime_type);
 	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, time_stamp_ms);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, is_root);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, path);
 	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, files);
 	_visitor.type_end(*_type_code);
 }
@@ -54,7 +54,7 @@ void Directory::write(std::ostream& _out) const {
 	_out << "{";
 	_out << "\"mime_type\": "; vnx::write(_out, mime_type);
 	_out << ", \"time_stamp_ms\": "; vnx::write(_out, time_stamp_ms);
-	_out << ", \"is_root\": "; vnx::write(_out, is_root);
+	_out << ", \"path\": "; vnx::write(_out, path);
 	_out << ", \"files\": "; vnx::write(_out, files);
 	_out << "}";
 }
@@ -67,8 +67,8 @@ void Directory::read(std::istream& _in) {
 			vnx::from_string(_entry.second, mime_type);
 		} else if(_entry.first == "time_stamp_ms") {
 			vnx::from_string(_entry.second, time_stamp_ms);
-		} else if(_entry.first == "is_root") {
-			vnx::from_string(_entry.second, is_root);
+		} else if(_entry.first == "path") {
+			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "files") {
 			vnx::from_string(_entry.second, files);
 		}
@@ -97,7 +97,7 @@ std::shared_ptr<vnx::TypeCode> Directory::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Directory";
 	type_code->type_hash = vnx::Hash64(0x1fd4ef6be645a155ull);
-	type_code->code_hash = vnx::Hash64(0xb34f5da66e0133ccull);
+	type_code->code_hash = vnx::Hash64(0xf7b98ddbf74f22aaull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Content::get_type_code();
@@ -118,8 +118,9 @@ std::shared_ptr<vnx::TypeCode> Directory::create_type_code() {
 	}
 	{
 		vnx::TypeField& field = type_code->fields[2];
-		field.name = "is_root";
-		field.code = {1};
+		field.is_extended = true;
+		field.name = "path";
+		field.code = {12, 5};
 	}
 	{
 		vnx::TypeField& field = type_code->fields[3];
@@ -156,15 +157,10 @@ void read(TypeInput& in, ::vnx::web::Directory& value, const TypeCode* type_code
 			vnx::read_value(_buf + _field->offset, value.time_stamp_ms, _field->code.data());
 		}
 	}
-	{
-		const vnx::TypeField* const _field = type_code->field_map[2];
-		if(_field) {
-			vnx::read_value(_buf + _field->offset, value.is_root, _field->code.data());
-		}
-	}
 	for(const vnx::TypeField* _field : type_code->ext_fields) {
 		switch(_field->native_index) {
 			case 0: vnx::read(in, value.mime_type, type_code, _field->code.data()); break;
+			case 2: vnx::read(in, value.path, type_code, _field->code.data()); break;
 			case 3: vnx::read(in, value.files, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
@@ -179,10 +175,10 @@ void write(TypeOutput& out, const ::vnx::web::Directory& value, const TypeCode* 
 	if(code && code[0] == CODE_STRUCT) {
 		type_code = type_code->depends[code[1]];
 	}
-	char* const _buf = out.write(9);
+	char* const _buf = out.write(8);
 	vnx::write_value(_buf + 0, value.time_stamp_ms);
-	vnx::write_value(_buf + 8, value.is_root);
 	vnx::write(out, value.mime_type, type_code, type_code->fields[0].code.data());
+	vnx::write(out, value.path, type_code, type_code->fields[2].code.data());
 	vnx::write(out, value.files, type_code, type_code->fields[3].code.data());
 }
 
