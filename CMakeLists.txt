@@ -31,6 +31,7 @@ add_library(vnx_web SHARED
 	src/PageView.cpp
 	src/DynamicFile.cpp
 	src/DynamicView.cpp
+	src/Util.cpp
 )
 
 target_include_directories(vnx_web

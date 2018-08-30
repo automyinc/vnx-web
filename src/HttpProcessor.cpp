@@ -4,6 +4,7 @@
 #include <vnx/web/Parameter.hxx>
 #include <vnx/web/BinaryData.hxx>
 #include <vnx/web/File.hxx>
+#include <vnx/web/Util.h>
 
 #include <sstream>
 
@@ -245,7 +246,12 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 			out->result = result;
 			auto content = std::dynamic_pointer_cast<const Content>(result);
 			if(content) {
-				out->header.emplace_back("ETag", "\"" + std::to_string(content->time_stamp_ms) + "\"");
+				if(!response->is_dynamic) {
+					const int64_t time_stamp_s = content->time_stamp_ms / 1000;
+					out->header.emplace_back("Last-Modified", get_date_string(time_stamp_s));
+					out->header.emplace_back("ETag", "\"" + request->path.get_hash().to_string()
+							+ ":" + std::to_string(time_stamp_s) + "\"");
+				}
 			}
 			{
 				const std::string path = request->path.to_string();
@@ -307,6 +313,16 @@ std::shared_ptr<File> HttpProcessor::get_error_content(int code) {
 	std::shared_ptr<File> content = create_error_page(code);
 	static_error_pages[code] = content;
 	return content;
+}
+
+std::string HttpProcessor::get_date_string(int64_t time_stamp_s) {
+	auto iter = date_string_map.find(time_stamp_s);
+	if(iter != date_string_map.end()) {
+		return iter->second;
+	}
+	const std::string str = to_date_string(time_stamp_s);
+	date_string_map[time_stamp_s] = str;
+	return str;
 }
 
 

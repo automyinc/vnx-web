@@ -58,6 +58,8 @@ private:
 	
 	std::shared_ptr<File> get_error_content(int code);
 	
+	std::string get_date_string(int64_t time_stamp_ms);
+	
 private:
 	std::shared_ptr<Pipe> input_pipe;
 	std::unordered_map<Hash128, state_t> state_map;
@@ -65,6 +67,7 @@ private:
 	
 	std::unordered_map<std::string, HttpDomainStats> domain_stats;
 	std::unordered_map<int, std::shared_ptr<File>> static_error_pages;
+	std::unordered_map<int64_t, std::string> date_string_map;
 	
 	int64_t server_start_time_ms = 0;
 	size_t request_counter = 0;
