@@ -54,6 +54,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 			std::shared_ptr<Response> response = Response::create();
 			response->is_for_request(request);
 			response->result = entry.content;
+			response->is_dynamic = false;
 			response->time_to_live_ms = entry.time_to_live_ms;
 			publish(response, request->get_return_channel());
 			
