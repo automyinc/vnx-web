@@ -1,0 +1,12 @@
+package vnx.web;
+
+class SetCookie extends ErrorCode {
+	
+	string name;
+	
+	string value;
+	
+	
+	static SetCookie* create(string name, string value, string forward);
+	
+}

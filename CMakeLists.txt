@@ -32,6 +32,7 @@ add_library(vnx_web SHARED
 	src/DynamicFile.cpp
 	src/DynamicView.cpp
 	src/Util.cpp
+	src/SetCookie.cpp
 )
 
 target_include_directories(vnx_web

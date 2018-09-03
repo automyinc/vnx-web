@@ -4,6 +4,7 @@
 #include <vnx/web/BinaryData.hxx>
 #include <vnx/web/File.hxx>
 #include <vnx/web/Util.h>
+#include <vnx/web/SetCookie.hxx>
 
 #include <sstream>
 
@@ -107,11 +108,6 @@ void HttpProcessor::process(state_t& state, const std::string& domain) {
 
 void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> request) {
 	
-	std::map<std::string, std::string> header_fields;
-	for(const auto& field : request->header) {
-		header_fields[field.first] = field.second;
-	}
-	
 	std::shared_ptr<Request> forward;
 	if(request->method == "GET" || request->method == "HEAD") {
 		forward = Request::create();
@@ -121,6 +117,29 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		forward = Request::create();
 		forward->path = request->path;
 		forward->type = request_type_e::GENERIC;
+	}
+	
+	std::map<std::string, std::string> header_fields;
+	for(const auto& field : request->header) {
+		if(field.first == "Cookie") {
+			if(forward) {
+				const std::vector<std::string> cookies = vnx::string_split(field.second, ';');
+				for(const auto& cookie : cookies) {
+					const std::vector<std::string> pair = vnx::string_split(cookie, '=');
+					if(pair.size() == 2) {
+						std::string name;
+						if(!pair[0].empty() && pair[0][0] == ' ') {
+							name = pair[0].substr(1);
+						} else {
+							name = pair[0];
+						}
+						forward->session[name] = pair[1];
+					}
+				}
+			}
+		} else {
+			header_fields[field.first] = field.second;
+		}
 	}
 	
 	std::string domain = default_domain;
@@ -212,6 +231,15 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 			out->result = get_error_content(error->code);
 			if(error->code == ErrorCode::MOVED_PERMANENTLY) {
 				out->header.emplace_back("Location", error->message);
+			}
+			if(error->code == ErrorCode::MOVED_TEMPORARILY) {
+				out->header.emplace_back("Location", error->message);
+			}
+			{
+				auto cookie = std::dynamic_pointer_cast<const SetCookie>(error);
+				if(cookie) {
+					out->header.emplace_back("Set-Cookie", cookie->name + "=" + cookie->value);
+				}
 			}
 			stats.error_count[error->code]++;
 		} else {
