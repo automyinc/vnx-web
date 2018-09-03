@@ -1,6 +1,5 @@
 package vnx.web;
 
-import vnx.Variant;
 import vnx.Object;
 
 class DynamicFile extends File {

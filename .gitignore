@@ -31,10 +31,9 @@
 *.out
 *.app
 
-*.mgc
-
 /build
 /vnx.web
 /doxygen
 /doc/doxygen
+/.data
 
