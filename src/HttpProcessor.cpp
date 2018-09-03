@@ -21,8 +21,10 @@ void HttpProcessor::main() {
 	
 	server_start_time_ms = vnx::get_time_millis();
 	
+	client = std::make_shared<database::DatabaseClient>("Database");
+	
 	set_timer_millis(1000, std::bind(&HttpProcessor::print_stats, this));
-	set_timer_millis(10000, std::bind(&HttpProcessor::write_stats, this));
+	set_timer_millis(60000, std::bind(&HttpProcessor::write_stats, this));
 	
 	Super::main();
 }
@@ -160,7 +162,7 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		}
 	}
 	
-	HttpDomainStats& stats = domain_stats[domain];
+	domain_stats_t& stats = domain_stats[domain];
 	{
 		auto iter = header_fields.find("Referer");
 		if(iter != header_fields.end()) {
@@ -231,7 +233,7 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 	out->do_close = !keepalive || do_close;
 	
 	auto result = response->result;
-	HttpDomainStats& stats = domain_stats[domain];
+	domain_stats_t& stats = domain_stats[domain];
 	{
 		auto error = std::dynamic_pointer_cast<const ErrorCode>(result);
 		if(error) {
@@ -254,14 +256,15 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 				}
 			}
 			{
-				const std::string path = request->path.to_string();
-				if(path.size() < 256) {
-					auto iter = stats.page_count.find(path);
-					if(iter != stats.page_count.end()) {
-						iter->second++;
-					} else if(stats.page_count.size() < max_num_pages) {
-						stats.page_count[path]++;
-					}
+				std::string path = request->path.to_string();
+				if(path.size() > 256) {
+					path.resize(256);
+				}
+				auto iter = stats.page_count.find(path);
+				if(iter != stats.page_count.end()) {
+					iter->second++;
+				} else if(stats.page_count.size() < max_num_pages) {
+					stats.page_count[path]++;
 				}
 			}
 		}
@@ -280,17 +283,47 @@ void HttpProcessor::print_stats() {
 }
 
 void HttpProcessor::write_stats() {
-	for(const auto& entry : domain_stats) {
-		auto request = Request::create();
-		request->id = Hash128::rand();
-		request->type = request_type_e::WRITE;
-		request->path = "/file/vnx.web/http_domain_stats_" + std::to_string(server_start_time_ms) + ".dat";
-		auto data = BinaryData::create();
-		data->write_value(entry.second);
-		request->parameter = data;
-		request->time_stamp_ms = vnx::get_time_millis();
-		publish(request, domain_map[entry.first]);
+	const int64_t now = vnx::get_time_millis();
+	try {
+		for(const auto& entry : domain_stats) {
+			{
+				std::map<Hash128, Object> rows;
+				for(const auto& count : entry.second.error_count) {
+					Object& row = rows[Hash128::rand()];
+					row["time"] = now;
+					row["domain"] = entry.first;
+					row["error"] = count.first;
+					row["count"] = count.second;
+				}
+				client->insert_many_async("error_count", rows);
+			}
+			{
+				std::map<Hash128, Object> rows;
+				for(const auto& count : entry.second.page_count) {
+					Object& row = rows[Hash128::rand()];
+					row["time"] = now;
+					row["domain"] = entry.first;
+					row["path"] = count.first;
+					row["count"] = count.second;
+				}
+				client->insert_many_async("page_count", rows);
+			}
+			{
+				std::map<Hash128, Object> rows;
+				for(const auto& count : entry.second.referral_count) {
+					Object& row = rows[Hash128::rand()];
+					row["time"] = now;
+					row["domain"] = entry.first;
+					row["url"] = count.first;
+					row["count"] = count.second;
+				}
+				client->insert_many_async("referral_count", rows);
+			}
+		}
+	} catch(...) {
+		log(WARN).out << "Failed to commit statistics to database!";
 	}
+	domain_stats.clear();
 }
 
 std::shared_ptr<File> create_error_page(int code) {

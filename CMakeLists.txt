@@ -38,7 +38,7 @@ target_include_directories(vnx_web
 	PUBLIC include generated/include lib/
 )
 
-target_link_libraries(vnx_web vnx_base ${Boost_LIBRARIES} magic)
+target_link_libraries(vnx_web vnx_database vnx_base ${Boost_LIBRARIES} magic)
 
 add_executable(vnxwebserver src/vnxwebserver.cpp)
 target_link_libraries(vnxwebserver vnx_web)

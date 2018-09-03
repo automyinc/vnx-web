@@ -9,6 +9,7 @@
 #include <vnx/web/DefaultView.hxx>
 #include <vnx/web/DynamicView.hxx>
 #include <vnx/web/PageView.hxx>
+#include <vnx/database/Database.h>
 
 #include <vnx/Config.h>
 #include <vnx/Process.h>
@@ -36,6 +37,10 @@ int main(int argc, char** argv) {
 		server.start_detached();
 	}
 	
+	{
+		vnx::Handle<vnx::database::Database> module = new vnx::database::Database("Database");
+		module.start_detached();
+	}
 	{
 		vnx::Handle<vnx::web::FileSystem> module = new vnx::web::FileSystem("FileSystem");
 		module->domain = "server.domain";

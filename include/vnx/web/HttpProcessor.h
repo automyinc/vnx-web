@@ -4,7 +4,7 @@
 
 #include <vnx/web/HttpProcessorBase.hxx>
 #include <vnx/web/HttpResponse.hxx>
-#include <vnx/web/HttpDomainStats.hxx>
+#include <vnx/database/DatabaseClient.hxx>
 
 #include <queue>
 #include <unordered_set>
@@ -32,6 +32,12 @@ protected:
 	struct request_entry_t {
 		Hash128 stream;
 		std::string domain;
+	};
+	
+	struct domain_stats_t {
+		std::map<int32_t, int64_t> error_count;
+		std::map<std::string, int64_t> page_count;
+		std::map<std::string, int64_t> referral_count;
 	};
 	
 	void init() override;
@@ -65,9 +71,11 @@ private:
 	std::unordered_map<Hash128, state_t> state_map;
 	std::unordered_map<Hash128, request_entry_t> pending_requests;
 	
-	std::unordered_map<std::string, HttpDomainStats> domain_stats;
+	std::unordered_map<std::string, domain_stats_t> domain_stats;
 	std::unordered_map<int, std::shared_ptr<File>> static_error_pages;
 	std::unordered_map<int64_t, std::string> date_string_map;
+	
+	std::shared_ptr<database::DatabaseClient> client;
 	
 	int64_t server_start_time_ms = 0;
 	size_t request_counter = 0;
