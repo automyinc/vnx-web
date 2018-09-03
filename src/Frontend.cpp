@@ -419,18 +419,18 @@ void Frontend::PollLoop::loop() {
 			int64_t total_written = 0;
 			auto sample = state.samples.front();
 			if(!state.chunk) {
-				state.chunk = sample->data.front;
+				state.chunk = sample->data.front();
 			}
 			while(state.chunk) {
-				if(state.chunk->size > state.chunk_offset) {
-					const ssize_t num_left = state.chunk->size - state.chunk_offset;
+				if(state.chunk->size() > state.chunk_offset) {
+					const ssize_t num_left = state.chunk->size() - state.chunk_offset;
 					const ssize_t num_to_write = num_left > write_block_size ? write_block_size : num_left;
-					const ssize_t num_written = ::send(stream.sock, state.chunk->data + state.chunk_offset, size_t(num_to_write), MSG_NOSIGNAL);
+					const ssize_t num_written = ::send(stream.sock, state.chunk->data() + state.chunk_offset, size_t(num_to_write), MSG_NOSIGNAL);
 					if(num_written > 0) {
 						total_written += num_written;
 					}
 					if(num_written == num_left) {
-						state.chunk = state.chunk->next;
+						state.chunk = state.chunk->next();
 						state.chunk_offset = 0;
 					} else if(num_written == num_to_write) {
 						state.chunk_offset += num_written;
@@ -449,7 +449,7 @@ void Frontend::PollLoop::loop() {
 						break;
 					}
 				} else {
-					state.chunk = state.chunk->next;
+					state.chunk = state.chunk->next();
 					state.chunk_offset = 0;
 				}
 			}

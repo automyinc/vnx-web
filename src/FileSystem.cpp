@@ -180,15 +180,15 @@ void FileSystem::write_file(const Path& path, const vnx::Memory& data) {
 	if(!p_file) {
 		throw std::runtime_error("fopen() failed for: " + path.to_string());
 	}
-	Memory::chunk_t* chunk = data.front;
+	const Memory::chunk_t* chunk = data.front();
 	while(chunk) {
-		const size_t num_write = ::fwrite(chunk->data, 1, chunk->size, p_file);
-		if(num_write != chunk->size) {
+		const size_t num_write = ::fwrite(chunk->data(), 1, chunk->size(), p_file);
+		if(num_write != chunk->size()) {
 			::fclose(p_file);
 			throw std::runtime_error("fwrite() failed for: " + path.to_string());
 		}
 		num_write_bytes += num_write;
-		chunk = chunk->next;
+		chunk = chunk->next();
 	}
 	::fclose(p_file);
 	

@@ -1,5 +1,6 @@
 
 #include <vnx/web/Cache.h>
+#include <vnx/Generic.hxx>
 #include <vnx/web/Generic.hxx>
 #include <vnx/web/Directory.hxx>
 
@@ -117,7 +118,7 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 			}
 			auto content = Generic::create();
 			content->name = "entries";
-			content->value = Variant::create(result);
+			content->value = vnx::Generic::create(result);
 			content->time_stamp_ms = now;
 			response->result = content;
 		}
