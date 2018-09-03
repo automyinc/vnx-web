@@ -23,6 +23,7 @@ public:
 	::vnx::web::request_type_e type = ::vnx::web::request_type_e::GENERIC;
 	::vnx::web::Path path;
 	::std::shared_ptr<const ::vnx::Value> parameter;
+	::std::map<::std::string, ::std::string> session;
 	::std::vector<::vnx::TopicPtr> source;
 	::int64_t time_stamp_ms = 0;
 	::int64_t timeout_ms = 3000;

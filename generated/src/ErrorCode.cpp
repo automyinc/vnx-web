@@ -13,6 +13,7 @@ namespace vnx {
 namespace web {
 
 const ::int32_t ErrorCode::MOVED_PERMANENTLY;
+const ::int32_t ErrorCode::MOVED_TEMPORARILY;
 const ::int32_t ErrorCode::BAD_REQUEST;
 const ::int32_t ErrorCode::FORBIDDEN;
 const ::int32_t ErrorCode::NOT_FOUND;

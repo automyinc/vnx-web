@@ -14,6 +14,7 @@ namespace web {
 class ErrorCode : public ::vnx::Value {
 public:
 	static const ::int32_t MOVED_PERMANENTLY = 301;
+	static const ::int32_t MOVED_TEMPORARILY = 302;
 	static const ::int32_t BAD_REQUEST = 400;
 	static const ::int32_t FORBIDDEN = 403;
 	static const ::int32_t NOT_FOUND = 404;

@@ -16,6 +16,7 @@ namespace web {
 class BinaryData;
 class CacheBase;
 class Content;
+class DatabaseViewBase;
 class DefaultView;
 class Directory;
 class DynamicFile;
@@ -38,6 +39,7 @@ class Path;
 class Provider;
 class Request;
 class Response;
+class SetCookie;
 class StreamEventArray;
 class StreamRead;
 class StreamWrite;
@@ -56,6 +58,7 @@ namespace vnx {
 void read(TypeInput& in, ::vnx::web::BinaryData& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::CacheBase& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Content& value, const TypeCode* type_code, const uint16_t* code);
+void read(TypeInput& in, ::vnx::web::DatabaseViewBase& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::DefaultView& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Directory& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::DynamicFile& value, const TypeCode* type_code, const uint16_t* code);
@@ -78,6 +81,7 @@ void read(TypeInput& in, ::vnx::web::Path& value, const TypeCode* type_code, con
 void read(TypeInput& in, ::vnx::web::Provider& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Request& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Response& value, const TypeCode* type_code, const uint16_t* code);
+void read(TypeInput& in, ::vnx::web::SetCookie& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::StreamEventArray& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::StreamRead& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::StreamWrite& value, const TypeCode* type_code, const uint16_t* code);
@@ -90,6 +94,7 @@ void read(TypeInput& in, ::vnx::web::stream_event_t& value, const TypeCode* type
 void write(TypeOutput& out, const ::vnx::web::BinaryData& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::CacheBase& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Content& value, const TypeCode* type_code, const uint16_t* code);
+void write(TypeOutput& out, const ::vnx::web::DatabaseViewBase& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::DefaultView& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Directory& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::DynamicFile& value, const TypeCode* type_code, const uint16_t* code);
@@ -112,6 +117,7 @@ void write(TypeOutput& out, const ::vnx::web::Path& value, const TypeCode* type_
 void write(TypeOutput& out, const ::vnx::web::Provider& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Request& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Response& value, const TypeCode* type_code, const uint16_t* code);
+void write(TypeOutput& out, const ::vnx::web::SetCookie& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::StreamEventArray& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::StreamRead& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::StreamWrite& value, const TypeCode* type_code, const uint16_t* code);
@@ -124,6 +130,7 @@ void write(TypeOutput& out, const ::vnx::web::stream_event_t& value, const TypeC
 void read(std::istream& in, ::vnx::web::BinaryData& value);
 void read(std::istream& in, ::vnx::web::CacheBase& value);
 void read(std::istream& in, ::vnx::web::Content& value);
+void read(std::istream& in, ::vnx::web::DatabaseViewBase& value);
 void read(std::istream& in, ::vnx::web::DefaultView& value);
 void read(std::istream& in, ::vnx::web::Directory& value);
 void read(std::istream& in, ::vnx::web::DynamicFile& value);
@@ -146,6 +153,7 @@ void read(std::istream& in, ::vnx::web::Path& value);
 void read(std::istream& in, ::vnx::web::Provider& value);
 void read(std::istream& in, ::vnx::web::Request& value);
 void read(std::istream& in, ::vnx::web::Response& value);
+void read(std::istream& in, ::vnx::web::SetCookie& value);
 void read(std::istream& in, ::vnx::web::StreamEventArray& value);
 void read(std::istream& in, ::vnx::web::StreamRead& value);
 void read(std::istream& in, ::vnx::web::StreamWrite& value);
@@ -158,6 +166,7 @@ void read(std::istream& in, ::vnx::web::stream_event_t& value);
 void write(std::ostream& out, const ::vnx::web::BinaryData& value);
 void write(std::ostream& out, const ::vnx::web::CacheBase& value);
 void write(std::ostream& out, const ::vnx::web::Content& value);
+void write(std::ostream& out, const ::vnx::web::DatabaseViewBase& value);
 void write(std::ostream& out, const ::vnx::web::DefaultView& value);
 void write(std::ostream& out, const ::vnx::web::Directory& value);
 void write(std::ostream& out, const ::vnx::web::DynamicFile& value);
@@ -180,6 +189,7 @@ void write(std::ostream& out, const ::vnx::web::Path& value);
 void write(std::ostream& out, const ::vnx::web::Provider& value);
 void write(std::ostream& out, const ::vnx::web::Request& value);
 void write(std::ostream& out, const ::vnx::web::Response& value);
+void write(std::ostream& out, const ::vnx::web::SetCookie& value);
 void write(std::ostream& out, const ::vnx::web::StreamEventArray& value);
 void write(std::ostream& out, const ::vnx::web::StreamRead& value);
 void write(std::ostream& out, const ::vnx::web::StreamWrite& value);
@@ -192,6 +202,7 @@ void write(std::ostream& out, const ::vnx::web::stream_event_t& value);
 void accept(Visitor& visitor, const ::vnx::web::BinaryData& value);
 void accept(Visitor& visitor, const ::vnx::web::CacheBase& value);
 void accept(Visitor& visitor, const ::vnx::web::Content& value);
+void accept(Visitor& visitor, const ::vnx::web::DatabaseViewBase& value);
 void accept(Visitor& visitor, const ::vnx::web::DefaultView& value);
 void accept(Visitor& visitor, const ::vnx::web::Directory& value);
 void accept(Visitor& visitor, const ::vnx::web::DynamicFile& value);
@@ -214,6 +225,7 @@ void accept(Visitor& visitor, const ::vnx::web::Path& value);
 void accept(Visitor& visitor, const ::vnx::web::Provider& value);
 void accept(Visitor& visitor, const ::vnx::web::Request& value);
 void accept(Visitor& visitor, const ::vnx::web::Response& value);
+void accept(Visitor& visitor, const ::vnx::web::SetCookie& value);
 void accept(Visitor& visitor, const ::vnx::web::StreamEventArray& value);
 void accept(Visitor& visitor, const ::vnx::web::StreamRead& value);
 void accept(Visitor& visitor, const ::vnx::web::StreamWrite& value);
@@ -282,6 +294,28 @@ struct type<::vnx::web::Content> {
 		vnx::write(out, value);
 	}
 	void accept(Visitor& visitor, const ::vnx::web::Content& value) {
+		vnx::accept(visitor, value);
+	}
+	void create_dynamic_code(std::vector<uint16_t>& code) {
+		code.push_back(CODE_ANY);
+	}
+};
+
+template<>
+struct type<::vnx::web::DatabaseViewBase> {
+	void read(TypeInput& in, ::vnx::web::DatabaseViewBase& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::read(in, value, type_code, code);
+	}
+	void write(TypeOutput& out, const ::vnx::web::DatabaseViewBase& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::write(out, value, type_code, code);
+	}
+	void read(std::istream& in, ::vnx::web::DatabaseViewBase& value) {
+		vnx::read(in, value);
+	}
+	void write(std::ostream& out, const ::vnx::web::DatabaseViewBase& value) {
+		vnx::write(out, value);
+	}
+	void accept(Visitor& visitor, const ::vnx::web::DatabaseViewBase& value) {
 		vnx::accept(visitor, value);
 	}
 	void create_dynamic_code(std::vector<uint16_t>& code) {
@@ -767,6 +801,28 @@ struct type<::vnx::web::Response> {
 		vnx::write(out, value);
 	}
 	void accept(Visitor& visitor, const ::vnx::web::Response& value) {
+		vnx::accept(visitor, value);
+	}
+	void create_dynamic_code(std::vector<uint16_t>& code) {
+		code.push_back(CODE_ANY);
+	}
+};
+
+template<>
+struct type<::vnx::web::SetCookie> {
+	void read(TypeInput& in, ::vnx::web::SetCookie& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::read(in, value, type_code, code);
+	}
+	void write(TypeOutput& out, const ::vnx::web::SetCookie& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::write(out, value, type_code, code);
+	}
+	void read(std::istream& in, ::vnx::web::SetCookie& value) {
+		vnx::read(in, value);
+	}
+	void write(std::ostream& out, const ::vnx::web::SetCookie& value) {
+		vnx::write(out, value);
+	}
+	void accept(Visitor& visitor, const ::vnx::web::SetCookie& value) {
 		vnx::accept(visitor, value);
 	}
 	void create_dynamic_code(std::vector<uint16_t>& code) {
