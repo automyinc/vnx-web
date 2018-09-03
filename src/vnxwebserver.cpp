@@ -9,6 +9,7 @@
 #include <vnx/web/DefaultView.hxx>
 #include <vnx/web/DynamicView.hxx>
 #include <vnx/web/PageView.hxx>
+#include <vnx/web/DatabaseView.h>
 #include <vnx/database/Database.h>
 
 #include <vnx/Config.h>
@@ -94,6 +95,13 @@ int main(int argc, char** argv) {
 			vnx::read_config("PageView", view);
 			module->view = view;
 		}
+		module.start_detached();
+	}
+	{
+		vnx::Handle<vnx::web::DatabaseView> module = new vnx::web::DatabaseView("DatabaseView");
+		module->domain = "server.domain";
+		module->input = "server.database.request";
+		module->database = "Database";
 		module.start_detached();
 	}
 	{

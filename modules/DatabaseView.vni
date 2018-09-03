@@ -1,0 +1,18 @@
+package vnx.web;
+
+import vnx.TopicPtr;
+
+module DatabaseView {
+	
+	string database = "Database";
+	
+	TopicPtr domain;
+	
+	TopicPtr input;
+	
+	Path path = "/database/";
+	
+	
+	void handle(Request sample);
+	
+}

@@ -15,6 +15,7 @@ namespace vnx {
 namespace web {
 
 std::ostream& render(std::ostream& out, std::shared_ptr<const Directory> directory) {
+	out << "<!DOCTYPE html>\n";
 	out << "<html>\n<head>\n<title>Index of " << directory->path.to_string() << "</title>\n</head>\n<body>\n";
 	out << "<table>\n";
 	if(!directory->path.is_root()) {

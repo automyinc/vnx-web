@@ -2,5 +2,4 @@
 VNX Webserver Framework
 
 # Dependencies
-
-libboost-dev libmagic-dev
+vnx-database libboost-dev libmagic-dev
