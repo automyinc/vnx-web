@@ -1,7 +1,6 @@
 
 #include <vnx/web/HttpProcessor.h>
 #include <vnx/web/ErrorCode.hxx>
-#include <vnx/web/Parameter.hxx>
 #include <vnx/web/BinaryData.hxx>
 #include <vnx/web/File.hxx>
 #include <vnx/web/Util.h>
@@ -106,16 +105,6 @@ void HttpProcessor::process(state_t& state, const std::string& domain) {
 	}
 }
 
-std::shared_ptr<Parameter> parse_parameter(std::shared_ptr<Parameter> parameter, const char* str, size_t len) {
-	int state = 0;
-	std::string key;
-	std::string value;
-	for(size_t i = 0; i < len; ++i) {
-		// TODO
-	}
-	return parameter;
-}
-
 void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> request) {
 	
 	std::map<std::string, std::string> header_fields;
@@ -124,7 +113,6 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	}
 	
 	std::shared_ptr<Request> forward;
-	std::shared_ptr<Parameter> parameter;
 	if(request->method == "GET" || request->method == "HEAD") {
 		forward = Request::create();
 		forward->path = request->path;
@@ -133,23 +121,6 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 		forward = Request::create();
 		forward->path = request->path;
 		forward->type = request_type_e::GENERIC;
-		const std::string payload = request->payload.as_string();
-		parameter = parse_parameter(parameter, payload.c_str(), payload.size());
-	}
-	if(request->method == "GET" || request->method == "POST") {
-		if(!forward->path.empty()) {
-			std::string& str = forward->path.back();
-			for(size_t i = 0; i < str.size(); ++i) {
-				if(str[i] == '?') {
-					if(i + 1 < str.size()) {
-						parameter = parse_parameter(parameter, &str[i + 1], str.size() - i - 1);
-					}
-					str.resize(i);
-					break;
-				}
-			}
-		}
-		forward->parameter = parameter;
 	}
 	
 	std::string domain = default_domain;

@@ -1,5 +1,6 @@
 
 #include <vnx/web/HttpParser.h>
+#include <vnx/web/Parameter.hxx>
 
 #include <cstring>
 
@@ -108,6 +109,16 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> even
 	publish(events, output, BLOCKING);
 }
 
+std::shared_ptr<Parameter> parse_parameter(std::shared_ptr<Parameter> parameter, const char* str, size_t len) {
+	int state = 0;
+	std::string key;
+	std::string value;
+	for(size_t i = 0; i < len; ++i) {
+		// TODO
+	}
+	return parameter;
+}
+
 void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
 	state_t& state = state_map[input->stream];
 	state.stream = input->stream;
@@ -130,7 +141,27 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
 	}
 	
 	for(const auto& request : state.complete) {
+		std::shared_ptr<Parameter> parameter;
+		if(request->method == "GET" || request->method == "POST") {
+			if(!request->path.empty()) {
+				std::string& str = request->path.back();
+				for(size_t i = 0; i < str.size(); ++i) {
+					if(str[i] == '?') {
+						if(i + 1 < str.size()) {
+							parameter = parse_parameter(parameter, &str[i + 1], str.size() - i - 1);
+						}
+						str.resize(i);
+						break;
+					}
+				}
+			}
+		}
+		if(request->method == "POST") {
+			const std::string payload = request->payload.as_string();
+			parameter = parse_parameter(parameter, payload.c_str(), payload.size());
+		}
 		request->stream = input->stream;
+		request->parameter = parameter;
 		request->source.push_back(input->channel);
 		request->time_stamp_ms = vnx::get_time_millis();
 		publish(request, output, BLOCKING);
