@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 PageView::VNX_TYPE_HASH(0x8997e93f9bf0ab56ull);
-const vnx::Hash64 PageView::VNX_CODE_HASH(0xc16d660242dae1b8ull);
+const vnx::Hash64 PageView::VNX_CODE_HASH(0x61f578970241338aull);
 
 vnx::Hash64 PageView::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -101,7 +101,7 @@ std::shared_ptr<vnx::TypeCode> PageView::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.PageView";
 	type_code->type_hash = vnx::Hash64(0x8997e93f9bf0ab56ull);
-	type_code->code_hash = vnx::Hash64(0xc16d660242dae1b8ull);
+	type_code->code_hash = vnx::Hash64(0x61f578970241338aull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::View::get_type_code();

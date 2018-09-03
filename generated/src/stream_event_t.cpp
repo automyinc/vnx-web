@@ -17,7 +17,7 @@ const ::int32_t stream_event_t::EVENT_CLOSE;
 const ::int32_t stream_event_t::EVENT_EOF;
 
 const vnx::Hash64 stream_event_t::VNX_TYPE_HASH(0xd4f7a89285ca745aull);
-const vnx::Hash64 stream_event_t::VNX_CODE_HASH(0xd3d9f37682cbbf2eull);
+const vnx::Hash64 stream_event_t::VNX_CODE_HASH(0x471264f930a696f9ull);
 
 vnx::Hash64 stream_event_t::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -96,7 +96,7 @@ std::shared_ptr<vnx::TypeCode> stream_event_t::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.stream_event_t";
 	type_code->type_hash = vnx::Hash64(0xd4f7a89285ca745aull);
-	type_code->code_hash = vnx::Hash64(0xd3d9f37682cbbf2eull);
+	type_code->code_hash = vnx::Hash64(0x471264f930a696f9ull);
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<vnx::Struct<stream_event_t>>(); };
 	type_code->fields.resize(3);
 	{

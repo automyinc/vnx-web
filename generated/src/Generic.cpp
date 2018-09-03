@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 Generic::VNX_TYPE_HASH(0x637ae6178f4cc8e3ull);
-const vnx::Hash64 Generic::VNX_CODE_HASH(0xce30868e030a35b9ull);
+const vnx::Hash64 Generic::VNX_CODE_HASH(0xb270d8794a64c616ull);
 
 vnx::Hash64 Generic::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -97,7 +97,7 @@ std::shared_ptr<vnx::TypeCode> Generic::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Generic";
 	type_code->type_hash = vnx::Hash64(0x637ae6178f4cc8e3ull);
-	type_code->code_hash = vnx::Hash64(0xce30868e030a35b9ull);
+	type_code->code_hash = vnx::Hash64(0xb270d8794a64c616ull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Content::get_type_code();

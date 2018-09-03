@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 StreamRead::VNX_TYPE_HASH(0x538531a025cd468aull);
-const vnx::Hash64 StreamRead::VNX_CODE_HASH(0x332df508e19aa586ull);
+const vnx::Hash64 StreamRead::VNX_CODE_HASH(0xc0ef35722a3074cull);
 
 vnx::Hash64 StreamRead::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -93,7 +93,7 @@ std::shared_ptr<vnx::TypeCode> StreamRead::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.StreamRead";
 	type_code->type_hash = vnx::Hash64(0x538531a025cd468aull);
-	type_code->code_hash = vnx::Hash64(0x332df508e19aa586ull);
+	type_code->code_hash = vnx::Hash64(0xc0ef35722a3074cull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<StreamRead>(); };
 	type_code->fields.resize(3);

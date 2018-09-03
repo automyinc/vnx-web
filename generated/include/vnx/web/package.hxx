@@ -26,7 +26,6 @@ class FileInfo;
 class FileSystemBase;
 class FrontendBase;
 class Generic;
-class HttpDomainStats;
 class HttpParserBase;
 class HttpProcessorBase;
 class HttpRendererBase;
@@ -67,7 +66,6 @@ void read(TypeInput& in, ::vnx::web::FileInfo& value, const TypeCode* type_code,
 void read(TypeInput& in, ::vnx::web::FileSystemBase& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::FrontendBase& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Generic& value, const TypeCode* type_code, const uint16_t* code);
-void read(TypeInput& in, ::vnx::web::HttpDomainStats& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::HttpParserBase& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::HttpProcessorBase& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::HttpRendererBase& value, const TypeCode* type_code, const uint16_t* code);
@@ -102,7 +100,6 @@ void write(TypeOutput& out, const ::vnx::web::FileInfo& value, const TypeCode* t
 void write(TypeOutput& out, const ::vnx::web::FileSystemBase& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::FrontendBase& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Generic& value, const TypeCode* type_code, const uint16_t* code);
-void write(TypeOutput& out, const ::vnx::web::HttpDomainStats& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::HttpParserBase& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::HttpProcessorBase& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::HttpRendererBase& value, const TypeCode* type_code, const uint16_t* code);
@@ -137,7 +134,6 @@ void read(std::istream& in, ::vnx::web::FileInfo& value);
 void read(std::istream& in, ::vnx::web::FileSystemBase& value);
 void read(std::istream& in, ::vnx::web::FrontendBase& value);
 void read(std::istream& in, ::vnx::web::Generic& value);
-void read(std::istream& in, ::vnx::web::HttpDomainStats& value);
 void read(std::istream& in, ::vnx::web::HttpParserBase& value);
 void read(std::istream& in, ::vnx::web::HttpProcessorBase& value);
 void read(std::istream& in, ::vnx::web::HttpRendererBase& value);
@@ -172,7 +168,6 @@ void write(std::ostream& out, const ::vnx::web::FileInfo& value);
 void write(std::ostream& out, const ::vnx::web::FileSystemBase& value);
 void write(std::ostream& out, const ::vnx::web::FrontendBase& value);
 void write(std::ostream& out, const ::vnx::web::Generic& value);
-void write(std::ostream& out, const ::vnx::web::HttpDomainStats& value);
 void write(std::ostream& out, const ::vnx::web::HttpParserBase& value);
 void write(std::ostream& out, const ::vnx::web::HttpProcessorBase& value);
 void write(std::ostream& out, const ::vnx::web::HttpRendererBase& value);
@@ -207,7 +202,6 @@ void accept(Visitor& visitor, const ::vnx::web::FileInfo& value);
 void accept(Visitor& visitor, const ::vnx::web::FileSystemBase& value);
 void accept(Visitor& visitor, const ::vnx::web::FrontendBase& value);
 void accept(Visitor& visitor, const ::vnx::web::Generic& value);
-void accept(Visitor& visitor, const ::vnx::web::HttpDomainStats& value);
 void accept(Visitor& visitor, const ::vnx::web::HttpParserBase& value);
 void accept(Visitor& visitor, const ::vnx::web::HttpProcessorBase& value);
 void accept(Visitor& visitor, const ::vnx::web::HttpRendererBase& value);
@@ -508,28 +502,6 @@ struct type<::vnx::web::Generic> {
 		vnx::write(out, value);
 	}
 	void accept(Visitor& visitor, const ::vnx::web::Generic& value) {
-		vnx::accept(visitor, value);
-	}
-	void create_dynamic_code(std::vector<uint16_t>& code) {
-		code.push_back(CODE_ANY);
-	}
-};
-
-template<>
-struct type<::vnx::web::HttpDomainStats> {
-	void read(TypeInput& in, ::vnx::web::HttpDomainStats& value, const TypeCode* type_code, const uint16_t* code) {
-		vnx::read(in, value, type_code, code);
-	}
-	void write(TypeOutput& out, const ::vnx::web::HttpDomainStats& value, const TypeCode* type_code, const uint16_t* code) {
-		vnx::write(out, value, type_code, code);
-	}
-	void read(std::istream& in, ::vnx::web::HttpDomainStats& value) {
-		vnx::read(in, value);
-	}
-	void write(std::ostream& out, const ::vnx::web::HttpDomainStats& value) {
-		vnx::write(out, value);
-	}
-	void accept(Visitor& visitor, const ::vnx::web::HttpDomainStats& value) {
 		vnx::accept(visitor, value);
 	}
 	void create_dynamic_code(std::vector<uint16_t>& code) {

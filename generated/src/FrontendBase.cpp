@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 FrontendBase::VNX_TYPE_HASH(0xc9fab0af74907466ull);
-const vnx::Hash64 FrontendBase::VNX_CODE_HASH(0xf48c2bfbb63a643full);
+const vnx::Hash64 FrontendBase::VNX_CODE_HASH(0x2fbd209da3fe5af7ull);
 
 FrontendBase::FrontendBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -116,7 +116,7 @@ std::shared_ptr<vnx::TypeCode> FrontendBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Frontend";
 	type_code->type_hash = vnx::Hash64(0xc9fab0af74907466ull);
-	type_code->code_hash = vnx::Hash64(0xf48c2bfbb63a643full);
+	type_code->code_hash = vnx::Hash64(0x2fbd209da3fe5af7ull);
 	type_code->methods.resize(0);
 	type_code->fields.resize(9);
 	{

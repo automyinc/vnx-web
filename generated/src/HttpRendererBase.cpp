@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpRendererBase::VNX_TYPE_HASH(0x809feb631616e83full);
-const vnx::Hash64 HttpRendererBase::VNX_CODE_HASH(0x513ae31cdbcefc94ull);
+const vnx::Hash64 HttpRendererBase::VNX_CODE_HASH(0xb27c40db3a6111f9ull);
 
 HttpRendererBase::HttpRendererBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -81,13 +81,13 @@ std::shared_ptr<vnx::TypeCode> HttpRendererBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpRenderer";
 	type_code->type_hash = vnx::Hash64(0x809feb631616e83full);
-	type_code->code_hash = vnx::Hash64(0x513ae31cdbcefc94ull);
+	type_code->code_hash = vnx::Hash64(0xb27c40db3a6111f9ull);
 	type_code->methods.resize(2);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
 		call_type->name = "vnx.web.handle_vnx_web_HttpResponse";
 		call_type->type_hash = vnx::Hash64(0xe3324942782bc338ull);
-		call_type->code_hash = vnx::Hash64(0xc19ec9dfe840b9c0ull);
+		call_type->code_hash = vnx::Hash64(0xb05cfa0e4ad399f7ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -112,7 +112,7 @@ std::shared_ptr<vnx::TypeCode> HttpRendererBase::create_type_code() {
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
 		call_type->name = "vnx.web.handle_vnx_web_StreamEventArray";
 		call_type->type_hash = vnx::Hash64(0x30751ebcba8fcb3full);
-		call_type->code_hash = vnx::Hash64(0x3533214304cc2aefull);
+		call_type->code_hash = vnx::Hash64(0x44f11292a65f0ad8ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);

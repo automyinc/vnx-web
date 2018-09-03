@@ -21,7 +21,7 @@ const ::int32_t ErrorCode::INTERNAL_ERROR;
 const ::int32_t ErrorCode::OVERLOAD;
 
 const vnx::Hash64 ErrorCode::VNX_TYPE_HASH(0x91aec7d2ce28e5e3ull);
-const vnx::Hash64 ErrorCode::VNX_CODE_HASH(0x15d770d93aeefca4ull);
+const vnx::Hash64 ErrorCode::VNX_CODE_HASH(0xe519ccdb44a014bdull);
 
 vnx::Hash64 ErrorCode::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -96,7 +96,7 @@ std::shared_ptr<vnx::TypeCode> ErrorCode::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.ErrorCode";
 	type_code->type_hash = vnx::Hash64(0x91aec7d2ce28e5e3ull);
-	type_code->code_hash = vnx::Hash64(0x15d770d93aeefca4ull);
+	type_code->code_hash = vnx::Hash64(0xe519ccdb44a014bdull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<ErrorCode>(); };
 	type_code->fields.resize(2);

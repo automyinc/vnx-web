@@ -6,7 +6,6 @@
 
 #include <vnx/web/package.hxx>
 #include <vnx/Object.h>
-#include <vnx/Variant.h>
 #include <vnx/web/File.hxx>
 
 

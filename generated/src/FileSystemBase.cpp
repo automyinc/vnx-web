@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 FileSystemBase::VNX_TYPE_HASH(0x2a134f58319c8e28ull);
-const vnx::Hash64 FileSystemBase::VNX_CODE_HASH(0x1c6aacb0658e7e89ull);
+const vnx::Hash64 FileSystemBase::VNX_CODE_HASH(0x3068c8902d79a775ull);
 
 FileSystemBase::FileSystemBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -116,13 +116,13 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.FileSystem";
 	type_code->type_hash = vnx::Hash64(0x2a134f58319c8e28ull);
-	type_code->code_hash = vnx::Hash64(0x1c6aacb0658e7e89ull);
+	type_code->code_hash = vnx::Hash64(0x3068c8902d79a775ull);
 	type_code->methods.resize(1);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
 		call_type->name = "vnx.web.handle_vnx_web_Request";
 		call_type->type_hash = vnx::Hash64(0x4da6e3f631b8d157ull);
-		call_type->code_hash = vnx::Hash64(0x4be506a90a10ce50ull);
+		call_type->code_hash = vnx::Hash64(0x3a273578a883ee67ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);

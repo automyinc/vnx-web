@@ -17,7 +17,7 @@ const ::int32_t Notification::CONTENT_UPDATE;
 const ::int32_t Notification::CONTENT_DELETE;
 
 const vnx::Hash64 Notification::VNX_TYPE_HASH(0xdb0cc3f801c5d452ull);
-const vnx::Hash64 Notification::VNX_CODE_HASH(0x8b31c32b91c9fa57ull);
+const vnx::Hash64 Notification::VNX_CODE_HASH(0x5745d16c4e56bc30ull);
 
 vnx::Hash64 Notification::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -92,7 +92,7 @@ std::shared_ptr<vnx::TypeCode> Notification::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Notification";
 	type_code->type_hash = vnx::Hash64(0xdb0cc3f801c5d452ull);
-	type_code->code_hash = vnx::Hash64(0x8b31c32b91c9fa57ull);
+	type_code->code_hash = vnx::Hash64(0x5745d16c4e56bc30ull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<Notification>(); };
 	type_code->fields.resize(2);

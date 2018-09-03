@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 DynamicView::VNX_TYPE_HASH(0xa0b278abc2661c0full);
-const vnx::Hash64 DynamicView::VNX_CODE_HASH(0xb8a73dd8b0862007ull);
+const vnx::Hash64 DynamicView::VNX_CODE_HASH(0xe0c014757ccd231ull);
 
 vnx::Hash64 DynamicView::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -89,7 +89,7 @@ std::shared_ptr<vnx::TypeCode> DynamicView::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.DynamicView";
 	type_code->type_hash = vnx::Hash64(0xa0b278abc2661c0full);
-	type_code->code_hash = vnx::Hash64(0xb8a73dd8b0862007ull);
+	type_code->code_hash = vnx::Hash64(0xe0c014757ccd231ull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::View::get_type_code();

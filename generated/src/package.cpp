@@ -16,7 +16,6 @@
 #include <vnx/web/FileSystemBase.hxx>
 #include <vnx/web/FrontendBase.hxx>
 #include <vnx/web/Generic.hxx>
-#include <vnx/web/HttpDomainStats.hxx>
 #include <vnx/web/HttpParserBase.hxx>
 #include <vnx/web/HttpProcessorBase.hxx>
 #include <vnx/web/HttpRendererBase.hxx>
@@ -57,7 +56,6 @@ static void register_all_types() {
 	vnx::register_type_code(vnx::web::FileSystemBase::create_type_code());
 	vnx::register_type_code(vnx::web::FrontendBase::create_type_code());
 	vnx::register_type_code(vnx::web::Generic::create_type_code());
-	vnx::register_type_code(vnx::web::HttpDomainStats::create_type_code());
 	vnx::register_type_code(vnx::web::HttpParserBase::create_type_code());
 	vnx::register_type_code(vnx::web::HttpProcessorBase::create_type_code());
 	vnx::register_type_code(vnx::web::HttpRendererBase::create_type_code());

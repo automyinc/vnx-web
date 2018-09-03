@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 StreamWrite::VNX_TYPE_HASH(0x6bf24232cab955eeull);
-const vnx::Hash64 StreamWrite::VNX_CODE_HASH(0x77e5c5aed4f311eaull);
+const vnx::Hash64 StreamWrite::VNX_CODE_HASH(0x10982d6e150fba88ull);
 
 vnx::Hash64 StreamWrite::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -93,7 +93,7 @@ std::shared_ptr<vnx::TypeCode> StreamWrite::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.StreamWrite";
 	type_code->type_hash = vnx::Hash64(0x6bf24232cab955eeull);
-	type_code->code_hash = vnx::Hash64(0x77e5c5aed4f311eaull);
+	type_code->code_hash = vnx::Hash64(0x10982d6e150fba88ull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::BinaryData::get_type_code();

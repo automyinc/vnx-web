@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 StreamEventArray::VNX_TYPE_HASH(0x88743c1ec13df063ull);
-const vnx::Hash64 StreamEventArray::VNX_CODE_HASH(0x3587a8f80a41505dull);
+const vnx::Hash64 StreamEventArray::VNX_CODE_HASH(0x33a859754f16be26ull);
 
 vnx::Hash64 StreamEventArray::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -85,7 +85,7 @@ std::shared_ptr<vnx::TypeCode> StreamEventArray::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.StreamEventArray";
 	type_code->type_hash = vnx::Hash64(0x88743c1ec13df063ull);
-	type_code->code_hash = vnx::Hash64(0x3587a8f80a41505dull);
+	type_code->code_hash = vnx::Hash64(0x33a859754f16be26ull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<StreamEventArray>(); };
 	type_code->depends.resize(1);

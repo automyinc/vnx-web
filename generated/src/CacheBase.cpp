@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 CacheBase::VNX_TYPE_HASH(0x6de8cc0cc0e6b5f8ull);
-const vnx::Hash64 CacheBase::VNX_CODE_HASH(0x4070c292cb3d874cull);
+const vnx::Hash64 CacheBase::VNX_CODE_HASH(0xd8a096610e301452ull);
 
 CacheBase::CacheBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -111,13 +111,13 @@ std::shared_ptr<vnx::TypeCode> CacheBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Cache";
 	type_code->type_hash = vnx::Hash64(0x6de8cc0cc0e6b5f8ull);
-	type_code->code_hash = vnx::Hash64(0x4070c292cb3d874cull);
+	type_code->code_hash = vnx::Hash64(0xd8a096610e301452ull);
 	type_code->methods.resize(4);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
 		call_type->name = "vnx.web.handle_vnx_web_Provider";
 		call_type->type_hash = vnx::Hash64(0xb3ca09bf0c4d5dadull);
-		call_type->code_hash = vnx::Hash64(0xc79084cae733be6aull);
+		call_type->code_hash = vnx::Hash64(0xb652b71b45a09e5dull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -142,7 +142,7 @@ std::shared_ptr<vnx::TypeCode> CacheBase::create_type_code() {
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
 		call_type->name = "vnx.web.handle_vnx_web_Request";
 		call_type->type_hash = vnx::Hash64(0x4da6e3f631b8d157ull);
-		call_type->code_hash = vnx::Hash64(0x620b2d03a3e163f5ull);
+		call_type->code_hash = vnx::Hash64(0x13c91ed2017243c2ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -167,7 +167,7 @@ std::shared_ptr<vnx::TypeCode> CacheBase::create_type_code() {
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
 		call_type->name = "vnx.web.handle_vnx_web_Response";
 		call_type->type_hash = vnx::Hash64(0x84c27382aa993259ull);
-		call_type->code_hash = vnx::Hash64(0x214edadfb3c4453bull);
+		call_type->code_hash = vnx::Hash64(0x508ce90e1157650cull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);

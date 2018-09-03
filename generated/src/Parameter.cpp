@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 Parameter::VNX_TYPE_HASH(0x943ec8d6189c6ef2ull);
-const vnx::Hash64 Parameter::VNX_CODE_HASH(0xbb13adb171e2cd4bull);
+const vnx::Hash64 Parameter::VNX_CODE_HASH(0xd6bc8f11b33d8e63ull);
 
 vnx::Hash64 Parameter::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -85,7 +85,7 @@ std::shared_ptr<vnx::TypeCode> Parameter::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.Parameter";
 	type_code->type_hash = vnx::Hash64(0x943ec8d6189c6ef2ull);
-	type_code->code_hash = vnx::Hash64(0xbb13adb171e2cd4bull);
+	type_code->code_hash = vnx::Hash64(0xd6bc8f11b33d8e63ull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<Parameter>(); };
 	type_code->fields.resize(1);

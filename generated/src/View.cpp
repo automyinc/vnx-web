@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 View::VNX_TYPE_HASH(0xffb44975082e37e0ull);
-const vnx::Hash64 View::VNX_CODE_HASH(0xc1b35bcf11adf0abull);
+const vnx::Hash64 View::VNX_CODE_HASH(0x6080288f0cd8f271ull);
 
 vnx::Hash64 View::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -89,7 +89,7 @@ std::shared_ptr<vnx::TypeCode> View::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.View";
 	type_code->type_hash = vnx::Hash64(0xffb44975082e37e0ull);
-	type_code->code_hash = vnx::Hash64(0xc1b35bcf11adf0abull);
+	type_code->code_hash = vnx::Hash64(0x6080288f0cd8f271ull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<View>(); };
 	type_code->fields.resize(2);

@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 HttpRequest::VNX_TYPE_HASH(0x84bd8b34f037a33eull);
-const vnx::Hash64 HttpRequest::VNX_CODE_HASH(0xed65b60b8658a223ull);
+const vnx::Hash64 HttpRequest::VNX_CODE_HASH(0xd2a3970bdc40f0faull);
 
 vnx::Hash64 HttpRequest::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -133,7 +133,7 @@ std::shared_ptr<vnx::TypeCode> HttpRequest::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpRequest";
 	type_code->type_hash = vnx::Hash64(0x84bd8b34f037a33eull);
-	type_code->code_hash = vnx::Hash64(0xed65b60b8658a223ull);
+	type_code->code_hash = vnx::Hash64(0xd2a3970bdc40f0faull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::Request::get_type_code();

@@ -14,7 +14,7 @@ namespace web {
 
 
 const vnx::Hash64 BinaryData::VNX_TYPE_HASH(0xf7b9937250d047feull);
-const vnx::Hash64 BinaryData::VNX_CODE_HASH(0x68f3ea417da37a97ull);
+const vnx::Hash64 BinaryData::VNX_CODE_HASH(0x9cd2bcf465091994ull);
 
 vnx::Hash64 BinaryData::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -85,7 +85,7 @@ std::shared_ptr<vnx::TypeCode> BinaryData::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.BinaryData";
 	type_code->type_hash = vnx::Hash64(0xf7b9937250d047feull);
-	type_code->code_hash = vnx::Hash64(0x68f3ea417da37a97ull);
+	type_code->code_hash = vnx::Hash64(0x9cd2bcf465091994ull);
 	type_code->is_class = true;
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<BinaryData>(); };
 	type_code->fields.resize(1);
