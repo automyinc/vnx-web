@@ -28,6 +28,7 @@ public:
 	const char* get_type_name() const;
 	
 	virtual ::vnx::Variant execute(const ::vnx::Object& object) const;
+	virtual ::std::string as_string() const;
 	
 	static std::shared_ptr<NotEqual> create();
 	std::shared_ptr<vnx::Value> clone() const;

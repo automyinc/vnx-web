@@ -5,6 +5,7 @@
 
 #include <vnx/query/Aggregate.hxx>
 #include <vnx/query/And.hxx>
+#include <vnx/query/Average.hxx>
 #include <vnx/query/Count.hxx>
 #include <vnx/query/Delete.hxx>
 #include <vnx/query/Equal.hxx>
@@ -13,11 +14,13 @@
 #include <vnx/query/Greater.hxx>
 #include <vnx/query/GreaterEqual.hxx>
 #include <vnx/query/GroupBy.hxx>
+#include <vnx/query/IsNull.hxx>
 #include <vnx/query/Less.hxx>
 #include <vnx/query/LessEqual.hxx>
 #include <vnx/query/Limit.hxx>
 #include <vnx/query/Max.hxx>
 #include <vnx/query/Min.hxx>
+#include <vnx/query/Not.hxx>
 #include <vnx/query/NotEqual.hxx>
 #include <vnx/query/NotNull.hxx>
 #include <vnx/query/Or.hxx>
@@ -37,6 +40,7 @@ namespace query {
 static void register_all_types() {
 	vnx::register_type_code(vnx::query::Aggregate::create_type_code());
 	vnx::register_type_code(vnx::query::And::create_type_code());
+	vnx::register_type_code(vnx::query::Average::create_type_code());
 	vnx::register_type_code(vnx::query::Count::create_type_code());
 	vnx::register_type_code(vnx::query::Delete::create_type_code());
 	vnx::register_type_code(vnx::query::Equal::create_type_code());
@@ -45,11 +49,13 @@ static void register_all_types() {
 	vnx::register_type_code(vnx::query::Greater::create_type_code());
 	vnx::register_type_code(vnx::query::GreaterEqual::create_type_code());
 	vnx::register_type_code(vnx::query::GroupBy::create_type_code());
+	vnx::register_type_code(vnx::query::IsNull::create_type_code());
 	vnx::register_type_code(vnx::query::Less::create_type_code());
 	vnx::register_type_code(vnx::query::LessEqual::create_type_code());
 	vnx::register_type_code(vnx::query::Limit::create_type_code());
 	vnx::register_type_code(vnx::query::Max::create_type_code());
 	vnx::register_type_code(vnx::query::Min::create_type_code());
+	vnx::register_type_code(vnx::query::Not::create_type_code());
 	vnx::register_type_code(vnx::query::NotEqual::create_type_code());
 	vnx::register_type_code(vnx::query::NotNull::create_type_code());
 	vnx::register_type_code(vnx::query::Or::create_type_code());

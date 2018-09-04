@@ -15,6 +15,7 @@ namespace query {
 
 class Aggregate;
 class And;
+class Average;
 class Count;
 class Delete;
 class Equal;
@@ -23,11 +24,13 @@ class Field;
 class Greater;
 class GreaterEqual;
 class GroupBy;
+class IsNull;
 class Less;
 class LessEqual;
 class Limit;
 class Max;
 class Min;
+class Not;
 class NotEqual;
 class NotNull;
 class Or;
@@ -46,6 +49,7 @@ namespace vnx {
 
 void read(TypeInput& in, ::vnx::query::Aggregate& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::And& value, const TypeCode* type_code, const uint16_t* code);
+void read(TypeInput& in, ::vnx::query::Average& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::Count& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::Delete& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::Equal& value, const TypeCode* type_code, const uint16_t* code);
@@ -54,11 +58,13 @@ void read(TypeInput& in, ::vnx::query::Field& value, const TypeCode* type_code, 
 void read(TypeInput& in, ::vnx::query::Greater& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::GreaterEqual& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::GroupBy& value, const TypeCode* type_code, const uint16_t* code);
+void read(TypeInput& in, ::vnx::query::IsNull& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::Less& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::LessEqual& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::Limit& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::Max& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::Min& value, const TypeCode* type_code, const uint16_t* code);
+void read(TypeInput& in, ::vnx::query::Not& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::NotEqual& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::NotNull& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::query::Or& value, const TypeCode* type_code, const uint16_t* code);
@@ -71,6 +77,7 @@ void read(TypeInput& in, ::vnx::query::Value& value, const TypeCode* type_code, 
 
 void write(TypeOutput& out, const ::vnx::query::Aggregate& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::And& value, const TypeCode* type_code, const uint16_t* code);
+void write(TypeOutput& out, const ::vnx::query::Average& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::Count& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::Delete& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::Equal& value, const TypeCode* type_code, const uint16_t* code);
@@ -79,11 +86,13 @@ void write(TypeOutput& out, const ::vnx::query::Field& value, const TypeCode* ty
 void write(TypeOutput& out, const ::vnx::query::Greater& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::GreaterEqual& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::GroupBy& value, const TypeCode* type_code, const uint16_t* code);
+void write(TypeOutput& out, const ::vnx::query::IsNull& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::Less& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::LessEqual& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::Limit& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::Max& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::Min& value, const TypeCode* type_code, const uint16_t* code);
+void write(TypeOutput& out, const ::vnx::query::Not& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::NotEqual& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::NotNull& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::query::Or& value, const TypeCode* type_code, const uint16_t* code);
@@ -96,6 +105,7 @@ void write(TypeOutput& out, const ::vnx::query::Value& value, const TypeCode* ty
 
 void read(std::istream& in, ::vnx::query::Aggregate& value);
 void read(std::istream& in, ::vnx::query::And& value);
+void read(std::istream& in, ::vnx::query::Average& value);
 void read(std::istream& in, ::vnx::query::Count& value);
 void read(std::istream& in, ::vnx::query::Delete& value);
 void read(std::istream& in, ::vnx::query::Equal& value);
@@ -104,11 +114,13 @@ void read(std::istream& in, ::vnx::query::Field& value);
 void read(std::istream& in, ::vnx::query::Greater& value);
 void read(std::istream& in, ::vnx::query::GreaterEqual& value);
 void read(std::istream& in, ::vnx::query::GroupBy& value);
+void read(std::istream& in, ::vnx::query::IsNull& value);
 void read(std::istream& in, ::vnx::query::Less& value);
 void read(std::istream& in, ::vnx::query::LessEqual& value);
 void read(std::istream& in, ::vnx::query::Limit& value);
 void read(std::istream& in, ::vnx::query::Max& value);
 void read(std::istream& in, ::vnx::query::Min& value);
+void read(std::istream& in, ::vnx::query::Not& value);
 void read(std::istream& in, ::vnx::query::NotEqual& value);
 void read(std::istream& in, ::vnx::query::NotNull& value);
 void read(std::istream& in, ::vnx::query::Or& value);
@@ -121,6 +133,7 @@ void read(std::istream& in, ::vnx::query::Value& value);
 
 void write(std::ostream& out, const ::vnx::query::Aggregate& value);
 void write(std::ostream& out, const ::vnx::query::And& value);
+void write(std::ostream& out, const ::vnx::query::Average& value);
 void write(std::ostream& out, const ::vnx::query::Count& value);
 void write(std::ostream& out, const ::vnx::query::Delete& value);
 void write(std::ostream& out, const ::vnx::query::Equal& value);
@@ -129,11 +142,13 @@ void write(std::ostream& out, const ::vnx::query::Field& value);
 void write(std::ostream& out, const ::vnx::query::Greater& value);
 void write(std::ostream& out, const ::vnx::query::GreaterEqual& value);
 void write(std::ostream& out, const ::vnx::query::GroupBy& value);
+void write(std::ostream& out, const ::vnx::query::IsNull& value);
 void write(std::ostream& out, const ::vnx::query::Less& value);
 void write(std::ostream& out, const ::vnx::query::LessEqual& value);
 void write(std::ostream& out, const ::vnx::query::Limit& value);
 void write(std::ostream& out, const ::vnx::query::Max& value);
 void write(std::ostream& out, const ::vnx::query::Min& value);
+void write(std::ostream& out, const ::vnx::query::Not& value);
 void write(std::ostream& out, const ::vnx::query::NotEqual& value);
 void write(std::ostream& out, const ::vnx::query::NotNull& value);
 void write(std::ostream& out, const ::vnx::query::Or& value);
@@ -146,6 +161,7 @@ void write(std::ostream& out, const ::vnx::query::Value& value);
 
 void accept(Visitor& visitor, const ::vnx::query::Aggregate& value);
 void accept(Visitor& visitor, const ::vnx::query::And& value);
+void accept(Visitor& visitor, const ::vnx::query::Average& value);
 void accept(Visitor& visitor, const ::vnx::query::Count& value);
 void accept(Visitor& visitor, const ::vnx::query::Delete& value);
 void accept(Visitor& visitor, const ::vnx::query::Equal& value);
@@ -154,11 +170,13 @@ void accept(Visitor& visitor, const ::vnx::query::Field& value);
 void accept(Visitor& visitor, const ::vnx::query::Greater& value);
 void accept(Visitor& visitor, const ::vnx::query::GreaterEqual& value);
 void accept(Visitor& visitor, const ::vnx::query::GroupBy& value);
+void accept(Visitor& visitor, const ::vnx::query::IsNull& value);
 void accept(Visitor& visitor, const ::vnx::query::Less& value);
 void accept(Visitor& visitor, const ::vnx::query::LessEqual& value);
 void accept(Visitor& visitor, const ::vnx::query::Limit& value);
 void accept(Visitor& visitor, const ::vnx::query::Max& value);
 void accept(Visitor& visitor, const ::vnx::query::Min& value);
+void accept(Visitor& visitor, const ::vnx::query::Not& value);
 void accept(Visitor& visitor, const ::vnx::query::NotEqual& value);
 void accept(Visitor& visitor, const ::vnx::query::NotNull& value);
 void accept(Visitor& visitor, const ::vnx::query::Or& value);
@@ -206,6 +224,28 @@ struct type<::vnx::query::And> {
 		vnx::write(out, value);
 	}
 	void accept(Visitor& visitor, const ::vnx::query::And& value) {
+		vnx::accept(visitor, value);
+	}
+	void create_dynamic_code(std::vector<uint16_t>& code) {
+		code.push_back(CODE_ANY);
+	}
+};
+
+template<>
+struct type<::vnx::query::Average> {
+	void read(TypeInput& in, ::vnx::query::Average& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::read(in, value, type_code, code);
+	}
+	void write(TypeOutput& out, const ::vnx::query::Average& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::write(out, value, type_code, code);
+	}
+	void read(std::istream& in, ::vnx::query::Average& value) {
+		vnx::read(in, value);
+	}
+	void write(std::ostream& out, const ::vnx::query::Average& value) {
+		vnx::write(out, value);
+	}
+	void accept(Visitor& visitor, const ::vnx::query::Average& value) {
 		vnx::accept(visitor, value);
 	}
 	void create_dynamic_code(std::vector<uint16_t>& code) {
@@ -390,6 +430,28 @@ struct type<::vnx::query::GroupBy> {
 };
 
 template<>
+struct type<::vnx::query::IsNull> {
+	void read(TypeInput& in, ::vnx::query::IsNull& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::read(in, value, type_code, code);
+	}
+	void write(TypeOutput& out, const ::vnx::query::IsNull& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::write(out, value, type_code, code);
+	}
+	void read(std::istream& in, ::vnx::query::IsNull& value) {
+		vnx::read(in, value);
+	}
+	void write(std::ostream& out, const ::vnx::query::IsNull& value) {
+		vnx::write(out, value);
+	}
+	void accept(Visitor& visitor, const ::vnx::query::IsNull& value) {
+		vnx::accept(visitor, value);
+	}
+	void create_dynamic_code(std::vector<uint16_t>& code) {
+		code.push_back(CODE_ANY);
+	}
+};
+
+template<>
 struct type<::vnx::query::Less> {
 	void read(TypeInput& in, ::vnx::query::Less& value, const TypeCode* type_code, const uint16_t* code) {
 		vnx::read(in, value, type_code, code);
@@ -492,6 +554,28 @@ struct type<::vnx::query::Min> {
 		vnx::write(out, value);
 	}
 	void accept(Visitor& visitor, const ::vnx::query::Min& value) {
+		vnx::accept(visitor, value);
+	}
+	void create_dynamic_code(std::vector<uint16_t>& code) {
+		code.push_back(CODE_ANY);
+	}
+};
+
+template<>
+struct type<::vnx::query::Not> {
+	void read(TypeInput& in, ::vnx::query::Not& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::read(in, value, type_code, code);
+	}
+	void write(TypeOutput& out, const ::vnx::query::Not& value, const TypeCode* type_code, const uint16_t* code) {
+		vnx::write(out, value, type_code, code);
+	}
+	void read(std::istream& in, ::vnx::query::Not& value) {
+		vnx::read(in, value);
+	}
+	void write(std::ostream& out, const ::vnx::query::Not& value) {
+		vnx::write(out, value);
+	}
+	void accept(Visitor& visitor, const ::vnx::query::Not& value) {
 		vnx::accept(visitor, value);
 	}
 	void create_dynamic_code(std::vector<uint16_t>& code) {

@@ -30,6 +30,7 @@ public:
 	
 	virtual void update(const ::vnx::Object& object);
 	virtual ::vnx::Variant get_result() const;
+	virtual ::std::string as_string() const;
 	
 	static std::shared_ptr<Sum> create();
 	std::shared_ptr<vnx::Value> clone() const;
