@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -79,6 +80,35 @@ void cache_entry_t::read(std::istream& _in) {
 			vnx::from_string(_entry.second, last_request_ms);
 		} else if(_entry.first == "num_hits") {
 			vnx::from_string(_entry.second, num_hits);
+		}
+	}
+}
+
+vnx::Object cache_entry_t::to_object() const {
+	vnx::Object _object;
+	_object["path"] = path;
+	_object["content"] = content;
+	_object["time_stamp_ms"] = time_stamp_ms;
+	_object["time_to_live_ms"] = time_to_live_ms;
+	_object["last_request_ms"] = last_request_ms;
+	_object["num_hits"] = num_hits;
+	return _object;
+}
+
+void cache_entry_t::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "content") {
+			_entry.second.to(content);
+		} else if(_entry.first == "time_stamp_ms") {
+			_entry.second.to(time_stamp_ms);
+		} else if(_entry.first == "time_to_live_ms") {
+			_entry.second.to(time_to_live_ms);
+		} else if(_entry.first == "last_request_ms") {
+			_entry.second.to(last_request_ms);
+		} else if(_entry.first == "num_hits") {
+			_entry.second.to(num_hits);
 		}
 	}
 }

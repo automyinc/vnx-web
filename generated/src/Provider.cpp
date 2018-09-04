@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -71,6 +72,29 @@ void Provider::read(std::istream& _in) {
 			vnx::from_string(_entry.second, input);
 		} else if(_entry.first == "level") {
 			vnx::from_string(_entry.second, level);
+		}
+	}
+}
+
+vnx::Object Provider::to_object() const {
+	vnx::Object _object;
+	_object["id"] = id;
+	_object["path"] = path;
+	_object["input"] = input;
+	_object["level"] = level;
+	return _object;
+}
+
+void Provider::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "id") {
+			_entry.second.to(id);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "level") {
+			_entry.second.to(level);
 		}
 	}
 }

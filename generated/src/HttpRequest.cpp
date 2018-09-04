@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -111,6 +112,59 @@ void HttpRequest::read(std::istream& _in) {
 			vnx::from_string(_entry.second, header);
 		} else if(_entry.first == "payload") {
 			vnx::from_string(_entry.second, payload);
+		}
+	}
+}
+
+vnx::Object HttpRequest::to_object() const {
+	vnx::Object _object;
+	_object["id"] = id;
+	_object["stream"] = stream;
+	_object["type"] = type;
+	_object["path"] = path;
+	_object["parameter"] = parameter;
+	_object["session"] = session;
+	_object["source"] = source;
+	_object["time_stamp_ms"] = time_stamp_ms;
+	_object["timeout_ms"] = timeout_ms;
+	_object["sequence"] = sequence;
+	_object["method"] = method;
+	_object["version"] = version;
+	_object["header"] = header;
+	_object["payload"] = payload;
+	return _object;
+}
+
+void HttpRequest::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "id") {
+			_entry.second.to(id);
+		} else if(_entry.first == "stream") {
+			_entry.second.to(stream);
+		} else if(_entry.first == "type") {
+			_entry.second.to(type);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "parameter") {
+			_entry.second.to(parameter);
+		} else if(_entry.first == "session") {
+			_entry.second.to(session);
+		} else if(_entry.first == "source") {
+			_entry.second.to(source);
+		} else if(_entry.first == "time_stamp_ms") {
+			_entry.second.to(time_stamp_ms);
+		} else if(_entry.first == "timeout_ms") {
+			_entry.second.to(timeout_ms);
+		} else if(_entry.first == "sequence") {
+			_entry.second.to(sequence);
+		} else if(_entry.first == "method") {
+			_entry.second.to(method);
+		} else if(_entry.first == "version") {
+			_entry.second.to(version);
+		} else if(_entry.first == "header") {
+			_entry.second.to(header);
+		} else if(_entry.first == "payload") {
+			_entry.second.to(payload);
 		}
 	}
 }

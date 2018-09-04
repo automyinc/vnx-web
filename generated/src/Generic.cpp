@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -71,6 +72,29 @@ void Generic::read(std::istream& _in) {
 			vnx::from_string(_entry.second, name);
 		} else if(_entry.first == "value") {
 			vnx::from_string(_entry.second, value);
+		}
+	}
+}
+
+vnx::Object Generic::to_object() const {
+	vnx::Object _object;
+	_object["mime_type"] = mime_type;
+	_object["time_stamp_ms"] = time_stamp_ms;
+	_object["name"] = name;
+	_object["value"] = value;
+	return _object;
+}
+
+void Generic::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "mime_type") {
+			_entry.second.to(mime_type);
+		} else if(_entry.first == "time_stamp_ms") {
+			_entry.second.to(time_stamp_ms);
+		} else if(_entry.first == "name") {
+			_entry.second.to(name);
+		} else if(_entry.first == "value") {
+			_entry.second.to(value);
 		}
 	}
 }

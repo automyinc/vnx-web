@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -66,6 +67,20 @@ void request_type_e::read(std::istream& _in) {
 	else if(_name == "READ") value = 329112197;
 	else if(_name == "WRITE") value = 1285543041;
 	else value = std::atoi(_name.c_str());
+}
+
+vnx::Object request_type_e::to_object() const {
+	vnx::Object _object;
+	_object["value"] = value;
+	return _object;
+}
+
+void request_type_e::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "value") {
+			_entry.second.to(value);
+		}
+	}
 }
 
 std::ostream& operator<<(std::ostream& _out, const request_type_e& _value) {

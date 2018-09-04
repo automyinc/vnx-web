@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -55,6 +56,16 @@ void Aggregate::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
+	}
+}
+
+vnx::Object Aggregate::to_object() const {
+	vnx::Object _object;
+	return _object;
+}
+
+void Aggregate::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
 	}
 }
 

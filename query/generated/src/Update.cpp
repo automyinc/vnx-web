@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -67,6 +68,26 @@ void Update::read(std::istream& _in) {
 			vnx::from_string(_entry.second, set);
 		} else if(_entry.first == "where") {
 			vnx::from_string(_entry.second, where);
+		}
+	}
+}
+
+vnx::Object Update::to_object() const {
+	vnx::Object _object;
+	_object["table"] = table;
+	_object["set"] = set;
+	_object["where"] = where;
+	return _object;
+}
+
+void Update::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "table") {
+			_entry.second.to(table);
+		} else if(_entry.first == "set") {
+			_entry.second.to(set);
+		} else if(_entry.first == "where") {
+			_entry.second.to(where);
 		}
 	}
 }

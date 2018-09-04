@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -55,6 +56,23 @@ void DatabaseBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, location);
 		} else if(_entry.first == "block_size") {
 			vnx::from_string(_entry.second, block_size);
+		}
+	}
+}
+
+vnx::Object DatabaseBase::to_object() const {
+	vnx::Object _object;
+	_object["location"] = location;
+	_object["block_size"] = block_size;
+	return _object;
+}
+
+void DatabaseBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "location") {
+			_entry.second.to(location);
+		} else if(_entry.first == "block_size") {
+			_entry.second.to(block_size);
 		}
 	}
 }

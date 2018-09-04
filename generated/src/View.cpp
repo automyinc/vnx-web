@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -63,6 +64,23 @@ void View::read(std::istream& _in) {
 			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "resource") {
 			vnx::from_string(_entry.second, resource);
+		}
+	}
+}
+
+vnx::Object View::to_object() const {
+	vnx::Object _object;
+	_object["path"] = path;
+	_object["resource"] = resource;
+	return _object;
+}
+
+void View::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "resource") {
+			_entry.second.to(resource);
 		}
 	}
 }

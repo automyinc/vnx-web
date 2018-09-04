@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -63,6 +64,23 @@ void Limit::read(std::istream& _in) {
 			vnx::from_string(_entry.second, num_rows);
 		} else if(_entry.first == "offset") {
 			vnx::from_string(_entry.second, offset);
+		}
+	}
+}
+
+vnx::Object Limit::to_object() const {
+	vnx::Object _object;
+	_object["num_rows"] = num_rows;
+	_object["offset"] = offset;
+	return _object;
+}
+
+void Limit::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "num_rows") {
+			_entry.second.to(num_rows);
+		} else if(_entry.first == "offset") {
+			_entry.second.to(offset);
 		}
 	}
 }

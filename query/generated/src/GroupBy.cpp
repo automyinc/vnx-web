@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -59,6 +60,20 @@ void GroupBy::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "field") {
 			vnx::from_string(_entry.second, field);
+		}
+	}
+}
+
+vnx::Object GroupBy::to_object() const {
+	vnx::Object _object;
+	_object["field"] = field;
+	return _object;
+}
+
+void GroupBy::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "field") {
+			_entry.second.to(field);
 		}
 	}
 }

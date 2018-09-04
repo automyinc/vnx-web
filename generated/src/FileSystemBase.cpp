@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -95,6 +96,47 @@ void FileSystemBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, max_input_queue_ms);
 		} else if(_entry.first == "mime_type_map") {
 			vnx::from_string(_entry.second, mime_type_map);
+		}
+	}
+}
+
+vnx::Object FileSystemBase::to_object() const {
+	vnx::Object _object;
+	_object["domain"] = domain;
+	_object["input"] = input;
+	_object["source_path"] = source_path;
+	_object["domain_path"] = domain_path;
+	_object["time_to_live_ms"] = time_to_live_ms;
+	_object["max_file_size"] = max_file_size;
+	_object["max_history_size"] = max_history_size;
+	_object["update_interval_ms"] = update_interval_ms;
+	_object["max_input_queue_ms"] = max_input_queue_ms;
+	_object["mime_type_map"] = mime_type_map;
+	return _object;
+}
+
+void FileSystemBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "domain") {
+			_entry.second.to(domain);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "source_path") {
+			_entry.second.to(source_path);
+		} else if(_entry.first == "domain_path") {
+			_entry.second.to(domain_path);
+		} else if(_entry.first == "time_to_live_ms") {
+			_entry.second.to(time_to_live_ms);
+		} else if(_entry.first == "max_file_size") {
+			_entry.second.to(max_file_size);
+		} else if(_entry.first == "max_history_size") {
+			_entry.second.to(max_history_size);
+		} else if(_entry.first == "update_interval_ms") {
+			_entry.second.to(update_interval_ms);
+		} else if(_entry.first == "max_input_queue_ms") {
+			_entry.second.to(max_input_queue_ms);
+		} else if(_entry.first == "mime_type_map") {
+			_entry.second.to(mime_type_map);
 		}
 	}
 }

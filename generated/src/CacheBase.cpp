@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -85,6 +86,41 @@ void CacheBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, update_interval_ms);
 		} else if(_entry.first == "maintain_interval_ms") {
 			vnx::from_string(_entry.second, maintain_interval_ms);
+		}
+	}
+}
+
+vnx::Object CacheBase::to_object() const {
+	vnx::Object _object;
+	_object["domain"] = domain;
+	_object["input"] = input;
+	_object["channel"] = channel;
+	_object["num_entries"] = num_entries;
+	_object["max_entry_size"] = max_entry_size;
+	_object["max_pending"] = max_pending;
+	_object["update_interval_ms"] = update_interval_ms;
+	_object["maintain_interval_ms"] = maintain_interval_ms;
+	return _object;
+}
+
+void CacheBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "domain") {
+			_entry.second.to(domain);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "channel") {
+			_entry.second.to(channel);
+		} else if(_entry.first == "num_entries") {
+			_entry.second.to(num_entries);
+		} else if(_entry.first == "max_entry_size") {
+			_entry.second.to(max_entry_size);
+		} else if(_entry.first == "max_pending") {
+			_entry.second.to(max_pending);
+		} else if(_entry.first == "update_interval_ms") {
+			_entry.second.to(update_interval_ms);
+		} else if(_entry.first == "maintain_interval_ms") {
+			_entry.second.to(maintain_interval_ms);
 		}
 	}
 }

@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -63,6 +64,23 @@ void Content::read(std::istream& _in) {
 			vnx::from_string(_entry.second, mime_type);
 		} else if(_entry.first == "time_stamp_ms") {
 			vnx::from_string(_entry.second, time_stamp_ms);
+		}
+	}
+}
+
+vnx::Object Content::to_object() const {
+	vnx::Object _object;
+	_object["mime_type"] = mime_type;
+	_object["time_stamp_ms"] = time_stamp_ms;
+	return _object;
+}
+
+void Content::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "mime_type") {
+			_entry.second.to(mime_type);
+		} else if(_entry.first == "time_stamp_ms") {
+			_entry.second.to(time_stamp_ms);
 		}
 	}
 }

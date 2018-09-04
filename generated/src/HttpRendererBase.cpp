@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -55,6 +56,23 @@ void HttpRendererBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, input);
 		} else if(_entry.first == "output") {
 			vnx::from_string(_entry.second, output);
+		}
+	}
+}
+
+vnx::Object HttpRendererBase::to_object() const {
+	vnx::Object _object;
+	_object["input"] = input;
+	_object["output"] = output;
+	return _object;
+}
+
+void HttpRendererBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
 		}
 	}
 }

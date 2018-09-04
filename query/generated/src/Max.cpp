@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -63,6 +64,23 @@ void Max::read(std::istream& _in) {
 			vnx::from_string(_entry.second, A);
 		} else if(_entry.first == "result") {
 			vnx::from_string(_entry.second, result);
+		}
+	}
+}
+
+vnx::Object Max::to_object() const {
+	vnx::Object _object;
+	_object["A"] = A;
+	_object["result"] = result;
+	return _object;
+}
+
+void Max::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "A") {
+			_entry.second.to(A);
+		} else if(_entry.first == "result") {
+			_entry.second.to(result);
 		}
 	}
 }

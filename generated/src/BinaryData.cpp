@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -59,6 +60,20 @@ void BinaryData::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "data") {
 			vnx::from_string(_entry.second, data);
+		}
+	}
+}
+
+vnx::Object BinaryData::to_object() const {
+	vnx::Object _object;
+	_object["data"] = data;
+	return _object;
+}
+
+void BinaryData::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "data") {
+			_entry.second.to(data);
 		}
 	}
 }

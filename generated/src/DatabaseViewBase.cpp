@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -70,6 +71,32 @@ void DatabaseViewBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "password") {
 			vnx::from_string(_entry.second, password);
+		}
+	}
+}
+
+vnx::Object DatabaseViewBase::to_object() const {
+	vnx::Object _object;
+	_object["database"] = database;
+	_object["domain"] = domain;
+	_object["input"] = input;
+	_object["path"] = path;
+	_object["password"] = password;
+	return _object;
+}
+
+void DatabaseViewBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "database") {
+			_entry.second.to(database);
+		} else if(_entry.first == "domain") {
+			_entry.second.to(domain);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "password") {
+			_entry.second.to(password);
 		}
 	}
 }

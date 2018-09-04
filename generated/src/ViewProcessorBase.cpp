@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -80,6 +81,38 @@ void ViewProcessorBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, render_interval_ms);
 		} else if(_entry.first == "update_interval_ms") {
 			vnx::from_string(_entry.second, update_interval_ms);
+		}
+	}
+}
+
+vnx::Object ViewProcessorBase::to_object() const {
+	vnx::Object _object;
+	_object["domain"] = domain;
+	_object["input"] = input;
+	_object["channel"] = channel;
+	_object["output"] = output;
+	_object["max_input_queue_ms"] = max_input_queue_ms;
+	_object["render_interval_ms"] = render_interval_ms;
+	_object["update_interval_ms"] = update_interval_ms;
+	return _object;
+}
+
+void ViewProcessorBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "domain") {
+			_entry.second.to(domain);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "channel") {
+			_entry.second.to(channel);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
+		} else if(_entry.first == "max_input_queue_ms") {
+			_entry.second.to(max_input_queue_ms);
+		} else if(_entry.first == "render_interval_ms") {
+			_entry.second.to(render_interval_ms);
+		} else if(_entry.first == "update_interval_ms") {
+			_entry.second.to(update_interval_ms);
 		}
 	}
 }

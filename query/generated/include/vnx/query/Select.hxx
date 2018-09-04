@@ -49,6 +49,9 @@ public:
 	
 	void accept(vnx::Visitor& _visitor) const;
 	
+	vnx::Object to_object() const;
+	void from_object(const vnx::Object& object);
+	
 	friend std::ostream& operator<<(std::ostream& _out, const Select& _value);
 	friend std::istream& operator>>(std::istream& _in, Select& _value);
 	

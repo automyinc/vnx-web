@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -60,6 +61,26 @@ void HttpParserBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, output);
 		} else if(_entry.first == "max_request_size") {
 			vnx::from_string(_entry.second, max_request_size);
+		}
+	}
+}
+
+vnx::Object HttpParserBase::to_object() const {
+	vnx::Object _object;
+	_object["input"] = input;
+	_object["output"] = output;
+	_object["max_request_size"] = max_request_size;
+	return _object;
+}
+
+void HttpParserBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
+		} else if(_entry.first == "max_request_size") {
+			_entry.second.to(max_request_size);
 		}
 	}
 }

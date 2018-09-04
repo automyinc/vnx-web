@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -63,6 +64,23 @@ void Delete::read(std::istream& _in) {
 			vnx::from_string(_entry.second, from);
 		} else if(_entry.first == "where") {
 			vnx::from_string(_entry.second, where);
+		}
+	}
+}
+
+vnx::Object Delete::to_object() const {
+	vnx::Object _object;
+	_object["from"] = from;
+	_object["where"] = where;
+	return _object;
+}
+
+void Delete::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "from") {
+			_entry.second.to(from);
+		} else if(_entry.first == "where") {
+			_entry.second.to(where);
 		}
 	}
 }

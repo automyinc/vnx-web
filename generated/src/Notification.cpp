@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -66,6 +67,23 @@ void Notification::read(std::istream& _in) {
 			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "type") {
 			vnx::from_string(_entry.second, type);
+		}
+	}
+}
+
+vnx::Object Notification::to_object() const {
+	vnx::Object _object;
+	_object["path"] = path;
+	_object["type"] = type;
+	return _object;
+}
+
+void Notification::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "type") {
+			_entry.second.to(type);
 		}
 	}
 }

@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -63,6 +64,23 @@ void LessEqual::read(std::istream& _in) {
 			vnx::from_string(_entry.second, A);
 		} else if(_entry.first == "B") {
 			vnx::from_string(_entry.second, B);
+		}
+	}
+}
+
+vnx::Object LessEqual::to_object() const {
+	vnx::Object _object;
+	_object["A"] = A;
+	_object["B"] = B;
+	return _object;
+}
+
+void LessEqual::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "A") {
+			_entry.second.to(A);
+		} else if(_entry.first == "B") {
+			_entry.second.to(B);
 		}
 	}
 }

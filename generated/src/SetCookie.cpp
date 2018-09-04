@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -71,6 +72,29 @@ void SetCookie::read(std::istream& _in) {
 			vnx::from_string(_entry.second, name);
 		} else if(_entry.first == "value") {
 			vnx::from_string(_entry.second, value);
+		}
+	}
+}
+
+vnx::Object SetCookie::to_object() const {
+	vnx::Object _object;
+	_object["code"] = code;
+	_object["message"] = message;
+	_object["name"] = name;
+	_object["value"] = value;
+	return _object;
+}
+
+void SetCookie::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "code") {
+			_entry.second.to(code);
+		} else if(_entry.first == "message") {
+			_entry.second.to(message);
+		} else if(_entry.first == "name") {
+			_entry.second.to(name);
+		} else if(_entry.first == "value") {
+			_entry.second.to(value);
 		}
 	}
 }

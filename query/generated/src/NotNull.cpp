@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -59,6 +60,20 @@ void NotNull::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "A") {
 			vnx::from_string(_entry.second, A);
+		}
+	}
+}
+
+vnx::Object NotNull::to_object() const {
+	vnx::Object _object;
+	_object["A"] = A;
+	return _object;
+}
+
+void NotNull::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "A") {
+			_entry.second.to(A);
 		}
 	}
 }

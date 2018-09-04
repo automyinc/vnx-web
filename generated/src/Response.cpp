@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -75,6 +76,32 @@ void Response::read(std::istream& _in) {
 			vnx::from_string(_entry.second, time_to_live_ms);
 		} else if(_entry.first == "is_dynamic") {
 			vnx::from_string(_entry.second, is_dynamic);
+		}
+	}
+}
+
+vnx::Object Response::to_object() const {
+	vnx::Object _object;
+	_object["id"] = id;
+	_object["result"] = result;
+	_object["destination"] = destination;
+	_object["time_to_live_ms"] = time_to_live_ms;
+	_object["is_dynamic"] = is_dynamic;
+	return _object;
+}
+
+void Response::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "id") {
+			_entry.second.to(id);
+		} else if(_entry.first == "result") {
+			_entry.second.to(result);
+		} else if(_entry.first == "destination") {
+			_entry.second.to(destination);
+		} else if(_entry.first == "time_to_live_ms") {
+			_entry.second.to(time_to_live_ms);
+		} else if(_entry.first == "is_dynamic") {
+			_entry.second.to(is_dynamic);
 		}
 	}
 }

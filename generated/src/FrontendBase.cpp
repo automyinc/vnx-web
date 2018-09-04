@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -90,6 +91,44 @@ void FrontendBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, read_block_size);
 		} else if(_entry.first == "write_block_size") {
 			vnx::from_string(_entry.second, write_block_size);
+		}
+	}
+}
+
+vnx::Object FrontendBase::to_object() const {
+	vnx::Object _object;
+	_object["address"] = address;
+	_object["input"] = input;
+	_object["output"] = output;
+	_object["channel"] = channel;
+	_object["listen_queue_size"] = listen_queue_size;
+	_object["connection_timeout_ms"] = connection_timeout_ms;
+	_object["max_write_backlog"] = max_write_backlog;
+	_object["read_block_size"] = read_block_size;
+	_object["write_block_size"] = write_block_size;
+	return _object;
+}
+
+void FrontendBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "address") {
+			_entry.second.to(address);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
+		} else if(_entry.first == "channel") {
+			_entry.second.to(channel);
+		} else if(_entry.first == "listen_queue_size") {
+			_entry.second.to(listen_queue_size);
+		} else if(_entry.first == "connection_timeout_ms") {
+			_entry.second.to(connection_timeout_ms);
+		} else if(_entry.first == "max_write_backlog") {
+			_entry.second.to(max_write_backlog);
+		} else if(_entry.first == "read_block_size") {
+			_entry.second.to(read_block_size);
+		} else if(_entry.first == "write_block_size") {
+			_entry.second.to(write_block_size);
 		}
 	}
 }

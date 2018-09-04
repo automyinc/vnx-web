@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -67,6 +68,26 @@ void DefaultView::read(std::istream& _in) {
 			vnx::from_string(_entry.second, resource);
 		} else if(_entry.first == "allow_directory_index") {
 			vnx::from_string(_entry.second, allow_directory_index);
+		}
+	}
+}
+
+vnx::Object DefaultView::to_object() const {
+	vnx::Object _object;
+	_object["path"] = path;
+	_object["resource"] = resource;
+	_object["allow_directory_index"] = allow_directory_index;
+	return _object;
+}
+
+void DefaultView::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "resource") {
+			_entry.second.to(resource);
+		} else if(_entry.first == "allow_directory_index") {
+			_entry.second.to(allow_directory_index);
 		}
 	}
 }

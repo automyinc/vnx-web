@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -99,6 +100,50 @@ void HttpResponse::read(std::istream& _in) {
 			vnx::from_string(_entry.second, do_close);
 		} else if(_entry.first == "is_head_response") {
 			vnx::from_string(_entry.second, is_head_response);
+		}
+	}
+}
+
+vnx::Object HttpResponse::to_object() const {
+	vnx::Object _object;
+	_object["id"] = id;
+	_object["result"] = result;
+	_object["destination"] = destination;
+	_object["time_to_live_ms"] = time_to_live_ms;
+	_object["is_dynamic"] = is_dynamic;
+	_object["stream"] = stream;
+	_object["sequence"] = sequence;
+	_object["status"] = status;
+	_object["header"] = header;
+	_object["do_close"] = do_close;
+	_object["is_head_response"] = is_head_response;
+	return _object;
+}
+
+void HttpResponse::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "id") {
+			_entry.second.to(id);
+		} else if(_entry.first == "result") {
+			_entry.second.to(result);
+		} else if(_entry.first == "destination") {
+			_entry.second.to(destination);
+		} else if(_entry.first == "time_to_live_ms") {
+			_entry.second.to(time_to_live_ms);
+		} else if(_entry.first == "is_dynamic") {
+			_entry.second.to(is_dynamic);
+		} else if(_entry.first == "stream") {
+			_entry.second.to(stream);
+		} else if(_entry.first == "sequence") {
+			_entry.second.to(sequence);
+		} else if(_entry.first == "status") {
+			_entry.second.to(status);
+		} else if(_entry.first == "header") {
+			_entry.second.to(header);
+		} else if(_entry.first == "do_close") {
+			_entry.second.to(do_close);
+		} else if(_entry.first == "is_head_response") {
+			_entry.second.to(is_head_response);
 		}
 	}
 }

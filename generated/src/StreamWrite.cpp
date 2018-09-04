@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -67,6 +68,26 @@ void StreamWrite::read(std::istream& _in) {
 			vnx::from_string(_entry.second, stream);
 		} else if(_entry.first == "is_eof") {
 			vnx::from_string(_entry.second, is_eof);
+		}
+	}
+}
+
+vnx::Object StreamWrite::to_object() const {
+	vnx::Object _object;
+	_object["data"] = data;
+	_object["stream"] = stream;
+	_object["is_eof"] = is_eof;
+	return _object;
+}
+
+void StreamWrite::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "data") {
+			_entry.second.to(data);
+		} else if(_entry.first == "stream") {
+			_entry.second.to(stream);
+		} else if(_entry.first == "is_eof") {
+			_entry.second.to(is_eof);
 		}
 	}
 }

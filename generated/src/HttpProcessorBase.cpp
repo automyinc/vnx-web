@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 #include <vnx/Config.h>
 
@@ -100,6 +101,50 @@ void HttpProcessorBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, keepalive);
 		} else if(_entry.first == "max_num_pages") {
 			vnx::from_string(_entry.second, max_num_pages);
+		}
+	}
+}
+
+vnx::Object HttpProcessorBase::to_object() const {
+	vnx::Object _object;
+	_object["input"] = input;
+	_object["channel"] = channel;
+	_object["output"] = output;
+	_object["default_domain"] = default_domain;
+	_object["domain_map"] = domain_map;
+	_object["index_path"] = index_path;
+	_object["max_queue_size"] = max_queue_size;
+	_object["max_pending"] = max_pending;
+	_object["timeout_ms"] = timeout_ms;
+	_object["keepalive"] = keepalive;
+	_object["max_num_pages"] = max_num_pages;
+	return _object;
+}
+
+void HttpProcessorBase::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "channel") {
+			_entry.second.to(channel);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
+		} else if(_entry.first == "default_domain") {
+			_entry.second.to(default_domain);
+		} else if(_entry.first == "domain_map") {
+			_entry.second.to(domain_map);
+		} else if(_entry.first == "index_path") {
+			_entry.second.to(index_path);
+		} else if(_entry.first == "max_queue_size") {
+			_entry.second.to(max_queue_size);
+		} else if(_entry.first == "max_pending") {
+			_entry.second.to(max_pending);
+		} else if(_entry.first == "timeout_ms") {
+			_entry.second.to(timeout_ms);
+		} else if(_entry.first == "keepalive") {
+			_entry.second.to(keepalive);
+		} else if(_entry.first == "max_num_pages") {
+			_entry.second.to(max_num_pages);
 		}
 	}
 }

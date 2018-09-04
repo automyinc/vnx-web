@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -75,6 +76,32 @@ void PageView::read(std::istream& _in) {
 			vnx::from_string(_entry.second, source_path);
 		} else if(_entry.first == "index_path") {
 			vnx::from_string(_entry.second, index_path);
+		}
+	}
+}
+
+vnx::Object PageView::to_object() const {
+	vnx::Object _object;
+	_object["path"] = path;
+	_object["resource"] = resource;
+	_object["domain_path"] = domain_path;
+	_object["source_path"] = source_path;
+	_object["index_path"] = index_path;
+	return _object;
+}
+
+void PageView::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "resource") {
+			_entry.second.to(resource);
+		} else if(_entry.first == "domain_path") {
+			_entry.second.to(domain_path);
+		} else if(_entry.first == "source_path") {
+			_entry.second.to(source_path);
+		} else if(_entry.first == "index_path") {
+			_entry.second.to(index_path);
 		}
 	}
 }

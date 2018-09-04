@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -71,6 +72,23 @@ void ErrorCode::read(std::istream& _in) {
 			vnx::from_string(_entry.second, code);
 		} else if(_entry.first == "message") {
 			vnx::from_string(_entry.second, message);
+		}
+	}
+}
+
+vnx::Object ErrorCode::to_object() const {
+	vnx::Object _object;
+	_object["code"] = code;
+	_object["message"] = message;
+	return _object;
+}
+
+void ErrorCode::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "code") {
+			_entry.second.to(code);
+		} else if(_entry.first == "message") {
+			_entry.second.to(message);
 		}
 	}
 }

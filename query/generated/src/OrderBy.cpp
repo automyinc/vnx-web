@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -65,6 +66,23 @@ void OrderBy::read(std::istream& _in) {
 			vnx::from_string(_entry.second, field);
 		} else if(_entry.first == "mode") {
 			vnx::from_string(_entry.second, mode);
+		}
+	}
+}
+
+vnx::Object OrderBy::to_object() const {
+	vnx::Object _object;
+	_object["field"] = field;
+	_object["mode"] = mode;
+	return _object;
+}
+
+void OrderBy::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "field") {
+			_entry.second.to(field);
+		} else if(_entry.first == "mode") {
+			_entry.second.to(mode);
 		}
 	}
 }

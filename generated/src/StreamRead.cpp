@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -67,6 +68,26 @@ void StreamRead::read(std::istream& _in) {
 			vnx::from_string(_entry.second, data);
 		} else if(_entry.first == "channel") {
 			vnx::from_string(_entry.second, channel);
+		}
+	}
+}
+
+vnx::Object StreamRead::to_object() const {
+	vnx::Object _object;
+	_object["stream"] = stream;
+	_object["data"] = data;
+	_object["channel"] = channel;
+	return _object;
+}
+
+void StreamRead::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "stream") {
+			_entry.second.to(stream);
+		} else if(_entry.first == "data") {
+			_entry.second.to(data);
+		} else if(_entry.first == "channel") {
+			_entry.second.to(channel);
 		}
 	}
 }

@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -59,6 +60,20 @@ void Field::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "name") {
 			vnx::from_string(_entry.second, name);
+		}
+	}
+}
+
+vnx::Object Field::to_object() const {
+	vnx::Object _object;
+	_object["name"] = name;
+	return _object;
+}
+
+void Field::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "name") {
+			_entry.second.to(name);
 		}
 	}
 }

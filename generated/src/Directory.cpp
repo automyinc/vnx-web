@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -71,6 +72,29 @@ void Directory::read(std::istream& _in) {
 			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "files") {
 			vnx::from_string(_entry.second, files);
+		}
+	}
+}
+
+vnx::Object Directory::to_object() const {
+	vnx::Object _object;
+	_object["mime_type"] = mime_type;
+	_object["time_stamp_ms"] = time_stamp_ms;
+	_object["path"] = path;
+	_object["files"] = files;
+	return _object;
+}
+
+void Directory::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "mime_type") {
+			_entry.second.to(mime_type);
+		} else if(_entry.first == "time_stamp_ms") {
+			_entry.second.to(time_stamp_ms);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "files") {
+			_entry.second.to(files);
 		}
 	}
 }

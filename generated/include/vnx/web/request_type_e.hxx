@@ -44,6 +44,9 @@ struct request_type_e {
 	
 	void accept(vnx::Visitor& _visitor) const;
 	
+	vnx::Object to_object() const;
+	void from_object(const vnx::Object& object);
+	
 	friend std::ostream& operator<<(std::ostream& _out, const request_type_e& _value);
 	friend std::istream& operator>>(std::istream& _in, request_type_e& _value);
 	

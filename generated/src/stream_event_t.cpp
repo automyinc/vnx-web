@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -70,6 +71,26 @@ void stream_event_t::read(std::istream& _in) {
 			vnx::from_string(_entry.second, event);
 		} else if(_entry.first == "value") {
 			vnx::from_string(_entry.second, value);
+		}
+	}
+}
+
+vnx::Object stream_event_t::to_object() const {
+	vnx::Object _object;
+	_object["stream"] = stream;
+	_object["event"] = event;
+	_object["value"] = value;
+	return _object;
+}
+
+void stream_event_t::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "stream") {
+			_entry.second.to(stream);
+		} else if(_entry.first == "event") {
+			_entry.second.to(event);
+		} else if(_entry.first == "value") {
+			_entry.second.to(value);
 		}
 	}
 }

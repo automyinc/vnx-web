@@ -6,6 +6,7 @@
 #include <vnx/Input.h>
 #include <vnx/Output.h>
 #include <vnx/Visitor.h>
+#include <vnx/Object.h>
 #include <vnx/Struct.h>
 
 
@@ -87,6 +88,41 @@ void Select::read(std::istream& _in) {
 			vnx::from_string(_entry.second, order_by);
 		} else if(_entry.first == "limit") {
 			vnx::from_string(_entry.second, limit);
+		}
+	}
+}
+
+vnx::Object Select::to_object() const {
+	vnx::Object _object;
+	_object["fields"] = fields;
+	_object["aggregates"] = aggregates;
+	_object["from"] = from;
+	_object["where"] = where;
+	_object["group_by"] = group_by;
+	_object["having"] = having;
+	_object["order_by"] = order_by;
+	_object["limit"] = limit;
+	return _object;
+}
+
+void Select::from_object(const vnx::Object& _object) {
+	for(const auto& _entry : _object.field) {
+		if(_entry.first == "fields") {
+			_entry.second.to(fields);
+		} else if(_entry.first == "aggregates") {
+			_entry.second.to(aggregates);
+		} else if(_entry.first == "from") {
+			_entry.second.to(from);
+		} else if(_entry.first == "where") {
+			_entry.second.to(where);
+		} else if(_entry.first == "group_by") {
+			_entry.second.to(group_by);
+		} else if(_entry.first == "having") {
+			_entry.second.to(having);
+		} else if(_entry.first == "order_by") {
+			_entry.second.to(order_by);
+		} else if(_entry.first == "limit") {
+			_entry.second.to(limit);
 		}
 	}
 }
