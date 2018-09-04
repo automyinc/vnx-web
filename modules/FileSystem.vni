@@ -22,6 +22,8 @@ module FileSystem {
 	
 	int max_input_queue_ms = 500;		// incoming request queue length
 	
+	map<string, string> mime_type_map;		// file extension -> mime type (".html" -> "text/html")
+	
 	
 	void handle(Request Sample);
 	

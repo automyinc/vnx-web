@@ -2,8 +2,6 @@
 #include <vnx/web/FileSystem.h>
 #include <vnx/web/BinaryData.hxx>
 
-#include <magic.h>
-
 using namespace boost;
 
 
@@ -16,17 +14,28 @@ FileSystem::FileSystem(const std::string& _vnx_name)
 }
 
 void FileSystem::main() {
-	magic = ::magic_open(MAGIC_MIME_TYPE);
-	if(magic) {
-		if(::magic_load(magic, nullptr) == 0) {
-			// success
-		} else {
-			log(ERROR).out << "magic_load() failed!";
-		}
-	} else {
-		log(ERROR).out << "magic_open(MAGIC_MIME_TYPE) failed!";
-		return;
-	}
+	
+	mime_type_map[".html"] = "text/html";
+	mime_type_map[".css"] = "text/css";
+	mime_type_map[".js"] = "application/javascript";
+	mime_type_map[".json"] = "application/json";
+	mime_type_map[".png"] = "image/png";
+	mime_type_map[".jpg"] = "image/jpeg";
+	mime_type_map[".jpeg"] = "image/jpeg";
+	mime_type_map[".txt"] = "text/plain";
+	mime_type_map[".sh"] = "text/plain";
+	mime_type_map[".cfg"] = "text/plain";
+	mime_type_map[".md"] = "text/plain";
+	mime_type_map[".h"] = "text/plain";
+	mime_type_map[".hpp"] = "text/plain";
+	mime_type_map[".hxx"] = "text/plain";
+	mime_type_map[".c"] = "text/plain";
+	mime_type_map[".cpp"] = "text/plain";
+	mime_type_map[".cxx"] = "text/plain";
+	mime_type_map[".md5"] = "text/plain";
+	mime_type_map[".map"] = "text/plain";
+	mime_type_map[".tex"] = "text/x-tex";
+	mime_type_map[".pdf"] = "application/pdf";
 	
 	{
 		auto provider = Provider::create();
@@ -44,8 +53,6 @@ void FileSystem::main() {
 	set_timer_millis(1000, std::bind(&FileSystem::print_stats, this));
 	
 	Super::main();
-	
-	::magic_close(magic);
 }
 
 void FileSystem::handle(std::shared_ptr<const ::vnx::web::Request> request) {
@@ -122,7 +129,7 @@ std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 				FileInfo info;
 				info.name = file_name;
 				info.is_directory = filesystem::is_directory(file);
-				info.mime_type = get_mime_type(file.generic_string(), file.extension().generic_string());
+				info.mime_type = get_mime_type(file.extension().generic_string());
 				if(filesystem::is_regular(file)) {
 					info.num_bytes = filesystem::file_size(file);
 				}
@@ -137,21 +144,31 @@ std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 		if(!is_valid_file(file_name)) {
 			return vnx::clone(ErrorCode::create(ErrorCode::NOT_FOUND));
 		}
-		const size_t file_size = filesystem::file_size(file_path);
-		if(max_file_size && file_size > max_file_size) {
-			throw std::runtime_error("file too big: " + path.to_string() + " (" + std::to_string(file_size) + ")");
-		}
 		
 		std::shared_ptr<File> file = File::create();
 		file->name = file_name;
-		file->data.reserve(file_size);
 		
-		::FILE* p_file = ::fopen(file_path.generic_string().c_str(), "r");
+		::FILE* p_file = ::fopen(file_path.generic_string().c_str(), "rb");
 		if(!p_file) {
 			throw std::runtime_error("fopen() failed for: " + path.to_string());
 		}
-		const size_t num_read = ::fread(file->data.data(), 1, file_size, p_file);
+		
+		::fseeko(p_file, 0, SEEK_END);
+		const int64_t file_size = ::ftello(p_file);
+		if(file_size < 0) {
+			::fclose(p_file);
+			throw std::runtime_error("ftello() failed for: " + path.to_string());
+		}
+		if(max_file_size && file_size > max_file_size) {
+			::fclose(p_file);
+			throw std::runtime_error("file too big: " + path.to_string() + " (" + std::to_string(file_size) + " bytes)");
+		}
+		::fseeko(p_file, 0, SEEK_SET);
+		
+		file->data.reserve(size_t(file_size));
+		const size_t num_read = ::fread(file->data.data(), 1, size_t(file_size), p_file);
 		file->data.set_size(num_read);
+		
 		::fclose(p_file);
 		
 		result = file;
@@ -160,7 +177,7 @@ std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 		return vnx::clone(ErrorCode::create(ErrorCode::NOT_FOUND));
 	}
 	
-	result->mime_type = get_mime_type(file_path.generic_string(), file_path.extension().generic_string());
+	result->mime_type = get_mime_type(file_path.extension().generic_string());
 	result->time_stamp_ms = last_write_time_ms;
 	cache->insert(path, result);
 	return result;
@@ -168,15 +185,10 @@ std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 
 void FileSystem::write_file(const Path& path, const vnx::Memory& data) {
 	
-	const filesystem::path file_path = source_path + path.to_string();
-	if(file_path.has_parent_path()) {
-		const filesystem::path parent = file_path.parent_path();
-		if(!filesystem::exists(parent)) {
-			filesystem::create_directories(parent);
-		}
-	}
+	const std::string file_name = source_path + path.to_string();
+	const std::string tmp_file_name = file_name + ".tmp";
 	
-	::FILE* p_file = ::fopen(file_path.generic_string().c_str(), "wb");
+	::FILE* p_file = ::fopen(tmp_file_name.c_str(), "wb");
 	if(!p_file) {
 		throw std::runtime_error("fopen() failed for: " + path.to_string());
 	}
@@ -185,12 +197,19 @@ void FileSystem::write_file(const Path& path, const vnx::Memory& data) {
 		const size_t num_write = ::fwrite(chunk->data(), 1, chunk->size(), p_file);
 		if(num_write != chunk->size()) {
 			::fclose(p_file);
+			::remove(tmp_file_name.c_str());
 			throw std::runtime_error("fwrite() failed for: " + path.to_string());
 		}
 		num_write_bytes += num_write;
 		chunk = chunk->next();
 	}
-	::fclose(p_file);
+	if(::fclose(p_file)) {
+		throw std::runtime_error("fclose() failed for: " + path.to_string());
+	}
+	
+	if(::rename(tmp_file_name.c_str(), file_name.c_str())) {
+		throw std::runtime_error("rename() failed for: " + path.to_string());
+	}
 	
 	cache->remove(path);
 }
@@ -199,51 +218,13 @@ bool FileSystem::is_valid_file(const std::string& file_name) {
 	return !file_name.empty() && file_name[0] != '.';
 }
 
-std::string FileSystem::get_mime_type(const std::string& path, const std::string& extension) {
-	const std::string mime = get_mime_type_based_on_extension(extension);
-	if(mime.empty()) {
-		char const * mime = ::magic_file(magic, path.c_str());
-		if(mime) {
-			return std::string(mime);
-		}
-		return "application/octet-stream";
+std::string FileSystem::get_mime_type(const std::string& extension) const {
+	auto iter = mime_type_map.find(extension);
+	if(iter != mime_type_map.end()) {
+		return iter->second;
 	}
-	return mime;
+	return "application/octet-stream";
 }
-
-std::string FileSystem::get_mime_type_based_on_extension(const std::string& extension) {
-	if(extension == ".html") {
-		return "text/html";
-	} else if(extension == ".css") {
-		return "text/css";
-	} else if(extension == ".js") {
-		return "application/javascript";
-	} else if(extension == ".png") {
-		return "image/png";
-	} else if(extension == ".jpg") {
-		return "image/jpeg";
-	} else if(extension == ".jpeg") {
-		return "image/jpeg";
-	} else if(extension == ".h") {
-		return "text/plain";
-	} else if(extension == ".hxx") {
-		return "text/plain";
-	} else if(extension == ".c") {
-		return "text/plain";
-	} else if(extension == ".cpp") {
-		return "text/plain";
-	} else if(extension == ".md5") {
-		return "text/plain";
-	} else if(extension == ".map") {
-		return "text/plain";
-	} else if(extension == ".tex") {
-		return "text/x-tex";
-	} else if(extension == ".pdf") {
-		return "application/pdf";
-	}
-	return std::string();
-}
-
 
 } // web
 } // vnx
