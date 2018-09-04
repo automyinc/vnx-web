@@ -1,6 +1,6 @@
 
 #include <vnx/web/HttpParser.h>
-#include <vnx/web/Parameter.hxx>
+#include <vnx/Object.h>
 
 #include <cstring>
 
@@ -109,7 +109,7 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamEventArray> even
 	publish(events, output, BLOCKING);
 }
 
-std::shared_ptr<Parameter> parse_parameter(std::shared_ptr<Parameter> parameter, const char* str, size_t len) {
+std::shared_ptr<Object> parse_parameter(std::shared_ptr<Object> parameter, const char* str, size_t len) {
 	int state = 0;
 	std::string key;
 	std::string value;
@@ -120,7 +120,7 @@ std::shared_ptr<Parameter> parse_parameter(std::shared_ptr<Parameter> parameter,
 			value.clear();
 		} else if(c == '&' && state == 1) {
 			if(!parameter) {
-				parameter = Parameter::create();
+				parameter = Object::create();
 			}
 			vnx::from_string(value, parameter->field[key]);
 			state = 0;
@@ -134,7 +134,7 @@ std::shared_ptr<Parameter> parse_parameter(std::shared_ptr<Parameter> parameter,
 	}
 	if(state == 1) {
 		if(!parameter) {
-			parameter = Parameter::create();
+			parameter = Object::create();
 		}
 		vnx::from_string(value, parameter->field[key]);
 	}
@@ -163,7 +163,7 @@ void HttpParser::handle(std::shared_ptr<const ::vnx::web::StreamRead> input) {
 	}
 	
 	for(const auto& request : state.complete) {
-		std::shared_ptr<Parameter> parameter;
+		std::shared_ptr<Object> parameter;
 		if(request->method == "GET" || request->method == "POST") {
 			if(!request->path.empty()) {
 				std::string& str = request->path.back();
