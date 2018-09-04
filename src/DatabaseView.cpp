@@ -48,15 +48,25 @@ void DatabaseView::render_overview(std::ostream& out) {
 	out << "</table>\n";
 }
 
-void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& result, const std::vector<std::string>& fields) {
+void DatabaseView::render_table(	std::ostream& out,
+									const std::vector<Object>& result,
+									const std::vector<std::string>& fields,
+									const std::map<std::string, std::string>& field_header)
+{
 	out << "<table>\n";
 	out << "<tr>\n";
 	for(const auto& col : fields) {
-		out << "<th>" << col << "</th>";
+		auto iter = field_header.find(col);
+		if(iter != field_header.end()) {
+			out << "<th>" << iter->second << "</th>";
+		} else {
+			out << "<th>" << col << "</th>";
+		}
 	}
-	out << "</tr>";
+	out << "</tr>\n";
+	size_t i = 0;
 	for(const auto& row : result) {
-		out << "<tr>";
+		out << "<tr class=\"" << (i++ % 2 ? "tr21" : "tr20") << "\">";
 		for(const auto& col : fields) {
 			out << "<td>" << row[col] << "</td>";
 		}
@@ -65,19 +75,71 @@ void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& re
 	out << "</table>\n";
 }
 
-void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& result, bool hide_id) {
+void DatabaseView::render_table_index(std::ostream& out, const std::string& table, const Object& parameter) {
+	
+	auto query = query::select(table, 0, 0, query::limit(1000));
+	
+	std::map<std::string, std::string> field_header;
+	
+	for(const auto& entry : parameter.field) {
+		if(entry.first.substr(0, 3) == "_A_" && !entry.second.empty()) {
+			const std::string field = entry.first.substr(3);
+			const std::string func = entry.second.to_string_value();
+			if(func == "SUM") {
+				query.aggregates[field] = query::sum(query::field(field));
+				field_header[field] = "SUM(" + field + ")";
+			}
+			if(func == "MIN") {
+				query.aggregates[field] = query::min(query::field(field));
+				field_header[field] = "MIN(" + field + ")";
+			}
+			if(func == "MAX") {
+				query.aggregates[field] = query::max(query::field(field));
+				field_header[field] = "MAX(" + field + ")";
+			}
+		}
+	}
+	{
+		const std::string field = parameter["group_by"].to_string_value();
+		if(!field.empty()) {
+			query.group_by = query::group_by(field);
+			query.aggregates["_N_"] = query::count();
+			field_header[field] = "GROUP(" + field + ")";
+			field_header["_N_"] = "COUNT()";
+		}
+	}
+	{
+		const std::string field = parameter["order_by"].to_string_value();
+		if(!field.empty()) {
+			const auto mode = parameter["order_mode"].to<int32_t>();
+			query.order_by = query::order_by(field, mode);
+			switch(mode) {
+				case query::OrderBy::ASC: field_header[field] = field + " (ASC)"; break;
+				case query::OrderBy::DESC: field_header[field] = field + " (DESC)"; break;
+			}
+		}
+	}
+	{
+		const auto num_rows = parameter["limit"].to<int64_t>();
+		const auto offset = parameter["offset"].to<int64_t>();
+		if(num_rows > 0 || offset > 0) {
+			query.limit = query::limit(num_rows, offset);
+		}
+	}
+	
+	const auto result = client->select(query);
+	
 	std::set<std::string> set;
 	for(const auto& row : result) {
 		for(const auto& entry : row.field) {
 			set.insert(entry.first);
 		}
 	}
-	if(hide_id) {
-		set.erase("id");
-	}
+	set.erase("id");
 	const std::vector<std::string> fields(set.begin(), set.end());
 	
 	out << "<a href=\"..\">Overview</a>\n";
+	out << "<a href=\"?\">Reset</a>\n";
 	out << "<hr>\n";
 	out << "<form method=\"get\">\n";
 	for(const auto& col : fields) {
@@ -99,7 +161,7 @@ void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& re
 	for(const auto& col : fields) {
 		out << "<option value=\"" << col << "\">" << col << "</option>\n";
 	}
-	out << "<option value=\"_N_GROUP\">_N_GROUP</option>\n";
+	out << "<option value=\"_N_\">_N_</option>\n";
 	out << "</select>\n";
 	out << "<select name=\"order_mode\">\n";
 	out << "<option value=\"" << query::OrderBy::ASC << "\" selected>ASC</option>\n";
@@ -110,52 +172,7 @@ void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& re
 	out << "<input type=\"submit\">\n";
 	out << "</form>\n<hr>\n";
 	
-	render_table(out, result, fields);
-}
-
-void DatabaseView::render_table_index(std::ostream& out, const std::string& table, const Object& parameter) {
-	
-	auto query = query::select(table, 0, 0, query::limit(1000));
-	
-	for(const auto& entry : parameter.field) {
-		if(entry.first.substr(0, 3) == "_A_" && !entry.second.empty()) {
-			const std::string field = entry.first.substr(3);
-			const std::string func = entry.second.to_string_value();
-			if(func == "SUM") {
-				query.aggregates[field] = query::sum(query::field(field));
-			}
-			if(func == "MIN") {
-				query.aggregates[field] = query::min(query::field(field));
-			}
-			if(func == "MAX") {
-				query.aggregates[field] = query::max(query::field(field));
-			}
-		}
-	}
-	{
-		const std::string field = parameter["group_by"].to_string_value();
-		if(!field.empty()) {
-			query.group_by = query::group_by(field);
-			query.aggregates["_N_GROUP"] = query::count();
-		}
-	}
-	{
-		const std::string field = parameter["order_by"].to_string_value();
-		if(!field.empty()) {
-			const auto mode = parameter["order_mode"].to<int32_t>();
-			query.order_by = query::order_by(field, mode ? mode : query::OrderBy::ASC);
-		}
-	}
-	{
-		const auto num_rows = parameter["limit"].to<int64_t>();
-		const auto offset = parameter["offset"].to<int64_t>();
-		if(num_rows > 0 || offset > 0) {
-			query.limit = query::limit(num_rows, offset);
-		}
-	}
-	
-	const auto result = client->select(query);
-	render_table(out, result, true);
+	render_table(out, result, fields, field_header);
 }
 
 void DatabaseView::handle(std::shared_ptr<const ::vnx::web::Request> request) {
@@ -172,6 +189,8 @@ void DatabaseView::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 	out << "<style>\n";
 	out << "table {border-collapse: collapse; width: 100%;}\n";
 	out << "th, td {border: 1px solid black;}\n";
+	out << ".tr20 {background: #eeeeee;}\n";
+	out << ".tr21 {background: #ffffff;}\n";
 	out << "</style>\n";
 	out << "</head>\n<body>\n";
 	

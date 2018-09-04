@@ -26,9 +26,8 @@ private:
 	
 	void render_table_index(std::ostream& out, const std::string& table, const Object& parameter);
 	
-	void render_table(std::ostream& out, const std::vector<Object>& result, bool hide_id);
-	
-	void render_table(std::ostream& out, const std::vector<Object>& result, const std::vector<std::string>& fields);
+	void render_table(std::ostream& out, const std::vector<Object>& result,
+				const std::vector<std::string>& fields, const std::map<std::string, std::string>& field_header);
 	
 private:
 	std::shared_ptr<Provider> provider;
