@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 FileSystemBase::VNX_TYPE_HASH(0x2a134f58319c8e28ull);
-const vnx::Hash64 FileSystemBase::VNX_CODE_HASH(0x3068c8902d79a775ull);
+const vnx::Hash64 FileSystemBase::VNX_CODE_HASH(0x59ea7e8f25de473cull);
 
 FileSystemBase::FileSystemBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -29,6 +29,7 @@ FileSystemBase::FileSystemBase(const std::string& _vnx_name)
 	vnx::read_config(vnx_name + ".max_history_size", max_history_size);
 	vnx::read_config(vnx_name + ".update_interval_ms", update_interval_ms);
 	vnx::read_config(vnx_name + ".max_input_queue_ms", max_input_queue_ms);
+	vnx::read_config(vnx_name + ".mime_type_map", mime_type_map);
 }
 
 vnx::Hash64 FileSystemBase::get_type_hash() const {
@@ -51,6 +52,7 @@ void FileSystemBase::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_field(_type_code->fields[6], 6); vnx::accept(_visitor, max_history_size);
 	_visitor.type_field(_type_code->fields[7], 7); vnx::accept(_visitor, update_interval_ms);
 	_visitor.type_field(_type_code->fields[8], 8); vnx::accept(_visitor, max_input_queue_ms);
+	_visitor.type_field(_type_code->fields[9], 9); vnx::accept(_visitor, mime_type_map);
 	_visitor.type_end(*_type_code);
 }
 
@@ -65,6 +67,7 @@ void FileSystemBase::write(std::ostream& _out) const {
 	_out << ", \"max_history_size\": "; vnx::write(_out, max_history_size);
 	_out << ", \"update_interval_ms\": "; vnx::write(_out, update_interval_ms);
 	_out << ", \"max_input_queue_ms\": "; vnx::write(_out, max_input_queue_ms);
+	_out << ", \"mime_type_map\": "; vnx::write(_out, mime_type_map);
 	_out << "}";
 }
 
@@ -90,6 +93,8 @@ void FileSystemBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, update_interval_ms);
 		} else if(_entry.first == "max_input_queue_ms") {
 			vnx::from_string(_entry.second, max_input_queue_ms);
+		} else if(_entry.first == "mime_type_map") {
+			vnx::from_string(_entry.second, mime_type_map);
 		}
 	}
 }
@@ -116,7 +121,7 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.FileSystem";
 	type_code->type_hash = vnx::Hash64(0x2a134f58319c8e28ull);
-	type_code->code_hash = vnx::Hash64(0x3068c8902d79a775ull);
+	type_code->code_hash = vnx::Hash64(0x59ea7e8f25de473cull);
 	type_code->methods.resize(1);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -143,7 +148,7 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 		call_type->build();
 		type_code->methods[0] = vnx::register_type_code(call_type);
 	}
-	type_code->fields.resize(9);
+	type_code->fields.resize(10);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -199,6 +204,12 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 		field.name = "max_input_queue_ms";
 		field.value = vnx::to_string(500);
 		field.code = {7};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[9];
+		field.is_extended = true;
+		field.name = "mime_type_map";
+		field.code = {13, 4, 12, 5, 12, 5};
 	}
 	type_code->build();
 	return type_code;
@@ -290,6 +301,7 @@ void read(TypeInput& in, ::vnx::web::FileSystemBase& value, const TypeCode* type
 			case 1: vnx::read(in, value.input, type_code, _field->code.data()); break;
 			case 2: vnx::read(in, value.source_path, type_code, _field->code.data()); break;
 			case 3: vnx::read(in, value.domain_path, type_code, _field->code.data()); break;
+			case 9: vnx::read(in, value.mime_type_map, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -313,6 +325,7 @@ void write(TypeOutput& out, const ::vnx::web::FileSystemBase& value, const TypeC
 	vnx::write(out, value.input, type_code, type_code->fields[1].code.data());
 	vnx::write(out, value.source_path, type_code, type_code->fields[2].code.data());
 	vnx::write(out, value.domain_path, type_code, type_code->fields[3].code.data());
+	vnx::write(out, value.mime_type_map, type_code, type_code->fields[9].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::FileSystemBase& value) {

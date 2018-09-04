@@ -6,6 +6,7 @@
 #include <vnx/web/BinaryData.hxx>
 #include <vnx/web/CacheBase.hxx>
 #include <vnx/web/Content.hxx>
+#include <vnx/web/DatabaseBase.hxx>
 #include <vnx/web/DatabaseViewBase.hxx>
 #include <vnx/web/DefaultView.hxx>
 #include <vnx/web/Directory.hxx>
@@ -48,6 +49,7 @@ static void register_all_types() {
 	vnx::register_type_code(vnx::web::BinaryData::create_type_code());
 	vnx::register_type_code(vnx::web::CacheBase::create_type_code());
 	vnx::register_type_code(vnx::web::Content::create_type_code());
+	vnx::register_type_code(vnx::web::DatabaseBase::create_type_code());
 	vnx::register_type_code(vnx::web::DatabaseViewBase::create_type_code());
 	vnx::register_type_code(vnx::web::DefaultView::create_type_code());
 	vnx::register_type_code(vnx::web::Directory::create_type_code());

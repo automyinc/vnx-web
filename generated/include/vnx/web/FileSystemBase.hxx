@@ -27,6 +27,7 @@ public:
 	::int64_t max_history_size = 100;
 	::int32_t update_interval_ms = 500;
 	::int32_t max_input_queue_ms = 500;
+	::std::map<::std::string, ::std::string> mime_type_map;
 	
 	typedef ::vnx::Module Super;
 	
