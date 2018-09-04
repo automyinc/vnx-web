@@ -12,6 +12,8 @@ module DatabaseView {
 	
 	Path path = "/database/";
 	
+	string password;				// needs to be at least 6 chars long
+	
 	
 	void handle(Request sample);
 	
