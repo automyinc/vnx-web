@@ -63,6 +63,7 @@ install(DIRECTORY generated/include/ DESTINATION include)
 install(DIRECTORY query/generated/include/ DESTINATION include)
 install(DIRECTORY query/interface/ DESTINATION interface/vnx/query)
 
+install(TARGETS vnx_web DESTINATION lib)
 install(TARGETS vnxwebserver DESTINATION bin)
 install(TARGETS vnxfilesystem DESTINATION bin)
 install(TARGETS vnxdatabase DESTINATION bin)

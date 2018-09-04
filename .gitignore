@@ -37,3 +37,5 @@
 /doc/doxygen
 /.data
 
+*.deb
+
