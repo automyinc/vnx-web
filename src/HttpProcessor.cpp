@@ -156,13 +156,21 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	{
 		auto iter = header_fields.find("Referer");
 		if(iter != header_fields.end()) {
-			if(iter->second.size() < 256) {
-				auto it = stats.referral_count.find(iter->second);
-				if(it != stats.referral_count.end()) {
-					it->second++;
-				} else if(stats.referral_count.size() < max_num_pages) {
-					stats.referral_count[iter->second]++;
+			std::string url = iter->second;
+			for(size_t i = 0; i < url.size(); ++i) {
+				if(url[i] == '?') {
+					url.resize(i);
+					break;
 				}
+			}
+			if(url.size() > 256) {
+				url.resize(256);
+			}
+			auto it = stats.referral_count.find(url);
+			if(it != stats.referral_count.end()) {
+				it->second++;
+			} else if(stats.referral_count.size() < max_num_pages) {
+				stats.referral_count[url]++;
 			}
 		}
 	}
