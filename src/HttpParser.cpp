@@ -114,7 +114,29 @@ std::shared_ptr<Parameter> parse_parameter(std::shared_ptr<Parameter> parameter,
 	std::string key;
 	std::string value;
 	for(size_t i = 0; i < len; ++i) {
-		// TODO
+		const char c = str[i];
+		if(c == '=' && state == 0) {
+			state = 1;
+			value.clear();
+		} else if(c == '&' && state == 1) {
+			if(!parameter) {
+				parameter = Parameter::create();
+			}
+			vnx::from_string(value, parameter->field[key]);
+			state = 0;
+			key.clear();
+		} else {
+			switch(state) {
+				case 0: key.push_back(c); break;
+				case 1: value.push_back(c); break;
+			}
+		}
+	}
+	if(state == 1) {
+		if(!parameter) {
+			parameter = Parameter::create();
+		}
+		vnx::from_string(value, parameter->field[key]);
 	}
 	return parameter;
 }

@@ -2,6 +2,7 @@
 #include <vnx/web/DatabaseView.h>
 #include <vnx/web/Response.hxx>
 #include <vnx/web/File.hxx>
+#include <vnx/web/Parameter.hxx>
 #include <vnx/query/package.h>
 
 #include <sstream>
@@ -47,25 +48,16 @@ void DatabaseView::render_overview(std::ostream& out) {
 	out << "</table>\n";
 }
 
-void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& result, bool hide_id) {
-	std::set<std::string> cols;
-	for(const auto& row : result) {
-		for(const auto& entry : row.field) {
-			cols.insert(entry.first);
-		}
-	}
-	if(hide_id) {
-		cols.erase("id");
-	}
+void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& result, const std::vector<std::string>& fields) {
 	out << "<table>\n";
 	out << "<tr>\n";
-	for(const auto& col : cols) {
+	for(const auto& col : fields) {
 		out << "<th>" << col << "</th>";
 	}
 	out << "</tr>";
 	for(const auto& row : result) {
 		out << "<tr>";
-		for(const auto& col : cols) {
+		for(const auto& col : fields) {
 			out << "<td>" << row[col] << "</td>";
 		}
 		out << "</tr>\n";
@@ -73,12 +65,102 @@ void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& re
 	out << "</table>\n";
 }
 
-void DatabaseView::render_table_index(std::ostream& out, const std::string& table) {
-	auto result = client->select(query::select(table, 0, 0, query::limit(1000)));
+void DatabaseView::render_table(std::ostream& out, const std::vector<Object>& result, bool hide_id) {
+	std::set<std::string> set;
+	for(const auto& row : result) {
+		for(const auto& entry : row.field) {
+			set.insert(entry.first);
+		}
+	}
+	if(hide_id) {
+		set.erase("id");
+	}
+	const std::vector<std::string> fields(set.begin(), set.end());
+	
+	out << "<a href=\"..\">Overview</a>\n";
+	out << "<hr>\n";
+	out << "<form method=\"get\">\n";
+	for(const auto& col : fields) {
+		out << "<select name=\"_A_" << col << "\">\n";
+		out << "<option value=\"\" selected></option>\n";
+		out << "<option value=\"SUM\">SUM(" << col << ")</option>\n";
+		out << "<option value=\"MIN\">MIN(" << col << ")</option>\n";
+		out << "<option value=\"MAX\">MAX(" << col << ")</option>\n";
+		out << "</select>\n";
+	}
+	out << " GROUP BY <select name=\"group_by\">\n";
+	out << "<option value=\"\" selected></option>\n";
+	for(const auto& col : fields) {
+		out << "<option value=\"" << col << "\">" << col << "</option>\n";
+	}
+	out << "</select>\n";
+	out << " ORDER BY <select name=\"order_by\">\n";
+	out << "<option value=\"\" selected></option>\n";
+	for(const auto& col : fields) {
+		out << "<option value=\"" << col << "\">" << col << "</option>\n";
+	}
+	out << "<option value=\"_N_GROUP\">_N_GROUP</option>\n";
+	out << "</select>\n";
+	out << "<select name=\"order_mode\">\n";
+	out << "<option value=\"" << query::OrderBy::ASC << "\" selected>ASC</option>\n";
+	out << "<option value=\"" << query::OrderBy::DESC << "\">DESC</option>\n";
+	out << "</select>\n";
+	out << " LIMIT <input type=\"text\" name=\"limit\" value=\"1000\" align=\"right\" size=\"3\">\n";
+	out << " OFFSET <input type=\"text\" name=\"offset\" value=\"0\" align=\"right\" size=\"3\">\n";
+	out << "<input type=\"submit\">\n";
+	out << "</form>\n<hr>\n";
+	
+	render_table(out, result, fields);
+}
+
+void DatabaseView::render_table_index(std::ostream& out, const std::string& table, const Object& parameter) {
+	
+	auto query = query::select(table, 0, 0, query::limit(1000));
+	
+	for(const auto& entry : parameter.field) {
+		if(entry.first.substr(0, 3) == "_A_" && !entry.second.empty()) {
+			const std::string field = entry.first.substr(3);
+			const std::string func = entry.second.to_string_value();
+			if(func == "SUM") {
+				query.aggregates[field] = query::sum(query::field(field));
+			}
+			if(func == "MIN") {
+				query.aggregates[field] = query::min(query::field(field));
+			}
+			if(func == "MAX") {
+				query.aggregates[field] = query::max(query::field(field));
+			}
+		}
+	}
+	{
+		const std::string field = parameter["group_by"].to_string_value();
+		if(!field.empty()) {
+			query.group_by = query::group_by(field);
+			query.aggregates["_N_GROUP"] = query::count();
+		}
+	}
+	{
+		const std::string field = parameter["order_by"].to_string_value();
+		if(!field.empty()) {
+			const auto mode = parameter["order_mode"].to<int32_t>();
+			query.order_by = query::order_by(field, mode ? mode : query::OrderBy::ASC);
+		}
+	}
+	{
+		const auto num_rows = parameter["limit"].to<int64_t>();
+		const auto offset = parameter["offset"].to<int64_t>();
+		if(num_rows > 0 || offset > 0) {
+			query.limit = query::limit(num_rows, offset);
+		}
+	}
+	
+	const auto result = client->select(query);
 	render_table(out, result, true);
 }
 
 void DatabaseView::handle(std::shared_ptr<const ::vnx::web::Request> request) {
+	
+	auto parameter = std::dynamic_pointer_cast<const Parameter>(request->parameter);
 	
 	auto response = Response::create();
 	response->is_for_request(request);
@@ -99,7 +181,7 @@ void DatabaseView::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 		} else if(request->path.size() >= 2) {
 			if(request->path[1] == "table") {
 				if(request->path.size() >= 3) {
-					render_table_index(out, request->path[2]);
+					render_table_index(out, request->path[2], parameter ? parameter->field : Object());
 				}
 			}
 		}

@@ -174,6 +174,7 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 				
 				forward->id = request->id;
 				forward->stream = request->stream;
+				forward->parameter = request->parameter;
 				forward->source.push_back(channel);
 				forward->time_stamp_ms = request->time_stamp_ms;
 				forward->timeout_ms = timeout_ms;
