@@ -73,6 +73,22 @@ Variant Or::execute(const Object& object) const {
 	return bool(A->execute(object)) || bool(B->execute(object));
 }
 
+Variant Not::execute(const Object& object) const {
+	if(!A) {
+		throw std::logic_error("execute(): !A");
+	}
+	const Variant result = A->execute(object);
+	return !bool(A->execute(object));
+}
+
+Variant IsNull::execute(const Object& object) const {
+	if(!A) {
+		throw std::logic_error("execute(): !A");
+	}
+	const Variant result = A->execute(object);
+	return result.empty() || result.is_null();
+}
+
 Variant NotNull::execute(const Object& object) const {
 	if(!A) {
 		throw std::logic_error("execute(): !A");
@@ -113,6 +129,17 @@ void Sum::update(const Object& object) {
 	result += A->execute(object).to<float64_t>();
 }
 
+void Average::update(const Object& object) {
+	if(!A) {
+		throw std::logic_error("update(): !A");
+	}
+	const Variant value = A->execute(object);
+	if(!value.empty()) {
+		sum += value.to<float64_t>();
+		count++;
+	}
+}
+
 void Count::update(const Object& object) {
 	result++;
 }
@@ -132,6 +159,10 @@ Variant Max::get_result() const {
 
 Variant Sum::get_result() const {
 	return result;
+}
+
+Variant Average::get_result() const {
+	return count > 0 ? float64_t(sum) / float64_t(count) : float64_t(0);
 }
 
 Variant Count::get_result() const {
