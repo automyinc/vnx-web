@@ -4,7 +4,7 @@
 
 #include <vnx/web/DatabaseViewBase.hxx>
 #include <vnx/web/Provider.hxx>
-#include <vnx/database/DatabaseClient.hxx>
+#include <vnx/web/DatabaseClient.hxx>
 
 
 namespace vnx {
@@ -31,7 +31,7 @@ private:
 	
 private:
 	std::shared_ptr<Provider> provider;
-	std::shared_ptr<database::DatabaseClient> client;
+	std::shared_ptr<DatabaseClient> client;
 	
 };
 

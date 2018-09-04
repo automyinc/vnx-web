@@ -4,7 +4,7 @@
 
 #include <vnx/web/HttpProcessorBase.hxx>
 #include <vnx/web/HttpResponse.hxx>
-#include <vnx/database/DatabaseClient.hxx>
+#include <vnx/web/DatabaseClient.hxx>
 
 #include <queue>
 #include <unordered_set>
@@ -75,7 +75,7 @@ private:
 	std::unordered_map<int, std::shared_ptr<File>> static_error_pages;
 	std::unordered_map<int64_t, std::string> date_string_map;
 	
-	std::shared_ptr<database::DatabaseClient> client;
+	std::shared_ptr<DatabaseClient> client;
 	
 	int64_t server_start_time_ms = 0;
 	size_t request_counter = 0;

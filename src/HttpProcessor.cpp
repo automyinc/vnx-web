@@ -21,7 +21,7 @@ void HttpProcessor::main() {
 	
 	server_start_time_ms = vnx::get_time_millis();
 	
-	client = std::make_shared<database::DatabaseClient>("Database");
+	client = std::make_shared<DatabaseClient>("Database");
 	
 	set_timer_millis(1000, std::bind(&HttpProcessor::print_stats, this));
 	set_timer_millis(60000, std::bind(&HttpProcessor::write_stats, this));

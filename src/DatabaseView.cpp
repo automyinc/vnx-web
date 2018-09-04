@@ -26,7 +26,7 @@ void DatabaseView::main() {
 		this->provider = provider;
 	}
 	
-	client = std::make_shared<database::DatabaseClient>(database);
+	client = std::make_shared<DatabaseClient>(database);
 	
 	subscribe(input);
 	

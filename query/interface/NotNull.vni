@@ -1,0 +1,12 @@
+package vnx.query;
+
+import vnx.Variant;
+import vnx.Object;
+
+class NotNull extends Expression {
+	
+	Expression* A;
+	
+	Variant execute(Object object) const;
+	
+}

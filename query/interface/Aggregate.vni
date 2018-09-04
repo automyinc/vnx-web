@@ -1,0 +1,12 @@
+package vnx.query;
+
+import vnx.Variant;
+import vnx.Object;
+
+class Aggregate {
+	
+	void update(Object object);
+	
+	Variant get_result() const;
+	
+}

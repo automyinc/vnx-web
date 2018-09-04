@@ -10,7 +10,7 @@
 #include <vnx/web/DynamicView.hxx>
 #include <vnx/web/PageView.hxx>
 #include <vnx/web/DatabaseView.h>
-#include <vnx/database/Database.h>
+#include <vnx/web/Database.h>
 
 #include <vnx/Config.h>
 #include <vnx/Process.h>
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 	}
 	
 	{
-		vnx::Handle<vnx::database::Database> module = new vnx::database::Database("Database");
+		vnx::Handle<vnx::web::Database> module = new vnx::web::Database("Database");
 		module.start_detached();
 	}
 	{

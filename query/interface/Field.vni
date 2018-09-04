@@ -1,0 +1,12 @@
+package vnx.query;
+
+import vnx.Variant;
+import vnx.Object;
+
+class Field extends Expression {
+	
+	string name;
+	
+	Variant execute(Object object) const;
+	
+}
