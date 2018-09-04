@@ -23,6 +23,9 @@
 #include <vnx/query/Update.hxx>
 #include <vnx/query/Delete.hxx>
 #include <vnx/query/NotNull.hxx>
+#include <vnx/query/IsNull.hxx>
+#include <vnx/query/Not.hxx>
+#include <vnx/query/Average.hxx>
 
 
 namespace vnx {
@@ -96,6 +99,18 @@ inline std::shared_ptr<Or> logical_or(std::shared_ptr<const Expression> A, std::
 	return query;
 }
 
+inline std::shared_ptr<Not> logical_not(std::shared_ptr<const Expression> A) {
+	auto query = Not::create();
+	query->A = A;
+	return query;
+}
+
+inline std::shared_ptr<IsNull> is_null(std::shared_ptr<const Expression> A) {
+	auto query = IsNull::create();
+	query->A = A;
+	return query;
+}
+
 inline std::shared_ptr<NotNull> not_null(std::shared_ptr<const Expression> A) {
 	auto query = NotNull::create();
 	query->A = A;
@@ -116,6 +131,12 @@ inline std::shared_ptr<Max> max(std::shared_ptr<const Expression> A) {
 
 inline std::shared_ptr<Sum> sum(std::shared_ptr<const Expression> A) {
 	auto query = Sum::create();
+	query->A = A;
+	return query;
+}
+
+inline std::shared_ptr<Average> avg(std::shared_ptr<const Expression> A) {
+	auto query = Average::create();
 	query->A = A;
 	return query;
 }
