@@ -35,7 +35,6 @@ class HttpRequest;
 class HttpResponse;
 class Notification;
 class PageView;
-class Parameter;
 class Path;
 class Provider;
 class Request;
@@ -78,7 +77,6 @@ void read(TypeInput& in, ::vnx::web::HttpRequest& value, const TypeCode* type_co
 void read(TypeInput& in, ::vnx::web::HttpResponse& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Notification& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::PageView& value, const TypeCode* type_code, const uint16_t* code);
-void read(TypeInput& in, ::vnx::web::Parameter& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Path& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Provider& value, const TypeCode* type_code, const uint16_t* code);
 void read(TypeInput& in, ::vnx::web::Request& value, const TypeCode* type_code, const uint16_t* code);
@@ -115,7 +113,6 @@ void write(TypeOutput& out, const ::vnx::web::HttpRequest& value, const TypeCode
 void write(TypeOutput& out, const ::vnx::web::HttpResponse& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Notification& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::PageView& value, const TypeCode* type_code, const uint16_t* code);
-void write(TypeOutput& out, const ::vnx::web::Parameter& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Path& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Provider& value, const TypeCode* type_code, const uint16_t* code);
 void write(TypeOutput& out, const ::vnx::web::Request& value, const TypeCode* type_code, const uint16_t* code);
@@ -152,7 +149,6 @@ void read(std::istream& in, ::vnx::web::HttpRequest& value);
 void read(std::istream& in, ::vnx::web::HttpResponse& value);
 void read(std::istream& in, ::vnx::web::Notification& value);
 void read(std::istream& in, ::vnx::web::PageView& value);
-void read(std::istream& in, ::vnx::web::Parameter& value);
 void read(std::istream& in, ::vnx::web::Path& value);
 void read(std::istream& in, ::vnx::web::Provider& value);
 void read(std::istream& in, ::vnx::web::Request& value);
@@ -189,7 +185,6 @@ void write(std::ostream& out, const ::vnx::web::HttpRequest& value);
 void write(std::ostream& out, const ::vnx::web::HttpResponse& value);
 void write(std::ostream& out, const ::vnx::web::Notification& value);
 void write(std::ostream& out, const ::vnx::web::PageView& value);
-void write(std::ostream& out, const ::vnx::web::Parameter& value);
 void write(std::ostream& out, const ::vnx::web::Path& value);
 void write(std::ostream& out, const ::vnx::web::Provider& value);
 void write(std::ostream& out, const ::vnx::web::Request& value);
@@ -226,7 +221,6 @@ void accept(Visitor& visitor, const ::vnx::web::HttpRequest& value);
 void accept(Visitor& visitor, const ::vnx::web::HttpResponse& value);
 void accept(Visitor& visitor, const ::vnx::web::Notification& value);
 void accept(Visitor& visitor, const ::vnx::web::PageView& value);
-void accept(Visitor& visitor, const ::vnx::web::Parameter& value);
 void accept(Visitor& visitor, const ::vnx::web::Path& value);
 void accept(Visitor& visitor, const ::vnx::web::Provider& value);
 void accept(Visitor& visitor, const ::vnx::web::Request& value);
@@ -718,28 +712,6 @@ struct type<::vnx::web::PageView> {
 		vnx::write(out, value);
 	}
 	void accept(Visitor& visitor, const ::vnx::web::PageView& value) {
-		vnx::accept(visitor, value);
-	}
-	void create_dynamic_code(std::vector<uint16_t>& code) {
-		code.push_back(CODE_ANY);
-	}
-};
-
-template<>
-struct type<::vnx::web::Parameter> {
-	void read(TypeInput& in, ::vnx::web::Parameter& value, const TypeCode* type_code, const uint16_t* code) {
-		vnx::read(in, value, type_code, code);
-	}
-	void write(TypeOutput& out, const ::vnx::web::Parameter& value, const TypeCode* type_code, const uint16_t* code) {
-		vnx::write(out, value, type_code, code);
-	}
-	void read(std::istream& in, ::vnx::web::Parameter& value) {
-		vnx::read(in, value);
-	}
-	void write(std::ostream& out, const ::vnx::web::Parameter& value) {
-		vnx::write(out, value);
-	}
-	void accept(Visitor& visitor, const ::vnx::web::Parameter& value) {
 		vnx::accept(visitor, value);
 	}
 	void create_dynamic_code(std::vector<uint16_t>& code) {

@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 DatabaseViewBase::VNX_TYPE_HASH(0xf1f36cf9c6a280dull);
-const vnx::Hash64 DatabaseViewBase::VNX_CODE_HASH(0xc5546473c4ad36adull);
+const vnx::Hash64 DatabaseViewBase::VNX_CODE_HASH(0x2f3dafb25797ac81ull);
 
 DatabaseViewBase::DatabaseViewBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -24,6 +24,7 @@ DatabaseViewBase::DatabaseViewBase(const std::string& _vnx_name)
 	vnx::read_config(vnx_name + ".domain", domain);
 	vnx::read_config(vnx_name + ".input", input);
 	vnx::read_config(vnx_name + ".path", path);
+	vnx::read_config(vnx_name + ".password", password);
 }
 
 vnx::Hash64 DatabaseViewBase::get_type_hash() const {
@@ -41,6 +42,7 @@ void DatabaseViewBase::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, domain);
 	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, input);
 	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, path);
+	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, password);
 	_visitor.type_end(*_type_code);
 }
 
@@ -50,6 +52,7 @@ void DatabaseViewBase::write(std::ostream& _out) const {
 	_out << ", \"domain\": "; vnx::write(_out, domain);
 	_out << ", \"input\": "; vnx::write(_out, input);
 	_out << ", \"path\": "; vnx::write(_out, path);
+	_out << ", \"password\": "; vnx::write(_out, password);
 	_out << "}";
 }
 
@@ -65,6 +68,8 @@ void DatabaseViewBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, input);
 		} else if(_entry.first == "path") {
 			vnx::from_string(_entry.second, path);
+		} else if(_entry.first == "password") {
+			vnx::from_string(_entry.second, password);
 		}
 	}
 }
@@ -91,7 +96,7 @@ std::shared_ptr<vnx::TypeCode> DatabaseViewBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.DatabaseView";
 	type_code->type_hash = vnx::Hash64(0xf1f36cf9c6a280dull);
-	type_code->code_hash = vnx::Hash64(0xc5546473c4ad36adull);
+	type_code->code_hash = vnx::Hash64(0x2f3dafb25797ac81ull);
 	type_code->methods.resize(1);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -118,7 +123,7 @@ std::shared_ptr<vnx::TypeCode> DatabaseViewBase::create_type_code() {
 		call_type->build();
 		type_code->methods[0] = vnx::register_type_code(call_type);
 	}
-	type_code->fields.resize(4);
+	type_code->fields.resize(5);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -143,6 +148,12 @@ std::shared_ptr<vnx::TypeCode> DatabaseViewBase::create_type_code() {
 		field.is_extended = true;
 		field.name = "path";
 		field.value = vnx::to_string("/database/");
+		field.code = {12, 5};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[4];
+		field.is_extended = true;
+		field.name = "password";
 		field.code = {12, 5};
 	}
 	type_code->build();
@@ -205,6 +216,7 @@ void read(TypeInput& in, ::vnx::web::DatabaseViewBase& value, const TypeCode* ty
 			case 1: vnx::read(in, value.domain, type_code, _field->code.data()); break;
 			case 2: vnx::read(in, value.input, type_code, _field->code.data()); break;
 			case 3: vnx::read(in, value.path, type_code, _field->code.data()); break;
+			case 4: vnx::read(in, value.password, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -222,6 +234,7 @@ void write(TypeOutput& out, const ::vnx::web::DatabaseViewBase& value, const Typ
 	vnx::write(out, value.domain, type_code, type_code->fields[1].code.data());
 	vnx::write(out, value.input, type_code, type_code->fields[2].code.data());
 	vnx::write(out, value.path, type_code, type_code->fields[3].code.data());
+	vnx::write(out, value.password, type_code, type_code->fields[4].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::DatabaseViewBase& value) {

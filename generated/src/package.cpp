@@ -25,7 +25,6 @@
 #include <vnx/web/HttpResponse.hxx>
 #include <vnx/web/Notification.hxx>
 #include <vnx/web/PageView.hxx>
-#include <vnx/web/Parameter.hxx>
 #include <vnx/web/Provider.hxx>
 #include <vnx/web/Request.hxx>
 #include <vnx/web/Response.hxx>
@@ -68,7 +67,6 @@ static void register_all_types() {
 	vnx::register_type_code(vnx::web::HttpResponse::create_type_code());
 	vnx::register_type_code(vnx::web::Notification::create_type_code());
 	vnx::register_type_code(vnx::web::PageView::create_type_code());
-	vnx::register_type_code(vnx::web::Parameter::create_type_code());
 	vnx::register_type_code(vnx::web::Provider::create_type_code());
 	vnx::register_type_code(vnx::web::Request::create_type_code());
 	vnx::register_type_code(vnx::web::Response::create_type_code());

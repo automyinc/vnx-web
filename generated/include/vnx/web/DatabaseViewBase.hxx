@@ -22,6 +22,7 @@ public:
 	::vnx::TopicPtr domain;
 	::vnx::TopicPtr input;
 	::vnx::web::Path path = "/database/";
+	::std::string password;
 	
 	typedef ::vnx::Module Super;
 	
