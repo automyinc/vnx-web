@@ -4,4 +4,6 @@ class GroupBy {
 	
 	string field;
 	
+	string as_string() const;
+	
 }

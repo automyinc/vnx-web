@@ -6,4 +6,6 @@ class Limit {
 	
 	long offset = 0;
 	
+	string as_string() const;
+	
 }

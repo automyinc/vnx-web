@@ -171,6 +171,8 @@ void DatabaseView::render_table_index(std::ostream& out, const std::string& tabl
 	out << " OFFSET <input type=\"text\" name=\"offset\" value=\"0\" align=\"right\" size=\"3\">\n";
 	out << "<input type=\"submit\">\n";
 	out << "</form>\n<hr>\n";
+	out << query.as_string() << std::endl;
+	out << "<hr>\n";
 	
 	render_table(out, result, fields, field_header);
 }

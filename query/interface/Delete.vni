@@ -6,4 +6,6 @@ class Delete extends Query {
 	
 	Expression* where;					// empty expression means all rows
 	
+	string as_string() const;
+	
 }

@@ -13,4 +13,6 @@ class Min extends Aggregate {
 	
 	Variant get_result() const;
 	
+	string as_string() const;
+	
 }
