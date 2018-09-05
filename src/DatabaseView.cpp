@@ -86,7 +86,7 @@ void DatabaseView::render_table(	std::ostream& out,
 
 void DatabaseView::render_table_index(std::ostream& out, const std::string& table, const Object& parameter) const {
 	
-	auto query = query::select(table, 0, 0, query::limit(1000));
+	auto query = query::select(table, 0, 0, query::limit(100));
 	
 	std::map<std::string, std::string> field_header;
 	
@@ -183,7 +183,7 @@ void DatabaseView::render_table_index(std::ostream& out, const std::string& tabl
 	out << "<option value=\"" << query::OrderBy::ASC << "\" selected>ASC</option>\n";
 	out << "<option value=\"" << query::OrderBy::DESC << "\">DESC</option>\n";
 	out << "</select>\n";
-	out << " LIMIT <input type=\"text\" name=\"limit\" value=\"1000\" align=\"right\" size=\"3\">\n";
+	out << " LIMIT <input type=\"text\" name=\"limit\" value=\"100\" align=\"right\" size=\"3\">\n";
 	out << " OFFSET <input type=\"text\" name=\"offset\" value=\"0\" align=\"right\" size=\"3\">\n";
 	out << "<input type=\"submit\">\n";
 	out << "</form>\n<hr>\n";

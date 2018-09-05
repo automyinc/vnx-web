@@ -2,4 +2,4 @@
 VNX Webserver Framework
 
 # Dependencies
-libboost-dev
+vnx-base

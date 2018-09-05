@@ -31,6 +31,7 @@ void FileSystem::main() {
 	mime_type_map[".c"] = "text/plain";
 	mime_type_map[".cpp"] = "text/plain";
 	mime_type_map[".cxx"] = "text/plain";
+	mime_type_map[".vni"] = "text/plain";
 	mime_type_map[".md5"] = "text/plain";
 	mime_type_map[".map"] = "text/plain";
 	mime_type_map[".tex"] = "text/x-tex";
