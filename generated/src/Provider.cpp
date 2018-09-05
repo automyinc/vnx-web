@@ -66,12 +66,12 @@ void Provider::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "id") {
 			vnx::from_string(_entry.second, id);
-		} else if(_entry.first == "path") {
-			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "input") {
 			vnx::from_string(_entry.second, input);
 		} else if(_entry.first == "level") {
 			vnx::from_string(_entry.second, level);
+		} else if(_entry.first == "path") {
+			vnx::from_string(_entry.second, path);
 		}
 	}
 }
@@ -89,12 +89,12 @@ void Provider::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
 		if(_entry.first == "id") {
 			_entry.second.to(id);
-		} else if(_entry.first == "path") {
-			_entry.second.to(path);
 		} else if(_entry.first == "input") {
 			_entry.second.to(input);
 		} else if(_entry.first == "level") {
 			_entry.second.to(level);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
 		}
 	}
 }

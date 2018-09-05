@@ -84,34 +84,34 @@ void HttpRequest::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "id") {
+		if(_entry.first == "header") {
+			vnx::from_string(_entry.second, header);
+		} else if(_entry.first == "id") {
 			vnx::from_string(_entry.second, id);
-		} else if(_entry.first == "stream") {
-			vnx::from_string(_entry.second, stream);
-		} else if(_entry.first == "type") {
-			vnx::from_string(_entry.second, type);
-		} else if(_entry.first == "path") {
-			vnx::from_string(_entry.second, path);
+		} else if(_entry.first == "method") {
+			vnx::from_string(_entry.second, method);
 		} else if(_entry.first == "parameter") {
 			vnx::from_string(_entry.second, parameter);
+		} else if(_entry.first == "path") {
+			vnx::from_string(_entry.second, path);
+		} else if(_entry.first == "payload") {
+			vnx::from_string(_entry.second, payload);
+		} else if(_entry.first == "sequence") {
+			vnx::from_string(_entry.second, sequence);
 		} else if(_entry.first == "session") {
 			vnx::from_string(_entry.second, session);
 		} else if(_entry.first == "source") {
 			vnx::from_string(_entry.second, source);
+		} else if(_entry.first == "stream") {
+			vnx::from_string(_entry.second, stream);
 		} else if(_entry.first == "time_stamp_ms") {
 			vnx::from_string(_entry.second, time_stamp_ms);
 		} else if(_entry.first == "timeout_ms") {
 			vnx::from_string(_entry.second, timeout_ms);
-		} else if(_entry.first == "sequence") {
-			vnx::from_string(_entry.second, sequence);
-		} else if(_entry.first == "method") {
-			vnx::from_string(_entry.second, method);
+		} else if(_entry.first == "type") {
+			vnx::from_string(_entry.second, type);
 		} else if(_entry.first == "version") {
 			vnx::from_string(_entry.second, version);
-		} else if(_entry.first == "header") {
-			vnx::from_string(_entry.second, header);
-		} else if(_entry.first == "payload") {
-			vnx::from_string(_entry.second, payload);
 		}
 	}
 }
@@ -137,34 +137,34 @@ vnx::Object HttpRequest::to_object() const {
 
 void HttpRequest::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "id") {
+		if(_entry.first == "header") {
+			_entry.second.to(header);
+		} else if(_entry.first == "id") {
 			_entry.second.to(id);
-		} else if(_entry.first == "stream") {
-			_entry.second.to(stream);
-		} else if(_entry.first == "type") {
-			_entry.second.to(type);
-		} else if(_entry.first == "path") {
-			_entry.second.to(path);
+		} else if(_entry.first == "method") {
+			_entry.second.to(method);
 		} else if(_entry.first == "parameter") {
 			_entry.second.to(parameter);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "payload") {
+			_entry.second.to(payload);
+		} else if(_entry.first == "sequence") {
+			_entry.second.to(sequence);
 		} else if(_entry.first == "session") {
 			_entry.second.to(session);
 		} else if(_entry.first == "source") {
 			_entry.second.to(source);
+		} else if(_entry.first == "stream") {
+			_entry.second.to(stream);
 		} else if(_entry.first == "time_stamp_ms") {
 			_entry.second.to(time_stamp_ms);
 		} else if(_entry.first == "timeout_ms") {
 			_entry.second.to(timeout_ms);
-		} else if(_entry.first == "sequence") {
-			_entry.second.to(sequence);
-		} else if(_entry.first == "method") {
-			_entry.second.to(method);
+		} else if(_entry.first == "type") {
+			_entry.second.to(type);
 		} else if(_entry.first == "version") {
 			_entry.second.to(version);
-		} else if(_entry.first == "header") {
-			_entry.second.to(header);
-		} else if(_entry.first == "payload") {
-			_entry.second.to(payload);
 		}
 	}
 }

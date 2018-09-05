@@ -64,12 +64,12 @@ void FileInfo::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "name") {
-			vnx::from_string(_entry.second, name);
+		if(_entry.first == "is_directory") {
+			vnx::from_string(_entry.second, is_directory);
 		} else if(_entry.first == "mime_type") {
 			vnx::from_string(_entry.second, mime_type);
-		} else if(_entry.first == "is_directory") {
-			vnx::from_string(_entry.second, is_directory);
+		} else if(_entry.first == "name") {
+			vnx::from_string(_entry.second, name);
 		} else if(_entry.first == "num_bytes") {
 			vnx::from_string(_entry.second, num_bytes);
 		}
@@ -87,12 +87,12 @@ vnx::Object FileInfo::to_object() const {
 
 void FileInfo::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "name") {
-			_entry.second.to(name);
+		if(_entry.first == "is_directory") {
+			_entry.second.to(is_directory);
 		} else if(_entry.first == "mime_type") {
 			_entry.second.to(mime_type);
-		} else if(_entry.first == "is_directory") {
-			_entry.second.to(is_directory);
+		} else if(_entry.first == "name") {
+			_entry.second.to(name);
 		} else if(_entry.first == "num_bytes") {
 			_entry.second.to(num_bytes);
 		}

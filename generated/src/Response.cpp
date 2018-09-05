@@ -66,16 +66,16 @@ void Response::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "id") {
-			vnx::from_string(_entry.second, id);
-		} else if(_entry.first == "result") {
-			vnx::from_string(_entry.second, result);
-		} else if(_entry.first == "destination") {
+		if(_entry.first == "destination") {
 			vnx::from_string(_entry.second, destination);
-		} else if(_entry.first == "time_to_live_ms") {
-			vnx::from_string(_entry.second, time_to_live_ms);
+		} else if(_entry.first == "id") {
+			vnx::from_string(_entry.second, id);
 		} else if(_entry.first == "is_dynamic") {
 			vnx::from_string(_entry.second, is_dynamic);
+		} else if(_entry.first == "result") {
+			vnx::from_string(_entry.second, result);
+		} else if(_entry.first == "time_to_live_ms") {
+			vnx::from_string(_entry.second, time_to_live_ms);
 		}
 	}
 }
@@ -92,16 +92,16 @@ vnx::Object Response::to_object() const {
 
 void Response::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "id") {
-			_entry.second.to(id);
-		} else if(_entry.first == "result") {
-			_entry.second.to(result);
-		} else if(_entry.first == "destination") {
+		if(_entry.first == "destination") {
 			_entry.second.to(destination);
-		} else if(_entry.first == "time_to_live_ms") {
-			_entry.second.to(time_to_live_ms);
+		} else if(_entry.first == "id") {
+			_entry.second.to(id);
 		} else if(_entry.first == "is_dynamic") {
 			_entry.second.to(is_dynamic);
+		} else if(_entry.first == "result") {
+			_entry.second.to(result);
+		} else if(_entry.first == "time_to_live_ms") {
+			_entry.second.to(time_to_live_ms);
 		}
 	}
 }

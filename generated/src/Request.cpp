@@ -76,22 +76,22 @@ void Request::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "id") {
 			vnx::from_string(_entry.second, id);
-		} else if(_entry.first == "stream") {
-			vnx::from_string(_entry.second, stream);
-		} else if(_entry.first == "type") {
-			vnx::from_string(_entry.second, type);
-		} else if(_entry.first == "path") {
-			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "parameter") {
 			vnx::from_string(_entry.second, parameter);
+		} else if(_entry.first == "path") {
+			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "session") {
 			vnx::from_string(_entry.second, session);
 		} else if(_entry.first == "source") {
 			vnx::from_string(_entry.second, source);
+		} else if(_entry.first == "stream") {
+			vnx::from_string(_entry.second, stream);
 		} else if(_entry.first == "time_stamp_ms") {
 			vnx::from_string(_entry.second, time_stamp_ms);
 		} else if(_entry.first == "timeout_ms") {
 			vnx::from_string(_entry.second, timeout_ms);
+		} else if(_entry.first == "type") {
+			vnx::from_string(_entry.second, type);
 		}
 	}
 }
@@ -114,22 +114,22 @@ void Request::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
 		if(_entry.first == "id") {
 			_entry.second.to(id);
-		} else if(_entry.first == "stream") {
-			_entry.second.to(stream);
-		} else if(_entry.first == "type") {
-			_entry.second.to(type);
-		} else if(_entry.first == "path") {
-			_entry.second.to(path);
 		} else if(_entry.first == "parameter") {
 			_entry.second.to(parameter);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
 		} else if(_entry.first == "session") {
 			_entry.second.to(session);
 		} else if(_entry.first == "source") {
 			_entry.second.to(source);
+		} else if(_entry.first == "stream") {
+			_entry.second.to(stream);
 		} else if(_entry.first == "time_stamp_ms") {
 			_entry.second.to(time_stamp_ms);
 		} else if(_entry.first == "timeout_ms") {
 			_entry.second.to(timeout_ms);
+		} else if(_entry.first == "type") {
+			_entry.second.to(type);
 		}
 	}
 }

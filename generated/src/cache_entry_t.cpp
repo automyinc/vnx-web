@@ -68,18 +68,18 @@ void cache_entry_t::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "path") {
-			vnx::from_string(_entry.second, path);
-		} else if(_entry.first == "content") {
+		if(_entry.first == "content") {
 			vnx::from_string(_entry.second, content);
-		} else if(_entry.first == "time_stamp_ms") {
-			vnx::from_string(_entry.second, time_stamp_ms);
-		} else if(_entry.first == "time_to_live_ms") {
-			vnx::from_string(_entry.second, time_to_live_ms);
 		} else if(_entry.first == "last_request_ms") {
 			vnx::from_string(_entry.second, last_request_ms);
 		} else if(_entry.first == "num_hits") {
 			vnx::from_string(_entry.second, num_hits);
+		} else if(_entry.first == "path") {
+			vnx::from_string(_entry.second, path);
+		} else if(_entry.first == "time_stamp_ms") {
+			vnx::from_string(_entry.second, time_stamp_ms);
+		} else if(_entry.first == "time_to_live_ms") {
+			vnx::from_string(_entry.second, time_to_live_ms);
 		}
 	}
 }
@@ -97,18 +97,18 @@ vnx::Object cache_entry_t::to_object() const {
 
 void cache_entry_t::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "path") {
-			_entry.second.to(path);
-		} else if(_entry.first == "content") {
+		if(_entry.first == "content") {
 			_entry.second.to(content);
-		} else if(_entry.first == "time_stamp_ms") {
-			_entry.second.to(time_stamp_ms);
-		} else if(_entry.first == "time_to_live_ms") {
-			_entry.second.to(time_to_live_ms);
 		} else if(_entry.first == "last_request_ms") {
 			_entry.second.to(last_request_ms);
 		} else if(_entry.first == "num_hits") {
 			_entry.second.to(num_hits);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
+		} else if(_entry.first == "time_stamp_ms") {
+			_entry.second.to(time_stamp_ms);
+		} else if(_entry.first == "time_to_live_ms") {
+			_entry.second.to(time_to_live_ms);
 		}
 	}
 }

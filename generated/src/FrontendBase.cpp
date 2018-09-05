@@ -22,12 +22,12 @@ FrontendBase::FrontendBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
 	vnx::read_config(vnx_name + ".address", address);
-	vnx::read_config(vnx_name + ".input", input);
-	vnx::read_config(vnx_name + ".output", output);
 	vnx::read_config(vnx_name + ".channel", channel);
-	vnx::read_config(vnx_name + ".listen_queue_size", listen_queue_size);
 	vnx::read_config(vnx_name + ".connection_timeout_ms", connection_timeout_ms);
+	vnx::read_config(vnx_name + ".input", input);
+	vnx::read_config(vnx_name + ".listen_queue_size", listen_queue_size);
 	vnx::read_config(vnx_name + ".max_write_backlog", max_write_backlog);
+	vnx::read_config(vnx_name + ".output", output);
 	vnx::read_config(vnx_name + ".read_block_size", read_block_size);
 	vnx::read_config(vnx_name + ".write_block_size", write_block_size);
 }
@@ -75,18 +75,18 @@ void FrontendBase::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "address") {
 			vnx::from_string(_entry.second, address);
-		} else if(_entry.first == "input") {
-			vnx::from_string(_entry.second, input);
-		} else if(_entry.first == "output") {
-			vnx::from_string(_entry.second, output);
 		} else if(_entry.first == "channel") {
 			vnx::from_string(_entry.second, channel);
-		} else if(_entry.first == "listen_queue_size") {
-			vnx::from_string(_entry.second, listen_queue_size);
 		} else if(_entry.first == "connection_timeout_ms") {
 			vnx::from_string(_entry.second, connection_timeout_ms);
+		} else if(_entry.first == "input") {
+			vnx::from_string(_entry.second, input);
+		} else if(_entry.first == "listen_queue_size") {
+			vnx::from_string(_entry.second, listen_queue_size);
 		} else if(_entry.first == "max_write_backlog") {
 			vnx::from_string(_entry.second, max_write_backlog);
+		} else if(_entry.first == "output") {
+			vnx::from_string(_entry.second, output);
 		} else if(_entry.first == "read_block_size") {
 			vnx::from_string(_entry.second, read_block_size);
 		} else if(_entry.first == "write_block_size") {
@@ -113,18 +113,18 @@ void FrontendBase::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
 		if(_entry.first == "address") {
 			_entry.second.to(address);
-		} else if(_entry.first == "input") {
-			_entry.second.to(input);
-		} else if(_entry.first == "output") {
-			_entry.second.to(output);
 		} else if(_entry.first == "channel") {
 			_entry.second.to(channel);
-		} else if(_entry.first == "listen_queue_size") {
-			_entry.second.to(listen_queue_size);
 		} else if(_entry.first == "connection_timeout_ms") {
 			_entry.second.to(connection_timeout_ms);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
+		} else if(_entry.first == "listen_queue_size") {
+			_entry.second.to(listen_queue_size);
 		} else if(_entry.first == "max_write_backlog") {
 			_entry.second.to(max_write_backlog);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
 		} else if(_entry.first == "read_block_size") {
 			_entry.second.to(read_block_size);
 		} else if(_entry.first == "write_block_size") {

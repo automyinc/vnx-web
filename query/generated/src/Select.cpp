@@ -72,22 +72,22 @@ void Select::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "fields") {
-			vnx::from_string(_entry.second, fields);
-		} else if(_entry.first == "aggregates") {
+		if(_entry.first == "aggregates") {
 			vnx::from_string(_entry.second, aggregates);
+		} else if(_entry.first == "fields") {
+			vnx::from_string(_entry.second, fields);
 		} else if(_entry.first == "from") {
 			vnx::from_string(_entry.second, from);
-		} else if(_entry.first == "where") {
-			vnx::from_string(_entry.second, where);
 		} else if(_entry.first == "group_by") {
 			vnx::from_string(_entry.second, group_by);
 		} else if(_entry.first == "having") {
 			vnx::from_string(_entry.second, having);
-		} else if(_entry.first == "order_by") {
-			vnx::from_string(_entry.second, order_by);
 		} else if(_entry.first == "limit") {
 			vnx::from_string(_entry.second, limit);
+		} else if(_entry.first == "order_by") {
+			vnx::from_string(_entry.second, order_by);
+		} else if(_entry.first == "where") {
+			vnx::from_string(_entry.second, where);
 		}
 	}
 }
@@ -107,22 +107,22 @@ vnx::Object Select::to_object() const {
 
 void Select::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "fields") {
-			_entry.second.to(fields);
-		} else if(_entry.first == "aggregates") {
+		if(_entry.first == "aggregates") {
 			_entry.second.to(aggregates);
+		} else if(_entry.first == "fields") {
+			_entry.second.to(fields);
 		} else if(_entry.first == "from") {
 			_entry.second.to(from);
-		} else if(_entry.first == "where") {
-			_entry.second.to(where);
 		} else if(_entry.first == "group_by") {
 			_entry.second.to(group_by);
 		} else if(_entry.first == "having") {
 			_entry.second.to(having);
-		} else if(_entry.first == "order_by") {
-			_entry.second.to(order_by);
 		} else if(_entry.first == "limit") {
 			_entry.second.to(limit);
+		} else if(_entry.first == "order_by") {
+			_entry.second.to(order_by);
+		} else if(_entry.first == "where") {
+			_entry.second.to(where);
 		}
 	}
 }

@@ -22,8 +22,8 @@ HttpParserBase::HttpParserBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
 	vnx::read_config(vnx_name + ".input", input);
-	vnx::read_config(vnx_name + ".output", output);
 	vnx::read_config(vnx_name + ".max_request_size", max_request_size);
+	vnx::read_config(vnx_name + ".output", output);
 }
 
 vnx::Hash64 HttpParserBase::get_type_hash() const {
@@ -57,10 +57,10 @@ void HttpParserBase::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "input") {
 			vnx::from_string(_entry.second, input);
-		} else if(_entry.first == "output") {
-			vnx::from_string(_entry.second, output);
 		} else if(_entry.first == "max_request_size") {
 			vnx::from_string(_entry.second, max_request_size);
+		} else if(_entry.first == "output") {
+			vnx::from_string(_entry.second, output);
 		}
 	}
 }
@@ -77,10 +77,10 @@ void HttpParserBase::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
 		if(_entry.first == "input") {
 			_entry.second.to(input);
-		} else if(_entry.first == "output") {
-			_entry.second.to(output);
 		} else if(_entry.first == "max_request_size") {
 			_entry.second.to(max_request_size);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
 		}
 	}
 }

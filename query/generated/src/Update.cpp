@@ -62,10 +62,10 @@ void Update::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "table") {
-			vnx::from_string(_entry.second, table);
-		} else if(_entry.first == "set") {
+		if(_entry.first == "set") {
 			vnx::from_string(_entry.second, set);
+		} else if(_entry.first == "table") {
+			vnx::from_string(_entry.second, table);
 		} else if(_entry.first == "where") {
 			vnx::from_string(_entry.second, where);
 		}
@@ -82,10 +82,10 @@ vnx::Object Update::to_object() const {
 
 void Update::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "table") {
-			_entry.second.to(table);
-		} else if(_entry.first == "set") {
+		if(_entry.first == "set") {
 			_entry.second.to(set);
+		} else if(_entry.first == "table") {
+			_entry.second.to(table);
 		} else if(_entry.first == "where") {
 			_entry.second.to(where);
 		}

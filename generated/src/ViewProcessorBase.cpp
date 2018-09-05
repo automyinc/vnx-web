@@ -21,11 +21,11 @@ const vnx::Hash64 ViewProcessorBase::VNX_CODE_HASH(0xaa1dd60280850f3aull);
 ViewProcessorBase::ViewProcessorBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
+	vnx::read_config(vnx_name + ".channel", channel);
 	vnx::read_config(vnx_name + ".domain", domain);
 	vnx::read_config(vnx_name + ".input", input);
-	vnx::read_config(vnx_name + ".channel", channel);
-	vnx::read_config(vnx_name + ".output", output);
 	vnx::read_config(vnx_name + ".max_input_queue_ms", max_input_queue_ms);
+	vnx::read_config(vnx_name + ".output", output);
 	vnx::read_config(vnx_name + ".render_interval_ms", render_interval_ms);
 	vnx::read_config(vnx_name + ".update_interval_ms", update_interval_ms);
 }
@@ -67,16 +67,16 @@ void ViewProcessorBase::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "domain") {
+		if(_entry.first == "channel") {
+			vnx::from_string(_entry.second, channel);
+		} else if(_entry.first == "domain") {
 			vnx::from_string(_entry.second, domain);
 		} else if(_entry.first == "input") {
 			vnx::from_string(_entry.second, input);
-		} else if(_entry.first == "channel") {
-			vnx::from_string(_entry.second, channel);
-		} else if(_entry.first == "output") {
-			vnx::from_string(_entry.second, output);
 		} else if(_entry.first == "max_input_queue_ms") {
 			vnx::from_string(_entry.second, max_input_queue_ms);
+		} else if(_entry.first == "output") {
+			vnx::from_string(_entry.second, output);
 		} else if(_entry.first == "render_interval_ms") {
 			vnx::from_string(_entry.second, render_interval_ms);
 		} else if(_entry.first == "update_interval_ms") {
@@ -99,16 +99,16 @@ vnx::Object ViewProcessorBase::to_object() const {
 
 void ViewProcessorBase::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "domain") {
+		if(_entry.first == "channel") {
+			_entry.second.to(channel);
+		} else if(_entry.first == "domain") {
 			_entry.second.to(domain);
 		} else if(_entry.first == "input") {
 			_entry.second.to(input);
-		} else if(_entry.first == "channel") {
-			_entry.second.to(channel);
-		} else if(_entry.first == "output") {
-			_entry.second.to(output);
 		} else if(_entry.first == "max_input_queue_ms") {
 			_entry.second.to(max_input_queue_ms);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
 		} else if(_entry.first == "render_interval_ms") {
 			_entry.second.to(render_interval_ms);
 		} else if(_entry.first == "update_interval_ms") {

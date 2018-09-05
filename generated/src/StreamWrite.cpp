@@ -64,10 +64,10 @@ void StreamWrite::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "data") {
 			vnx::from_string(_entry.second, data);
-		} else if(_entry.first == "stream") {
-			vnx::from_string(_entry.second, stream);
 		} else if(_entry.first == "is_eof") {
 			vnx::from_string(_entry.second, is_eof);
+		} else if(_entry.first == "stream") {
+			vnx::from_string(_entry.second, stream);
 		}
 	}
 }
@@ -84,10 +84,10 @@ void StreamWrite::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
 		if(_entry.first == "data") {
 			_entry.second.to(data);
-		} else if(_entry.first == "stream") {
-			_entry.second.to(stream);
 		} else if(_entry.first == "is_eof") {
 			_entry.second.to(is_eof);
+		} else if(_entry.first == "stream") {
+			_entry.second.to(stream);
 		}
 	}
 }

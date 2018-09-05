@@ -64,10 +64,10 @@ void Average::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "A") {
 			vnx::from_string(_entry.second, A);
-		} else if(_entry.first == "sum") {
-			vnx::from_string(_entry.second, sum);
 		} else if(_entry.first == "count") {
 			vnx::from_string(_entry.second, count);
+		} else if(_entry.first == "sum") {
+			vnx::from_string(_entry.second, sum);
 		}
 	}
 }
@@ -84,10 +84,10 @@ void Average::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
 		if(_entry.first == "A") {
 			_entry.second.to(A);
-		} else if(_entry.first == "sum") {
-			_entry.second.to(sum);
 		} else if(_entry.first == "count") {
 			_entry.second.to(count);
+		} else if(_entry.first == "sum") {
+			_entry.second.to(sum);
 		}
 	}
 }

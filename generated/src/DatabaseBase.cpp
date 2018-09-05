@@ -21,8 +21,8 @@ const vnx::Hash64 DatabaseBase::VNX_CODE_HASH(0xc8afdc5524351531ull);
 DatabaseBase::DatabaseBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
-	vnx::read_config(vnx_name + ".location", location);
 	vnx::read_config(vnx_name + ".block_size", block_size);
+	vnx::read_config(vnx_name + ".location", location);
 }
 
 vnx::Hash64 DatabaseBase::get_type_hash() const {
@@ -52,10 +52,10 @@ void DatabaseBase::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "location") {
-			vnx::from_string(_entry.second, location);
-		} else if(_entry.first == "block_size") {
+		if(_entry.first == "block_size") {
 			vnx::from_string(_entry.second, block_size);
+		} else if(_entry.first == "location") {
+			vnx::from_string(_entry.second, location);
 		}
 	}
 }
@@ -69,10 +69,10 @@ vnx::Object DatabaseBase::to_object() const {
 
 void DatabaseBase::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "location") {
-			_entry.second.to(location);
-		} else if(_entry.first == "block_size") {
+		if(_entry.first == "block_size") {
 			_entry.second.to(block_size);
+		} else if(_entry.first == "location") {
+			_entry.second.to(location);
 		}
 	}
 }

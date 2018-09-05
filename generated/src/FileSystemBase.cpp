@@ -22,15 +22,15 @@ FileSystemBase::FileSystemBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
 	vnx::read_config(vnx_name + ".domain", domain);
-	vnx::read_config(vnx_name + ".input", input);
-	vnx::read_config(vnx_name + ".source_path", source_path);
 	vnx::read_config(vnx_name + ".domain_path", domain_path);
-	vnx::read_config(vnx_name + ".time_to_live_ms", time_to_live_ms);
+	vnx::read_config(vnx_name + ".input", input);
 	vnx::read_config(vnx_name + ".max_file_size", max_file_size);
 	vnx::read_config(vnx_name + ".max_history_size", max_history_size);
-	vnx::read_config(vnx_name + ".update_interval_ms", update_interval_ms);
 	vnx::read_config(vnx_name + ".max_input_queue_ms", max_input_queue_ms);
 	vnx::read_config(vnx_name + ".mime_type_map", mime_type_map);
+	vnx::read_config(vnx_name + ".source_path", source_path);
+	vnx::read_config(vnx_name + ".time_to_live_ms", time_to_live_ms);
+	vnx::read_config(vnx_name + ".update_interval_ms", update_interval_ms);
 }
 
 vnx::Hash64 FileSystemBase::get_type_hash() const {
@@ -78,24 +78,24 @@ void FileSystemBase::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "domain") {
 			vnx::from_string(_entry.second, domain);
-		} else if(_entry.first == "input") {
-			vnx::from_string(_entry.second, input);
-		} else if(_entry.first == "source_path") {
-			vnx::from_string(_entry.second, source_path);
 		} else if(_entry.first == "domain_path") {
 			vnx::from_string(_entry.second, domain_path);
-		} else if(_entry.first == "time_to_live_ms") {
-			vnx::from_string(_entry.second, time_to_live_ms);
+		} else if(_entry.first == "input") {
+			vnx::from_string(_entry.second, input);
 		} else if(_entry.first == "max_file_size") {
 			vnx::from_string(_entry.second, max_file_size);
 		} else if(_entry.first == "max_history_size") {
 			vnx::from_string(_entry.second, max_history_size);
-		} else if(_entry.first == "update_interval_ms") {
-			vnx::from_string(_entry.second, update_interval_ms);
 		} else if(_entry.first == "max_input_queue_ms") {
 			vnx::from_string(_entry.second, max_input_queue_ms);
 		} else if(_entry.first == "mime_type_map") {
 			vnx::from_string(_entry.second, mime_type_map);
+		} else if(_entry.first == "source_path") {
+			vnx::from_string(_entry.second, source_path);
+		} else if(_entry.first == "time_to_live_ms") {
+			vnx::from_string(_entry.second, time_to_live_ms);
+		} else if(_entry.first == "update_interval_ms") {
+			vnx::from_string(_entry.second, update_interval_ms);
 		}
 	}
 }
@@ -119,24 +119,24 @@ void FileSystemBase::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
 		if(_entry.first == "domain") {
 			_entry.second.to(domain);
-		} else if(_entry.first == "input") {
-			_entry.second.to(input);
-		} else if(_entry.first == "source_path") {
-			_entry.second.to(source_path);
 		} else if(_entry.first == "domain_path") {
 			_entry.second.to(domain_path);
-		} else if(_entry.first == "time_to_live_ms") {
-			_entry.second.to(time_to_live_ms);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
 		} else if(_entry.first == "max_file_size") {
 			_entry.second.to(max_file_size);
 		} else if(_entry.first == "max_history_size") {
 			_entry.second.to(max_history_size);
-		} else if(_entry.first == "update_interval_ms") {
-			_entry.second.to(update_interval_ms);
 		} else if(_entry.first == "max_input_queue_ms") {
 			_entry.second.to(max_input_queue_ms);
 		} else if(_entry.first == "mime_type_map") {
 			_entry.second.to(mime_type_map);
+		} else if(_entry.first == "source_path") {
+			_entry.second.to(source_path);
+		} else if(_entry.first == "time_to_live_ms") {
+			_entry.second.to(time_to_live_ms);
+		} else if(_entry.first == "update_interval_ms") {
+			_entry.second.to(update_interval_ms);
 		}
 	}
 }

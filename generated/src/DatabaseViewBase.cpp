@@ -24,8 +24,8 @@ DatabaseViewBase::DatabaseViewBase(const std::string& _vnx_name)
 	vnx::read_config(vnx_name + ".database", database);
 	vnx::read_config(vnx_name + ".domain", domain);
 	vnx::read_config(vnx_name + ".input", input);
-	vnx::read_config(vnx_name + ".path", path);
 	vnx::read_config(vnx_name + ".password", password);
+	vnx::read_config(vnx_name + ".path", path);
 }
 
 vnx::Hash64 DatabaseViewBase::get_type_hash() const {
@@ -67,10 +67,10 @@ void DatabaseViewBase::read(std::istream& _in) {
 			vnx::from_string(_entry.second, domain);
 		} else if(_entry.first == "input") {
 			vnx::from_string(_entry.second, input);
-		} else if(_entry.first == "path") {
-			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "password") {
 			vnx::from_string(_entry.second, password);
+		} else if(_entry.first == "path") {
+			vnx::from_string(_entry.second, path);
 		}
 	}
 }
@@ -93,10 +93,10 @@ void DatabaseViewBase::from_object(const vnx::Object& _object) {
 			_entry.second.to(domain);
 		} else if(_entry.first == "input") {
 			_entry.second.to(input);
-		} else if(_entry.first == "path") {
-			_entry.second.to(path);
 		} else if(_entry.first == "password") {
 			_entry.second.to(password);
+		} else if(_entry.first == "path") {
+			_entry.second.to(path);
 		}
 	}
 }

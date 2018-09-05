@@ -21,14 +21,14 @@ const vnx::Hash64 CacheBase::VNX_CODE_HASH(0xd8a096610e301452ull);
 CacheBase::CacheBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
+	vnx::read_config(vnx_name + ".channel", channel);
 	vnx::read_config(vnx_name + ".domain", domain);
 	vnx::read_config(vnx_name + ".input", input);
-	vnx::read_config(vnx_name + ".channel", channel);
-	vnx::read_config(vnx_name + ".num_entries", num_entries);
+	vnx::read_config(vnx_name + ".maintain_interval_ms", maintain_interval_ms);
 	vnx::read_config(vnx_name + ".max_entry_size", max_entry_size);
 	vnx::read_config(vnx_name + ".max_pending", max_pending);
+	vnx::read_config(vnx_name + ".num_entries", num_entries);
 	vnx::read_config(vnx_name + ".update_interval_ms", update_interval_ms);
-	vnx::read_config(vnx_name + ".maintain_interval_ms", maintain_interval_ms);
 }
 
 vnx::Hash64 CacheBase::get_type_hash() const {
@@ -70,22 +70,22 @@ void CacheBase::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "domain") {
+		if(_entry.first == "channel") {
+			vnx::from_string(_entry.second, channel);
+		} else if(_entry.first == "domain") {
 			vnx::from_string(_entry.second, domain);
 		} else if(_entry.first == "input") {
 			vnx::from_string(_entry.second, input);
-		} else if(_entry.first == "channel") {
-			vnx::from_string(_entry.second, channel);
-		} else if(_entry.first == "num_entries") {
-			vnx::from_string(_entry.second, num_entries);
+		} else if(_entry.first == "maintain_interval_ms") {
+			vnx::from_string(_entry.second, maintain_interval_ms);
 		} else if(_entry.first == "max_entry_size") {
 			vnx::from_string(_entry.second, max_entry_size);
 		} else if(_entry.first == "max_pending") {
 			vnx::from_string(_entry.second, max_pending);
+		} else if(_entry.first == "num_entries") {
+			vnx::from_string(_entry.second, num_entries);
 		} else if(_entry.first == "update_interval_ms") {
 			vnx::from_string(_entry.second, update_interval_ms);
-		} else if(_entry.first == "maintain_interval_ms") {
-			vnx::from_string(_entry.second, maintain_interval_ms);
 		}
 	}
 }
@@ -105,22 +105,22 @@ vnx::Object CacheBase::to_object() const {
 
 void CacheBase::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "domain") {
+		if(_entry.first == "channel") {
+			_entry.second.to(channel);
+		} else if(_entry.first == "domain") {
 			_entry.second.to(domain);
 		} else if(_entry.first == "input") {
 			_entry.second.to(input);
-		} else if(_entry.first == "channel") {
-			_entry.second.to(channel);
-		} else if(_entry.first == "num_entries") {
-			_entry.second.to(num_entries);
+		} else if(_entry.first == "maintain_interval_ms") {
+			_entry.second.to(maintain_interval_ms);
 		} else if(_entry.first == "max_entry_size") {
 			_entry.second.to(max_entry_size);
 		} else if(_entry.first == "max_pending") {
 			_entry.second.to(max_pending);
+		} else if(_entry.first == "num_entries") {
+			_entry.second.to(num_entries);
 		} else if(_entry.first == "update_interval_ms") {
 			_entry.second.to(update_interval_ms);
-		} else if(_entry.first == "maintain_interval_ms") {
-			_entry.second.to(maintain_interval_ms);
 		}
 	}
 }

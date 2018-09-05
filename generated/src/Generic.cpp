@@ -66,10 +66,10 @@ void Generic::read(std::istream& _in) {
 	for(const auto& _entry : _object) {
 		if(_entry.first == "mime_type") {
 			vnx::from_string(_entry.second, mime_type);
-		} else if(_entry.first == "time_stamp_ms") {
-			vnx::from_string(_entry.second, time_stamp_ms);
 		} else if(_entry.first == "name") {
 			vnx::from_string(_entry.second, name);
+		} else if(_entry.first == "time_stamp_ms") {
+			vnx::from_string(_entry.second, time_stamp_ms);
 		} else if(_entry.first == "value") {
 			vnx::from_string(_entry.second, value);
 		}
@@ -89,10 +89,10 @@ void Generic::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
 		if(_entry.first == "mime_type") {
 			_entry.second.to(mime_type);
-		} else if(_entry.first == "time_stamp_ms") {
-			_entry.second.to(time_stamp_ms);
 		} else if(_entry.first == "name") {
 			_entry.second.to(name);
+		} else if(_entry.first == "time_stamp_ms") {
+			_entry.second.to(time_stamp_ms);
 		} else if(_entry.first == "value") {
 			_entry.second.to(value);
 		}

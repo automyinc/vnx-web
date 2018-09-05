@@ -66,16 +66,16 @@ void PageView::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "path") {
+		if(_entry.first == "domain_path") {
+			vnx::from_string(_entry.second, domain_path);
+		} else if(_entry.first == "index_path") {
+			vnx::from_string(_entry.second, index_path);
+		} else if(_entry.first == "path") {
 			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "resource") {
 			vnx::from_string(_entry.second, resource);
-		} else if(_entry.first == "domain_path") {
-			vnx::from_string(_entry.second, domain_path);
 		} else if(_entry.first == "source_path") {
 			vnx::from_string(_entry.second, source_path);
-		} else if(_entry.first == "index_path") {
-			vnx::from_string(_entry.second, index_path);
 		}
 	}
 }
@@ -92,16 +92,16 @@ vnx::Object PageView::to_object() const {
 
 void PageView::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "path") {
+		if(_entry.first == "domain_path") {
+			_entry.second.to(domain_path);
+		} else if(_entry.first == "index_path") {
+			_entry.second.to(index_path);
+		} else if(_entry.first == "path") {
 			_entry.second.to(path);
 		} else if(_entry.first == "resource") {
 			_entry.second.to(resource);
-		} else if(_entry.first == "domain_path") {
-			_entry.second.to(domain_path);
 		} else if(_entry.first == "source_path") {
 			_entry.second.to(source_path);
-		} else if(_entry.first == "index_path") {
-			_entry.second.to(index_path);
 		}
 	}
 }

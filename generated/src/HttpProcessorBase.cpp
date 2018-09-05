@@ -21,17 +21,17 @@ const vnx::Hash64 HttpProcessorBase::VNX_CODE_HASH(0x36a1a6d8586f9a04ull);
 HttpProcessorBase::HttpProcessorBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
-	vnx::read_config(vnx_name + ".input", input);
 	vnx::read_config(vnx_name + ".channel", channel);
-	vnx::read_config(vnx_name + ".output", output);
 	vnx::read_config(vnx_name + ".default_domain", default_domain);
 	vnx::read_config(vnx_name + ".domain_map", domain_map);
 	vnx::read_config(vnx_name + ".index_path", index_path);
-	vnx::read_config(vnx_name + ".max_queue_size", max_queue_size);
-	vnx::read_config(vnx_name + ".max_pending", max_pending);
-	vnx::read_config(vnx_name + ".timeout_ms", timeout_ms);
+	vnx::read_config(vnx_name + ".input", input);
 	vnx::read_config(vnx_name + ".keepalive", keepalive);
 	vnx::read_config(vnx_name + ".max_num_pages", max_num_pages);
+	vnx::read_config(vnx_name + ".max_pending", max_pending);
+	vnx::read_config(vnx_name + ".max_queue_size", max_queue_size);
+	vnx::read_config(vnx_name + ".output", output);
+	vnx::read_config(vnx_name + ".timeout_ms", timeout_ms);
 }
 
 vnx::Hash64 HttpProcessorBase::get_type_hash() const {
@@ -79,28 +79,28 @@ void HttpProcessorBase::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "input") {
-			vnx::from_string(_entry.second, input);
-		} else if(_entry.first == "channel") {
+		if(_entry.first == "channel") {
 			vnx::from_string(_entry.second, channel);
-		} else if(_entry.first == "output") {
-			vnx::from_string(_entry.second, output);
 		} else if(_entry.first == "default_domain") {
 			vnx::from_string(_entry.second, default_domain);
 		} else if(_entry.first == "domain_map") {
 			vnx::from_string(_entry.second, domain_map);
 		} else if(_entry.first == "index_path") {
 			vnx::from_string(_entry.second, index_path);
-		} else if(_entry.first == "max_queue_size") {
-			vnx::from_string(_entry.second, max_queue_size);
-		} else if(_entry.first == "max_pending") {
-			vnx::from_string(_entry.second, max_pending);
-		} else if(_entry.first == "timeout_ms") {
-			vnx::from_string(_entry.second, timeout_ms);
+		} else if(_entry.first == "input") {
+			vnx::from_string(_entry.second, input);
 		} else if(_entry.first == "keepalive") {
 			vnx::from_string(_entry.second, keepalive);
 		} else if(_entry.first == "max_num_pages") {
 			vnx::from_string(_entry.second, max_num_pages);
+		} else if(_entry.first == "max_pending") {
+			vnx::from_string(_entry.second, max_pending);
+		} else if(_entry.first == "max_queue_size") {
+			vnx::from_string(_entry.second, max_queue_size);
+		} else if(_entry.first == "output") {
+			vnx::from_string(_entry.second, output);
+		} else if(_entry.first == "timeout_ms") {
+			vnx::from_string(_entry.second, timeout_ms);
 		}
 	}
 }
@@ -123,28 +123,28 @@ vnx::Object HttpProcessorBase::to_object() const {
 
 void HttpProcessorBase::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "input") {
-			_entry.second.to(input);
-		} else if(_entry.first == "channel") {
+		if(_entry.first == "channel") {
 			_entry.second.to(channel);
-		} else if(_entry.first == "output") {
-			_entry.second.to(output);
 		} else if(_entry.first == "default_domain") {
 			_entry.second.to(default_domain);
 		} else if(_entry.first == "domain_map") {
 			_entry.second.to(domain_map);
 		} else if(_entry.first == "index_path") {
 			_entry.second.to(index_path);
-		} else if(_entry.first == "max_queue_size") {
-			_entry.second.to(max_queue_size);
-		} else if(_entry.first == "max_pending") {
-			_entry.second.to(max_pending);
-		} else if(_entry.first == "timeout_ms") {
-			_entry.second.to(timeout_ms);
+		} else if(_entry.first == "input") {
+			_entry.second.to(input);
 		} else if(_entry.first == "keepalive") {
 			_entry.second.to(keepalive);
 		} else if(_entry.first == "max_num_pages") {
 			_entry.second.to(max_num_pages);
+		} else if(_entry.first == "max_pending") {
+			_entry.second.to(max_pending);
+		} else if(_entry.first == "max_queue_size") {
+			_entry.second.to(max_queue_size);
+		} else if(_entry.first == "output") {
+			_entry.second.to(output);
+		} else if(_entry.first == "timeout_ms") {
+			_entry.second.to(timeout_ms);
 		}
 	}
 }

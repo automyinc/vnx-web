@@ -62,12 +62,12 @@ void DefaultView::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "path") {
+		if(_entry.first == "allow_directory_index") {
+			vnx::from_string(_entry.second, allow_directory_index);
+		} else if(_entry.first == "path") {
 			vnx::from_string(_entry.second, path);
 		} else if(_entry.first == "resource") {
 			vnx::from_string(_entry.second, resource);
-		} else if(_entry.first == "allow_directory_index") {
-			vnx::from_string(_entry.second, allow_directory_index);
 		}
 	}
 }
@@ -82,12 +82,12 @@ vnx::Object DefaultView::to_object() const {
 
 void DefaultView::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "path") {
+		if(_entry.first == "allow_directory_index") {
+			_entry.second.to(allow_directory_index);
+		} else if(_entry.first == "path") {
 			_entry.second.to(path);
 		} else if(_entry.first == "resource") {
 			_entry.second.to(resource);
-		} else if(_entry.first == "allow_directory_index") {
-			_entry.second.to(allow_directory_index);
 		}
 	}
 }

@@ -64,14 +64,14 @@ void Directory::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "mime_type") {
+		if(_entry.first == "files") {
+			vnx::from_string(_entry.second, files);
+		} else if(_entry.first == "mime_type") {
 			vnx::from_string(_entry.second, mime_type);
-		} else if(_entry.first == "time_stamp_ms") {
-			vnx::from_string(_entry.second, time_stamp_ms);
 		} else if(_entry.first == "path") {
 			vnx::from_string(_entry.second, path);
-		} else if(_entry.first == "files") {
-			vnx::from_string(_entry.second, files);
+		} else if(_entry.first == "time_stamp_ms") {
+			vnx::from_string(_entry.second, time_stamp_ms);
 		}
 	}
 }
@@ -87,14 +87,14 @@ vnx::Object Directory::to_object() const {
 
 void Directory::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "mime_type") {
+		if(_entry.first == "files") {
+			_entry.second.to(files);
+		} else if(_entry.first == "mime_type") {
 			_entry.second.to(mime_type);
-		} else if(_entry.first == "time_stamp_ms") {
-			_entry.second.to(time_stamp_ms);
 		} else if(_entry.first == "path") {
 			_entry.second.to(path);
-		} else if(_entry.first == "files") {
-			_entry.second.to(files);
+		} else if(_entry.first == "time_stamp_ms") {
+			_entry.second.to(time_stamp_ms);
 		}
 	}
 }

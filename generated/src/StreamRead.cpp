@@ -62,12 +62,12 @@ void StreamRead::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "stream") {
-			vnx::from_string(_entry.second, stream);
+		if(_entry.first == "channel") {
+			vnx::from_string(_entry.second, channel);
 		} else if(_entry.first == "data") {
 			vnx::from_string(_entry.second, data);
-		} else if(_entry.first == "channel") {
-			vnx::from_string(_entry.second, channel);
+		} else if(_entry.first == "stream") {
+			vnx::from_string(_entry.second, stream);
 		}
 	}
 }
@@ -82,12 +82,12 @@ vnx::Object StreamRead::to_object() const {
 
 void StreamRead::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "stream") {
-			_entry.second.to(stream);
+		if(_entry.first == "channel") {
+			_entry.second.to(channel);
 		} else if(_entry.first == "data") {
 			_entry.second.to(data);
-		} else if(_entry.first == "channel") {
-			_entry.second.to(channel);
+		} else if(_entry.first == "stream") {
+			_entry.second.to(stream);
 		}
 	}
 }

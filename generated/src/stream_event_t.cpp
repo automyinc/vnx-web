@@ -65,10 +65,10 @@ void stream_event_t::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "stream") {
-			vnx::from_string(_entry.second, stream);
-		} else if(_entry.first == "event") {
+		if(_entry.first == "event") {
 			vnx::from_string(_entry.second, event);
+		} else if(_entry.first == "stream") {
+			vnx::from_string(_entry.second, stream);
 		} else if(_entry.first == "value") {
 			vnx::from_string(_entry.second, value);
 		}
@@ -85,10 +85,10 @@ vnx::Object stream_event_t::to_object() const {
 
 void stream_event_t::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "stream") {
-			_entry.second.to(stream);
-		} else if(_entry.first == "event") {
+		if(_entry.first == "event") {
 			_entry.second.to(event);
+		} else if(_entry.first == "stream") {
+			_entry.second.to(stream);
 		} else if(_entry.first == "value") {
 			_entry.second.to(value);
 		}
