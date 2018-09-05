@@ -24,7 +24,7 @@ void DatabaseViewClient::handle(const ::std::shared_ptr<const ::vnx::web::Reques
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x4da6e3f631b8d157ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x1557a73efb18bfffull));
 	{
 		vnx::write(_out, sample, _type_code, _type_code->fields[0].code.data());
 	}

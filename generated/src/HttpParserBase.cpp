@@ -111,9 +111,9 @@ std::shared_ptr<vnx::TypeCode> HttpParserBase::create_type_code() {
 	type_code->methods.resize(2);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.handle_vnx_web_StreamEventArray";
-		call_type->type_hash = vnx::Hash64(0x30751ebcba8fcb3full);
-		call_type->code_hash = vnx::Hash64(0x44f11292a65f0ad8ull);
+		call_type->name = "vnx.web.HttpParser.handle_vnx_web_StreamEventArray";
+		call_type->type_hash = vnx::Hash64(0x3c0c783341a82e5bull);
+		call_type->code_hash = vnx::Hash64(0x629cf5bf6137a510ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -136,9 +136,9 @@ std::shared_ptr<vnx::TypeCode> HttpParserBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.handle_vnx_web_StreamRead";
-		call_type->type_hash = vnx::Hash64(0xeb7fd1f797fce2dbull);
-		call_type->code_hash = vnx::Hash64(0x29fdf14137c09a95ull);
+		call_type->name = "vnx.web.HttpParser.handle_vnx_web_StreamRead";
+		call_type->type_hash = vnx::Hash64(0xc413dfc9fd3f063full);
+		call_type->code_hash = vnx::Hash64(0xd256336a82a1b109ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -198,7 +198,7 @@ void HttpParserBase::handle_switch(std::shared_ptr<const ::vnx::Sample> _sample)
 }
 
 bool HttpParserBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const vnx::TypeCode* _call_type, const vnx::TypeCode* _return_type) {
-	if(_call_type->type_hash == vnx::Hash64(0x30751ebcba8fcb3full)) {
+	if(_call_type->type_hash == vnx::Hash64(0x3c0c783341a82e5bull)) {
 		::std::shared_ptr<const ::vnx::web::StreamEventArray> sample;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
@@ -209,7 +209,7 @@ bool HttpParserBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, con
 		}
 		handle(sample);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xeb7fd1f797fce2dbull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xc413dfc9fd3f063full)) {
 		::std::shared_ptr<const ::vnx::web::StreamRead> sample;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {

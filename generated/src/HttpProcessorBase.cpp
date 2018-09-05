@@ -175,9 +175,9 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 	type_code->methods.resize(3);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.handle_vnx_web_HttpRequest";
-		call_type->type_hash = vnx::Hash64(0x2e06b7981ed22c1dull);
-		call_type->code_hash = vnx::Hash64(0x6e7b6dede2b1e13dull);
+		call_type->name = "vnx.web.HttpProcessor.handle_vnx_web_HttpRequest";
+		call_type->type_hash = vnx::Hash64(0x95f908d2c73fe43dull);
+		call_type->code_hash = vnx::Hash64(0xe37e96335e0b278cull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -200,9 +200,9 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.handle_vnx_web_Response";
-		call_type->type_hash = vnx::Hash64(0x84c27382aa993259ull);
-		call_type->code_hash = vnx::Hash64(0x508ce90e1157650cull);
+		call_type->name = "vnx.web.HttpProcessor.handle_vnx_web_Response";
+		call_type->type_hash = vnx::Hash64(0xa1b7f55e33a590d2ull);
+		call_type->code_hash = vnx::Hash64(0x1a8dfc89aa6131adull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -225,9 +225,9 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.handle_vnx_web_StreamEventArray";
-		call_type->type_hash = vnx::Hash64(0x30751ebcba8fcb3full);
-		call_type->code_hash = vnx::Hash64(0x44f11292a65f0ad8ull);
+		call_type->name = "vnx.web.HttpProcessor.handle_vnx_web_StreamEventArray";
+		call_type->type_hash = vnx::Hash64(0x7026b71a464859b7ull);
+		call_type->code_hash = vnx::Hash64(0xdbf5f600a2932d7bull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -347,7 +347,7 @@ void HttpProcessorBase::handle_switch(std::shared_ptr<const ::vnx::Sample> _samp
 }
 
 bool HttpProcessorBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const vnx::TypeCode* _call_type, const vnx::TypeCode* _return_type) {
-	if(_call_type->type_hash == vnx::Hash64(0x2e06b7981ed22c1dull)) {
+	if(_call_type->type_hash == vnx::Hash64(0x95f908d2c73fe43dull)) {
 		::std::shared_ptr<const ::vnx::web::HttpRequest> sample;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
@@ -358,7 +358,7 @@ bool HttpProcessorBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, 
 		}
 		handle(sample);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0x84c27382aa993259ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xa1b7f55e33a590d2ull)) {
 		::std::shared_ptr<const ::vnx::web::Response> sample;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
@@ -369,7 +369,7 @@ bool HttpProcessorBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, 
 		}
 		handle(sample);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0x30751ebcba8fcb3full)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0x7026b71a464859b7ull)) {
 		::std::shared_ptr<const ::vnx::web::StreamEventArray> sample;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {

@@ -103,9 +103,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	type_code->methods.resize(14);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.delete_from";
-		call_type->type_hash = vnx::Hash64(0x1984b5f12bc21518ull);
-		call_type->code_hash = vnx::Hash64(0xcc3b812fa5f9deafull);
+		call_type->name = "vnx.web.Database.delete_from";
+		call_type->type_hash = vnx::Hash64(0x5e8cc6e1c6ef55eull);
+		call_type->code_hash = vnx::Hash64(0xf4bc052f07d471a1ull);
 		call_type->is_method = true;
 		call_type->depends.resize(1);
 		call_type->depends[0] = ::vnx::query::Delete::get_type_code();
@@ -130,9 +130,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.delete_many";
-		call_type->type_hash = vnx::Hash64(0x16720bed55ba670cull);
-		call_type->code_hash = vnx::Hash64(0x955d324ae3dc35d4ull);
+		call_type->name = "vnx.web.Database.delete_many";
+		call_type->type_hash = vnx::Hash64(0xa1e72726216874aull);
+		call_type->code_hash = vnx::Hash64(0xdf5c583e352478f2ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -161,9 +161,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.delete_one";
-		call_type->type_hash = vnx::Hash64(0xc5c4c4da1f881ccaull);
-		call_type->code_hash = vnx::Hash64(0x6e4b3a5c9e6d9b2dull);
+		call_type->name = "vnx.web.Database.delete_one";
+		call_type->type_hash = vnx::Hash64(0xeae44baea1adf584ull);
+		call_type->code_hash = vnx::Hash64(0xc146715756a16383ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -192,9 +192,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.get_table_info";
-		call_type->type_hash = vnx::Hash64(0x94051d9e27911277ull);
-		call_type->code_hash = vnx::Hash64(0x7da00b7e7edb0764ull);
+		call_type->name = "vnx.web.Database.get_table_info";
+		call_type->type_hash = vnx::Hash64(0x88f917f911bd2bccull);
+		call_type->code_hash = vnx::Hash64(0x7bb02dc23e6fa274ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -217,9 +217,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.insert_many";
-		call_type->type_hash = vnx::Hash64(0xf03c858e6675b4f1ull);
-		call_type->code_hash = vnx::Hash64(0x24eae3d3abcb7582ull);
+		call_type->name = "vnx.web.Database.insert_many";
+		call_type->type_hash = vnx::Hash64(0xec50fc1151d954b7ull);
+		call_type->code_hash = vnx::Hash64(0x6eeb89a77d3338a4ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -248,9 +248,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.insert_one";
-		call_type->type_hash = vnx::Hash64(0x6d8968230b5cc221ull);
-		call_type->code_hash = vnx::Hash64(0x76a09929b9dd8a83ull);
+		call_type->name = "vnx.web.Database.insert_one";
+		call_type->type_hash = vnx::Hash64(0x42a9e757b5792b6full);
+		call_type->code_hash = vnx::Hash64(0x7d473023ac9e4de7ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -285,9 +285,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.select";
-		call_type->type_hash = vnx::Hash64(0x32318dd4125d58ffull);
-		call_type->code_hash = vnx::Hash64(0xf4807b35bb4f0633ull);
+		call_type->name = "vnx.web.Database.select";
+		call_type->type_hash = vnx::Hash64(0xf04a2aaf9cb0e29aull);
+		call_type->code_hash = vnx::Hash64(0xf2905d89fbfba323ull);
 		call_type->is_method = true;
 		call_type->depends.resize(1);
 		call_type->depends[0] = ::vnx::query::Select::get_type_code();
@@ -319,9 +319,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.select_many";
-		call_type->type_hash = vnx::Hash64(0xf721f760b79d6a20ull);
-		call_type->code_hash = vnx::Hash64(0x27e914252ab4688cull);
+		call_type->name = "vnx.web.Database.select_many";
+		call_type->type_hash = vnx::Hash64(0xeb4d8eff80318a66ull);
+		call_type->code_hash = vnx::Hash64(0x6de87e51fc4c25aaull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -357,9 +357,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.select_one";
-		call_type->type_hash = vnx::Hash64(0xa9419577f0b477b0ull);
-		call_type->code_hash = vnx::Hash64(0x66f944bdfe61b2a9ull);
+		call_type->name = "vnx.web.Database.select_one";
+		call_type->type_hash = vnx::Hash64(0x86611a034e919efeull);
+		call_type->code_hash = vnx::Hash64(0xc9f40fb636ad4a07ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -395,9 +395,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.truncate";
-		call_type->type_hash = vnx::Hash64(0xfe2778f51924b3f2ull);
-		call_type->code_hash = vnx::Hash64(0x5c5e0e975ab97427ull);
+		call_type->name = "vnx.web.Database.truncate";
+		call_type->type_hash = vnx::Hash64(0xe6cf9735afb55fa3ull);
+		call_type->code_hash = vnx::Hash64(0x86bfe984dae7a1d1ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -420,9 +420,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.update";
-		call_type->type_hash = vnx::Hash64(0x365bce580ccdf531ull);
-		call_type->code_hash = vnx::Hash64(0x932fc3436c3cd8a2ull);
+		call_type->name = "vnx.web.Database.update";
+		call_type->type_hash = vnx::Hash64(0xf420692382204f54ull);
+		call_type->code_hash = vnx::Hash64(0x953fe5ff2c887db2ull);
 		call_type->is_method = true;
 		call_type->depends.resize(1);
 		call_type->depends[0] = ::vnx::query::Update::get_type_code();
@@ -447,9 +447,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.update_many";
-		call_type->type_hash = vnx::Hash64(0x12f2cb7442f12e4eull);
-		call_type->code_hash = vnx::Hash64(0xc3b10a1ad17c9886ull);
+		call_type->name = "vnx.web.Database.update_many";
+		call_type->type_hash = vnx::Hash64(0xe9eb2eb755dce08ull);
+		call_type->code_hash = vnx::Hash64(0x89b0606e0784d5a0ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -478,9 +478,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.update_one";
-		call_type->type_hash = vnx::Hash64(0xb90f101f19eb0751ull);
-		call_type->code_hash = vnx::Hash64(0x40a4f5175b08b366ull);
+		call_type->name = "vnx.web.Database.update_one";
+		call_type->type_hash = vnx::Hash64(0x962f9f6ba7ceee1full);
+		call_type->code_hash = vnx::Hash64(0x4b435c1d4e4b7402ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -515,9 +515,9 @@ std::shared_ptr<vnx::TypeCode> DatabaseBase::create_type_code() {
 	}
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.write_new_block";
-		call_type->type_hash = vnx::Hash64(0xb99ae3915a773dd2ull);
-		call_type->code_hash = vnx::Hash64(0x85783c8efdc4137eull);
+		call_type->name = "vnx.web.Database.write_new_block";
+		call_type->type_hash = vnx::Hash64(0x464d56a64d6af720ull);
+		call_type->code_hash = vnx::Hash64(0xf8e58d9010b7c192ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -554,7 +554,7 @@ void DatabaseBase::handle_switch(std::shared_ptr<const ::vnx::Sample> _sample) {
 }
 
 bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const vnx::TypeCode* _call_type, const vnx::TypeCode* _return_type) {
-	if(_call_type->type_hash == vnx::Hash64(0x1984b5f12bc21518ull)) {
+	if(_call_type->type_hash == vnx::Hash64(0x5e8cc6e1c6ef55eull)) {
 		::vnx::query::Delete query;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
@@ -565,7 +565,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		delete_from(query);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0x16720bed55ba670cull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xa1e72726216874aull)) {
 		::std::string table;
 		::std::vector<::vnx::Hash128> ids;
 		const char* const _buf = _in.read(_call_type->total_field_size);
@@ -578,7 +578,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		delete_many(table, ids);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xc5c4c4da1f881ccaull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xeae44baea1adf584ull)) {
 		::std::string table;
 		::vnx::Hash128 id;
 		const char* const _buf = _in.read(_call_type->total_field_size);
@@ -591,7 +591,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		delete_one(table, id);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0x94051d9e27911277ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0x88f917f911bd2bccull)) {
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
 			switch(_field->native_index) {
@@ -604,7 +604,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 			vnx::write(_out, _ret_0, _return_type, _return_type->fields[0].code.data());
 		}
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xf03c858e6675b4f1ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xec50fc1151d954b7ull)) {
 		::std::string table;
 		::std::map<::vnx::Hash128, ::vnx::Object> objects;
 		const char* const _buf = _in.read(_call_type->total_field_size);
@@ -617,7 +617,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		insert_many(table, objects);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0x6d8968230b5cc221ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0x42a9e757b5792b6full)) {
 		::std::string table;
 		::vnx::Hash128 id;
 		::vnx::Object object;
@@ -632,7 +632,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		insert_one(table, id, object);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0x32318dd4125d58ffull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xf04a2aaf9cb0e29aull)) {
 		::vnx::query::Select query;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
@@ -647,7 +647,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 			vnx::write(_out, _ret_0, _return_type, _return_type->fields[0].code.data());
 		}
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xf721f760b79d6a20ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xeb4d8eff80318a66ull)) {
 		::std::string table;
 		::std::vector<::vnx::Hash128> ids;
 		const char* const _buf = _in.read(_call_type->total_field_size);
@@ -664,7 +664,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 			vnx::write(_out, _ret_0, _return_type, _return_type->fields[0].code.data());
 		}
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xa9419577f0b477b0ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0x86611a034e919efeull)) {
 		::std::string table;
 		::vnx::Hash128 id;
 		const char* const _buf = _in.read(_call_type->total_field_size);
@@ -681,7 +681,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 			vnx::write(_out, _ret_0, _return_type, _return_type->fields[0].code.data());
 		}
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xfe2778f51924b3f2ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xe6cf9735afb55fa3ull)) {
 		::std::string table;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
@@ -692,7 +692,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		truncate(table);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0x365bce580ccdf531ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xf420692382204f54ull)) {
 		::vnx::query::Update query;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
@@ -703,7 +703,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		update(query);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0x12f2cb7442f12e4eull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0xe9eb2eb755dce08ull)) {
 		::std::string table;
 		::std::map<::vnx::Hash128, ::vnx::Object> objects;
 		const char* const _buf = _in.read(_call_type->total_field_size);
@@ -716,7 +716,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		update_many(table, objects);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xb90f101f19eb0751ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0x962f9f6ba7ceee1full)) {
 		::std::string table;
 		::vnx::Hash128 id;
 		::vnx::Object object;
@@ -731,7 +731,7 @@ bool DatabaseBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const
 		}
 		update_one(table, id, object);
 		return true;
-	} else if(_call_type->type_hash == vnx::Hash64(0xb99ae3915a773dd2ull)) {
+	} else if(_call_type->type_hash == vnx::Hash64(0x464d56a64d6af720ull)) {
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
 			switch(_field->native_index) {

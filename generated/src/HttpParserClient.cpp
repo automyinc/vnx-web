@@ -24,7 +24,7 @@ void HttpParserClient::handle(const ::std::shared_ptr<const ::vnx::web::StreamEv
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x30751ebcba8fcb3full));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x3c0c783341a82e5bull));
 	{
 		vnx::write(_out, sample, _type_code, _type_code->fields[0].code.data());
 	}
@@ -42,7 +42,7 @@ void HttpParserClient::handle(const ::std::shared_ptr<const ::vnx::web::StreamRe
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xeb7fd1f797fce2dbull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xc413dfc9fd3f063full));
 	{
 		vnx::write(_out, sample, _type_code, _type_code->fields[0].code.data());
 	}

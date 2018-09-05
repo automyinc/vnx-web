@@ -24,7 +24,7 @@ void DatabaseClient::delete_from(const ::vnx::query::Delete& query) {
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x1984b5f12bc21518ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x5e8cc6e1c6ef55eull));
 	{
 		vnx::write(_out, query, _type_code, _type_code->fields[0].code.data());
 	}
@@ -42,7 +42,7 @@ void DatabaseClient::delete_many(const ::std::string& table, const ::std::vector
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x16720bed55ba670cull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xa1e72726216874aull));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 		vnx::write(_out, ids, _type_code, _type_code->fields[1].code.data());
@@ -61,7 +61,7 @@ void DatabaseClient::delete_one(const ::std::string& table, const ::vnx::Hash128
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xc5c4c4da1f881ccaull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xeae44baea1adf584ull));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 		vnx::write(_out, id, _type_code, _type_code->fields[1].code.data());
@@ -80,7 +80,7 @@ void DatabaseClient::delete_one_async(const ::std::string& table, const ::vnx::H
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x94051d9e27911277ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x88f917f911bd2bccull));
 	{
 	}
 	_out.flush();
@@ -107,7 +107,7 @@ void DatabaseClient::insert_many(const ::std::string& table, const ::std::map<::
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xf03c858e6675b4f1ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xec50fc1151d954b7ull));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 		vnx::write(_out, objects, _type_code, _type_code->fields[1].code.data());
@@ -126,7 +126,7 @@ void DatabaseClient::insert_one(const ::std::string& table, const ::vnx::Hash128
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x6d8968230b5cc221ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x42a9e757b5792b6full));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 		vnx::write(_out, id, _type_code, _type_code->fields[1].code.data());
@@ -146,7 +146,7 @@ void DatabaseClient::insert_one_async(const ::std::string& table, const ::vnx::H
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x32318dd4125d58ffull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xf04a2aaf9cb0e29aull));
 	{
 		vnx::write(_out, query, _type_code, _type_code->fields[0].code.data());
 	}
@@ -174,7 +174,7 @@ void DatabaseClient::insert_one_async(const ::std::string& table, const ::vnx::H
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xf721f760b79d6a20ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xeb4d8eff80318a66ull));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 		vnx::write(_out, ids, _type_code, _type_code->fields[1].code.data());
@@ -203,7 +203,7 @@ void DatabaseClient::insert_one_async(const ::std::string& table, const ::vnx::H
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xa9419577f0b477b0ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x86611a034e919efeull));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 		vnx::write(_out, id, _type_code, _type_code->fields[1].code.data());
@@ -232,7 +232,7 @@ void DatabaseClient::truncate(const ::std::string& table) {
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xfe2778f51924b3f2ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xe6cf9735afb55fa3ull));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 	}
@@ -250,7 +250,7 @@ void DatabaseClient::update(const ::vnx::query::Update& query) {
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x365bce580ccdf531ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xf420692382204f54ull));
 	{
 		vnx::write(_out, query, _type_code, _type_code->fields[0].code.data());
 	}
@@ -268,7 +268,7 @@ void DatabaseClient::update_many(const ::std::string& table, const ::std::map<::
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x12f2cb7442f12e4eull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xe9eb2eb755dce08ull));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 		vnx::write(_out, objects, _type_code, _type_code->fields[1].code.data());
@@ -287,7 +287,7 @@ void DatabaseClient::update_one(const ::std::string& table, const ::vnx::Hash128
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xb90f101f19eb0751ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x962f9f6ba7ceee1full));
 	{
 		vnx::write(_out, table, _type_code, _type_code->fields[0].code.data());
 		vnx::write(_out, id, _type_code, _type_code->fields[1].code.data());
@@ -307,7 +307,7 @@ void DatabaseClient::write_new_block() {
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xb99ae3915a773dd2ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x464d56a64d6af720ull));
 	{
 	}
 	_out.flush();

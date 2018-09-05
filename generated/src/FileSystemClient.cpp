@@ -24,7 +24,7 @@ void FileSystemClient::handle(const ::std::shared_ptr<const ::vnx::web::Request>
 	std::shared_ptr<vnx::Binary> _argument_data = vnx::Binary::create();
 	vnx::BinaryOutputStream _stream_out(_argument_data.get());
 	vnx::TypeOutput _out(&_stream_out);
-	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0x4da6e3f631b8d157ull));
+	const vnx::TypeCode* _type_code = vnx::get_type_code(vnx::Hash64(0xea5fdca176287d23ull));
 	{
 		vnx::write(_out, Sample, _type_code, _type_code->fields[0].code.data());
 	}

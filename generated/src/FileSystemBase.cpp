@@ -167,9 +167,9 @@ std::shared_ptr<vnx::TypeCode> FileSystemBase::create_type_code() {
 	type_code->methods.resize(1);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
-		call_type->name = "vnx.web.handle_vnx_web_Request";
-		call_type->type_hash = vnx::Hash64(0x4da6e3f631b8d157ull);
-		call_type->code_hash = vnx::Hash64(0x3a273578a883ee67ull);
+		call_type->name = "vnx.web.FileSystem.handle_vnx_web_Request";
+		call_type->type_hash = vnx::Hash64(0xea5fdca176287d23ull);
+		call_type->code_hash = vnx::Hash64(0xe96e0bdfd864a125ull);
 		call_type->is_method = true;
 		{
 			std::shared_ptr<vnx::TypeCode> return_type = std::make_shared<vnx::TypeCode>(true);
@@ -273,7 +273,7 @@ void FileSystemBase::handle_switch(std::shared_ptr<const ::vnx::Sample> _sample)
 }
 
 bool FileSystemBase::call_switch(vnx::TypeInput& _in, vnx::TypeOutput& _out, const vnx::TypeCode* _call_type, const vnx::TypeCode* _return_type) {
-	if(_call_type->type_hash == vnx::Hash64(0x4da6e3f631b8d157ull)) {
+	if(_call_type->type_hash == vnx::Hash64(0xea5fdca176287d23ull)) {
 		::std::shared_ptr<const ::vnx::web::Request> Sample;
 		const char* const _buf = _in.read(_call_type->total_field_size);
 		for(const vnx::TypeField* _field : _call_type->ext_fields) {
