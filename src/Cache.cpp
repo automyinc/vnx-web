@@ -91,6 +91,18 @@ void Cache::handle(std::shared_ptr<const ::vnx::web::Request> request) {
 			response = Response::create();
 			auto directory = Directory::create();
 			directory->path = "/";
+			for(const auto& entry : provider_map) {
+				directory->files.emplace_back();
+				FileInfo& info = directory->files.back();
+				info.name = entry.first.to_string();
+				info.is_directory = true;
+			}
+			for(const auto& entry : provider_map) {
+				directory->files.emplace_back();
+				FileInfo& info = directory->files.back();
+				info.name = entry.first.as_relative_path().to_string();
+				info.is_directory = true;
+			}
 			{
 				directory->files.emplace_back();
 				FileInfo& info = directory->files.back();
