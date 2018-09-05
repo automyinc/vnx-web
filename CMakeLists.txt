@@ -58,6 +58,7 @@ target_link_libraries(http_bench_tool vnx_web)
 
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY generated/include/ DESTINATION include)
+install(DIRECTORY interface/ DESTINATION interface/vnx/web)
 install(DIRECTORY query/generated/include/ DESTINATION include)
 install(DIRECTORY query/interface/ DESTINATION interface/vnx/query)
 
