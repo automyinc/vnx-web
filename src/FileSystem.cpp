@@ -1,8 +1,7 @@
 
 #include <vnx/web/FileSystem.h>
 #include <vnx/web/BinaryData.hxx>
-
-using namespace boost;
+#include <vnx/Directory.h>
 
 
 namespace vnx {
@@ -100,12 +99,12 @@ void FileSystem::print_stats() {
 
 std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 	
-	const filesystem::path file_path = source_path + path.to_string();
-	if(!filesystem::exists(file_path)) {
+	vnx::File file_path(source_path + path.to_string());
+	if(!file_path.exists()) {
 		return vnx::clone(ErrorCode::create(ErrorCode::NOT_FOUND));
 	}
 	
-	const int64_t last_write_time_ms = int64_t(filesystem::last_write_time(file_path)) * 1000;
+	const int64_t last_write_time_ms = file_path.last_write_time() * 1000;
 	{
 		std::shared_ptr<const Content> content = cache->query(path);
 		if(content) {
@@ -117,53 +116,50 @@ std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 	
 	std::shared_ptr<Content> result;
 	
-	if(filesystem::is_directory(file_path)) {
+	if(file_path.is_directory()) {
 		
 		std::shared_ptr<Directory> directory = Directory::create();
 		directory->path = path;
 		
-		for(auto it = filesystem::directory_iterator(file_path); it != filesystem::directory_iterator(); ++it) {
-			const filesystem::path file = it->path();
-			const std::string file_name = file.filename().generic_string();
-			if(is_valid_file(file_name)) {
+		vnx::Directory dir(file_path.get_path());
+		dir.open();
+		for(const auto& file : dir.all_files()) {
+			const std::string name = file->get_name();
+			if(is_valid_file(name) && (file->is_directory() || file->is_regular())) {
 				FileInfo info;
-				info.name = file_name;
-				info.is_directory = filesystem::is_directory(file);
-				info.mime_type = get_mime_type(file.extension().generic_string());
-				if(filesystem::is_regular(file)) {
-					info.num_bytes = filesystem::file_size(file);
+				info.name = name;
+				info.is_directory = file->is_directory();
+				info.mime_type = get_mime_type(file->get_extension());
+				if(file->is_regular()) {
+					info.num_bytes = file->file_size();
 				}
 				directory->files.push_back(info);
 			}
 		}
 		result = directory;
 		
-	} else if(filesystem::is_regular(file_path)) {
+	} else if(file_path.is_regular()) {
 		
-		const std::string file_name = file_path.filename().generic_string();
+		const std::string file_name = file_path.get_name();
 		if(!is_valid_file(file_name)) {
 			return vnx::clone(ErrorCode::create(ErrorCode::NOT_FOUND));
+		}
+		
+		const int64_t file_size = file_path.file_size();
+		if(file_size < 0) {
+			throw std::runtime_error("Invalid file: " + path.to_string());
+		}
+		if(max_file_size && file_size > max_file_size) {
+			throw std::runtime_error("File too big: " + path.to_string());
 		}
 		
 		std::shared_ptr<File> file = File::create();
 		file->name = file_name;
 		
-		::FILE* p_file = ::fopen(file_path.generic_string().c_str(), "rb");
+		::FILE* p_file = ::fopen(file_path.get_path().c_str(), "rb");
 		if(!p_file) {
 			throw std::runtime_error("fopen() failed for: " + path.to_string());
 		}
-		
-		::fseeko(p_file, 0, SEEK_END);
-		const int64_t file_size = ::ftello(p_file);
-		if(file_size < 0) {
-			::fclose(p_file);
-			throw std::runtime_error("ftello() failed for: " + path.to_string());
-		}
-		if(max_file_size && file_size > max_file_size) {
-			::fclose(p_file);
-			throw std::runtime_error("file too big: " + path.to_string() + " (" + std::to_string(file_size) + " bytes)");
-		}
-		::fseeko(p_file, 0, SEEK_SET);
 		
 		file->data.reserve(size_t(file_size));
 		const size_t num_read = ::fread(file->data.data(), 1, size_t(file_size), p_file);
@@ -177,7 +173,7 @@ std::shared_ptr<const vnx::Value> FileSystem::read_file(const Path& path) {
 		return vnx::clone(ErrorCode::create(ErrorCode::NOT_FOUND));
 	}
 	
-	result->mime_type = get_mime_type(file_path.extension().generic_string());
+	result->mime_type = get_mime_type(file_path.get_extension());
 	result->time_stamp_ms = last_write_time_ms;
 	cache->insert(path, result);
 	return result;
@@ -215,7 +211,7 @@ void FileSystem::write_file(const Path& path, const vnx::Memory& data) {
 }
 
 bool FileSystem::is_valid_file(const std::string& file_name) {
-	return !file_name.empty() && file_name[0] != '.';
+	return !file_name.empty() && file_name.front() != '.';
 }
 
 std::string FileSystem::get_mime_type(const std::string& extension) const {

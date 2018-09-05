@@ -11,8 +11,6 @@
 #include <vnx/web/HistoryCache.h>
 #include <vnx/Memory.h>
 
-#include <boost/filesystem.hpp>
-
 #include <queue>
 #include <unordered_map>
 

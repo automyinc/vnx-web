@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 project(vnx-web)
 
-find_package(Boost 1.55.0 REQUIRED COMPONENTS filesystem)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 
 file(GLOB GENERATED_SOURCE_FILES generated/src/*.cpp)
@@ -44,7 +42,7 @@ target_include_directories(vnx_web
 	PUBLIC include generated/include query/generated/include lib/
 )
 
-target_link_libraries(vnx_web vnx_base ${Boost_LIBRARIES})
+target_link_libraries(vnx_web vnx_base)
 
 add_executable(vnxwebserver src/vnxwebserver.cpp)
 target_link_libraries(vnxwebserver vnx_web)
