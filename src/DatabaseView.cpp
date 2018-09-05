@@ -2,7 +2,6 @@
 #include <vnx/web/DatabaseView.h>
 #include <vnx/web/Response.hxx>
 #include <vnx/web/File.hxx>
-#include <vnx/web/Parameter.hxx>
 #include <vnx/web/SetCookie.hxx>
 #include <vnx/query/package.h>
 
