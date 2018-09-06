@@ -194,7 +194,7 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 				
 			} else {
 				state.response_map[request->id] = Response::create(request,
-						ErrorCode::create_with_message(ErrorCode::MOVED_PERMANENTLY, index_path.to_string()));
+						ErrorCode::create_with_message(ErrorCode::MOVED_TEMPORARILY, index_path.to_string()));
 			}
 		} else {
 			state.response_map[request->id] = Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND));
