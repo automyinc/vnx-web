@@ -22,9 +22,13 @@ module HttpProcessor {
 	
 	long timeout_ms = 1000;				// internal request timeout [ms]
 	
-	bool keepalive = true;
+	bool keepalive = true;				// if to set http keep-alive
 	
 	long max_num_pages = 10000;			// maximum number of pages for statistics
+	
+	string default_cache_control;		// default http cache control header
+	
+	map<string, string> cache_control;		// map from mime type to http cache control header
 	
 	
 	void handle(StreamEventArray sample);

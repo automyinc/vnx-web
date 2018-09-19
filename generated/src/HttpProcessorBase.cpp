@@ -16,12 +16,14 @@ namespace web {
 
 
 const vnx::Hash64 HttpProcessorBase::VNX_TYPE_HASH(0xea3bdb551f410546ull);
-const vnx::Hash64 HttpProcessorBase::VNX_CODE_HASH(0x36a1a6d8586f9a04ull);
+const vnx::Hash64 HttpProcessorBase::VNX_CODE_HASH(0x8238d5dd05a69cb7ull);
 
 HttpProcessorBase::HttpProcessorBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
 {
+	vnx::read_config(vnx_name + ".cache_control", cache_control);
 	vnx::read_config(vnx_name + ".channel", channel);
+	vnx::read_config(vnx_name + ".default_cache_control", default_cache_control);
 	vnx::read_config(vnx_name + ".default_domain", default_domain);
 	vnx::read_config(vnx_name + ".domain_map", domain_map);
 	vnx::read_config(vnx_name + ".index_path", index_path);
@@ -56,6 +58,8 @@ void HttpProcessorBase::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_field(_type_code->fields[8], 8); vnx::accept(_visitor, timeout_ms);
 	_visitor.type_field(_type_code->fields[9], 9); vnx::accept(_visitor, keepalive);
 	_visitor.type_field(_type_code->fields[10], 10); vnx::accept(_visitor, max_num_pages);
+	_visitor.type_field(_type_code->fields[11], 11); vnx::accept(_visitor, default_cache_control);
+	_visitor.type_field(_type_code->fields[12], 12); vnx::accept(_visitor, cache_control);
 	_visitor.type_end(*_type_code);
 }
 
@@ -72,6 +76,8 @@ void HttpProcessorBase::write(std::ostream& _out) const {
 	_out << ", \"timeout_ms\": "; vnx::write(_out, timeout_ms);
 	_out << ", \"keepalive\": "; vnx::write(_out, keepalive);
 	_out << ", \"max_num_pages\": "; vnx::write(_out, max_num_pages);
+	_out << ", \"default_cache_control\": "; vnx::write(_out, default_cache_control);
+	_out << ", \"cache_control\": "; vnx::write(_out, cache_control);
 	_out << "}";
 }
 
@@ -79,8 +85,12 @@ void HttpProcessorBase::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "channel") {
+		if(_entry.first == "cache_control") {
+			vnx::from_string(_entry.second, cache_control);
+		} else if(_entry.first == "channel") {
 			vnx::from_string(_entry.second, channel);
+		} else if(_entry.first == "default_cache_control") {
+			vnx::from_string(_entry.second, default_cache_control);
 		} else if(_entry.first == "default_domain") {
 			vnx::from_string(_entry.second, default_domain);
 		} else if(_entry.first == "domain_map") {
@@ -118,13 +128,19 @@ vnx::Object HttpProcessorBase::to_object() const {
 	_object["timeout_ms"] = timeout_ms;
 	_object["keepalive"] = keepalive;
 	_object["max_num_pages"] = max_num_pages;
+	_object["default_cache_control"] = default_cache_control;
+	_object["cache_control"] = cache_control;
 	return _object;
 }
 
 void HttpProcessorBase::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "channel") {
+		if(_entry.first == "cache_control") {
+			_entry.second.to(cache_control);
+		} else if(_entry.first == "channel") {
 			_entry.second.to(channel);
+		} else if(_entry.first == "default_cache_control") {
+			_entry.second.to(default_cache_control);
 		} else if(_entry.first == "default_domain") {
 			_entry.second.to(default_domain);
 		} else if(_entry.first == "domain_map") {
@@ -171,7 +187,7 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.HttpProcessor";
 	type_code->type_hash = vnx::Hash64(0xea3bdb551f410546ull);
-	type_code->code_hash = vnx::Hash64(0x36a1a6d8586f9a04ull);
+	type_code->code_hash = vnx::Hash64(0x8238d5dd05a69cb7ull);
 	type_code->methods.resize(3);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -248,7 +264,7 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 		call_type->build();
 		type_code->methods[2] = vnx::register_type_code(call_type);
 	}
-	type_code->fields.resize(11);
+	type_code->fields.resize(13);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -316,6 +332,18 @@ std::shared_ptr<vnx::TypeCode> HttpProcessorBase::create_type_code() {
 		field.name = "max_num_pages";
 		field.value = vnx::to_string(10000);
 		field.code = {8};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[11];
+		field.is_extended = true;
+		field.name = "default_cache_control";
+		field.code = {12, 5};
+	}
+	{
+		vnx::TypeField& field = type_code->fields[12];
+		field.is_extended = true;
+		field.name = "cache_control";
+		field.code = {13, 4, 12, 5, 12, 5};
 	}
 	type_code->build();
 	return type_code;
@@ -441,6 +469,8 @@ void read(TypeInput& in, ::vnx::web::HttpProcessorBase& value, const TypeCode* t
 			case 3: vnx::read(in, value.default_domain, type_code, _field->code.data()); break;
 			case 4: vnx::read(in, value.domain_map, type_code, _field->code.data()); break;
 			case 5: vnx::read(in, value.index_path, type_code, _field->code.data()); break;
+			case 11: vnx::read(in, value.default_cache_control, type_code, _field->code.data()); break;
+			case 12: vnx::read(in, value.cache_control, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -466,6 +496,8 @@ void write(TypeOutput& out, const ::vnx::web::HttpProcessorBase& value, const Ty
 	vnx::write(out, value.default_domain, type_code, type_code->fields[3].code.data());
 	vnx::write(out, value.domain_map, type_code, type_code->fields[4].code.data());
 	vnx::write(out, value.index_path, type_code, type_code->fields[5].code.data());
+	vnx::write(out, value.default_cache_control, type_code, type_code->fields[11].code.data());
+	vnx::write(out, value.cache_control, type_code, type_code->fields[12].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::HttpProcessorBase& value) {

@@ -12,6 +12,11 @@
 namespace vnx {
 namespace web {
 
+HttpProcessor::HttpProcessor(const std::string& _vnx_name)
+	:	HttpProcessorBase(_vnx_name)
+{
+}
+
 void HttpProcessor::init() {
 	input_pipe = subscribe(input);
 	subscribe(channel, 0);				// we never want to miss a response
@@ -22,6 +27,10 @@ void HttpProcessor::main() {
 	server_start_time_ms = vnx::get_time_millis();
 	
 	client = std::make_shared<DatabaseClient>("Database");
+	
+	if(cache_control.count("text/html") == 0) {
+		cache_control["text/html"] = "no-cache, must-revalidate";
+	}
 	
 	set_timer_millis(1000, std::bind(&HttpProcessor::print_stats, this));
 	set_timer_millis(60000, std::bind(&HttpProcessor::write_stats, this));
@@ -255,12 +264,26 @@ void HttpProcessor::process(	state_t& state, const std::string& domain,
 			out->status = 200;
 			out->result = result;
 			auto content = std::dynamic_pointer_cast<const Content>(result);
-			if(content) {
-				if(!response->is_dynamic) {
+			if(response->is_dynamic) {
+				out->header.emplace_back("Cache-Control", "no-cache, no-store, must-revalidate");
+			} else {
+				if(content) {
 					const int64_t time_stamp_s = content->time_stamp_ms / 1000;
 					out->header.emplace_back("Last-Modified", get_date_string(time_stamp_s));
 					out->header.emplace_back("ETag", "\"" + request->path.get_hash().to_string()
 							+ ":" + std::to_string(time_stamp_s) + "\"");
+					{
+						auto iter = cache_control.find(content->mime_type);
+						if(iter != cache_control.end()) {
+							out->header.emplace_back("Cache-Control", iter->second);
+						} else {
+							if(!default_cache_control.empty()) {
+								out->header.emplace_back("Cache-Control", default_cache_control);
+							}
+						}
+					}
+				} else {
+					out->header.emplace_back("Cache-Control", "no-cache");
 				}
 			}
 			{

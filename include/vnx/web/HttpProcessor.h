@@ -16,10 +16,7 @@ namespace web {
 
 class HttpProcessor : public HttpProcessorBase {
 public:
-	HttpProcessor(const std::string& _vnx_name)
-		:	HttpProcessorBase(_vnx_name)
-	{
-	}
+	HttpProcessor(const std::string& _vnx_name);
 
 protected:
 	struct state_t {

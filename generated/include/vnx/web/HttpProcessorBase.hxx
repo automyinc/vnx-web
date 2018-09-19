@@ -31,6 +31,8 @@ public:
 	::int64_t timeout_ms = 1000;
 	::vnx::bool_t keepalive = true;
 	::int64_t max_num_pages = 10000;
+	::std::string default_cache_control;
+	::std::map<::std::string, ::std::string> cache_control;
 	
 	typedef ::vnx::Module Super;
 	
