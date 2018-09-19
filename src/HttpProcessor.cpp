@@ -187,8 +187,13 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 	if(forward) {
 		auto iter = domain_map.find(domain);
 		if(iter != domain_map.end()) {
-			if(!forward->path.is_root()) {
-				
+			if(forward->path == "/favicon.ico") {
+				state.response_map[request->id] = Response::create(request,
+						ErrorCode::create_with_message(ErrorCode::MOVED_TEMPORARILY, "/file/favicon.ico"));
+			} else if(forward->path.is_root()) {
+				state.response_map[request->id] = Response::create(request,
+						ErrorCode::create_with_message(ErrorCode::MOVED_TEMPORARILY, index_path.to_string()));
+			} else {
 				forward->id = request->id;
 				forward->stream = request->stream;
 				forward->parameter = request->parameter;
@@ -200,10 +205,6 @@ void HttpProcessor::process(state_t& state, std::shared_ptr<const HttpRequest> r
 				request_entry_t& entry = pending_requests[request->id];
 				entry.stream = state.stream;
 				entry.domain = domain;
-				
-			} else {
-				state.response_map[request->id] = Response::create(request,
-						ErrorCode::create_with_message(ErrorCode::MOVED_TEMPORARILY, index_path.to_string()));
 			}
 		} else {
 			state.response_map[request->id] = Response::create(request, ErrorCode::create(ErrorCode::NOT_FOUND));
