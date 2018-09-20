@@ -23,6 +23,7 @@ int main(int argc, char** argv) {
 	std::map<std::string, std::string> options;
 	options["n"] = "node";
 	options["node"] = "server url";
+	options["views"] = "map of views";
 	
 	vnx::init("vnxwebserver", argc, argv, options);
 	
@@ -56,7 +57,7 @@ int main(int argc, char** argv) {
 		module.start_detached();
 	}
 	{
-		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("DefaultViewProcessor");
+		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("ViewProcessor");
 		module->domain = "server.domain";
 		module->input = "server.default.request";
 		module->channel = "server.default.channel";
@@ -70,7 +71,7 @@ int main(int argc, char** argv) {
 		module.start_detached();
 	}
 	{
-		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("DynamicViewProcessor");
+		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("ViewProcessor");
 		module->domain = "server.domain";
 		module->input = "server.dynamic.request";
 		module->channel = "server.dynamic.channel";
@@ -84,18 +85,37 @@ int main(int argc, char** argv) {
 		module.start_detached();
 	}
 	{
-		vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("PageViewProcessor");
-		module->domain = "server.domain";
-		module->input = "server.page.request";
-		module->channel = "server.page.channel";
-		module->output = "server.cache.request";
-		{
-			auto view = vnx::web::PageView::create();
-			view->path = "/page/";
-			vnx::read_config("PageView", view);
-			module->view = view;
+		std::map<std::string, std::string> views;
+		vnx::read_config("views", views);
+		for(const auto& entry : views) {
+			const std::string& desc = entry.first;
+			std::string type = desc;
+			std::string name = desc;
+			{
+				const size_t pos = desc.find_first_of(':');
+				if(pos != std::string::npos) {
+					type = desc.substr(0, pos);
+					name = desc.substr(pos + 1);
+				}
+			}
+			std::shared_ptr<vnx::web::View> view = std::dynamic_pointer_cast<vnx::web::View>(vnx::create(vnx::Hash64(type)));
+			if(!view) {
+				view = std::dynamic_pointer_cast<vnx::web::View>(vnx::create(vnx::Hash64("vnx.web." + type)));
+			}
+			if(view) {
+				vnx::from_string(entry.second, view);
+				vnx::Handle<vnx::web::ViewProcessor> module = new vnx::web::ViewProcessor("ViewProcessor");
+				module->domain = "server.domain";
+				module->input = "server." + name + ".request";
+				module->channel = "server." + name + ".channel";
+				module->output = "server.cache.request";
+				module->view = view;
+				module.start_detached();
+				vnx::log_info().out << "Added view " << desc << " with config " << entry.second;
+			} else {
+				vnx::log_warn().out << "Unknown view type: " << type;
+			}
 		}
-		module.start_detached();
 	}
 	{
 		vnx::Handle<vnx::web::DatabaseView> module = new vnx::web::DatabaseView("DatabaseView");
