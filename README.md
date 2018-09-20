@@ -2,4 +2,5 @@
 VNX Webserver Framework
 
 # Dependencies
-vnx-base
+vnx-base (>=1.3.2)
+
