@@ -16,7 +16,7 @@ namespace web {
 
 
 const vnx::Hash64 ViewProcessorBase::VNX_TYPE_HASH(0x7197a577b12bad0bull);
-const vnx::Hash64 ViewProcessorBase::VNX_CODE_HASH(0xaa1dd60280850f3aull);
+const vnx::Hash64 ViewProcessorBase::VNX_CODE_HASH(0xe9d1633185c8adc5ull);
 
 ViewProcessorBase::ViewProcessorBase(const std::string& _vnx_name)
 	:	Module::Module(_vnx_name)
@@ -139,7 +139,7 @@ std::shared_ptr<vnx::TypeCode> ViewProcessorBase::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.ViewProcessor";
 	type_code->type_hash = vnx::Hash64(0x7197a577b12bad0bull);
-	type_code->code_hash = vnx::Hash64(0xaa1dd60280850f3aull);
+	type_code->code_hash = vnx::Hash64(0xe9d1633185c8adc5ull);
 	type_code->methods.resize(2);
 	{
 		std::shared_ptr<vnx::TypeCode> call_type = std::make_shared<vnx::TypeCode>(true);
@@ -225,7 +225,7 @@ std::shared_ptr<vnx::TypeCode> ViewProcessorBase::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[5];
 		field.name = "render_interval_ms";
-		field.value = vnx::to_string(3000);
+		field.value = vnx::to_string(1000);
 		field.code = {7};
 	}
 	{

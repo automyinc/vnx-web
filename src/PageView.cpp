@@ -9,12 +9,16 @@
 namespace vnx {
 namespace web {
 
-Path get_full_index_path(const PageView* view) {
-	return view->source_path + view->index_path;
+Path get_index_path(const PageView* view) {
+	if(view->index_path.is_relative()) {
+		return view->source_path + view->index_path;
+	} else {
+		return view->index_path;
+	}
 }
 
 void PageView::initialize() {
-	require(get_full_index_path(this));
+	require(get_index_path(this));
 }
 
 std::shared_ptr<const Request> PageView::forward(	const std::shared_ptr<const Request>& request,
@@ -31,7 +35,7 @@ std::shared_ptr<const Response> PageView::process(const std::shared_ptr<const Re
 	std::shared_ptr<Response> new_response = Response::create();
 	new_response->forward(response);
 	
-	auto index_file = std::dynamic_pointer_cast<const DynamicFile>(get_resource(get_full_index_path(this)));
+	auto index_file = std::dynamic_pointer_cast<const DynamicFile>(get_resource(get_index_path(this)));
 	if(index_file) {
 		Object context = index_file->static_context;
 		auto page_file = std::dynamic_pointer_cast<const DynamicFile>(response->result);
@@ -39,7 +43,7 @@ std::shared_ptr<const Response> PageView::process(const std::shared_ptr<const Re
 			for(const auto& field : page_file->static_context.field) {
 				context[field.first] = field.second;
 			}
-			auto content = page_file->execute(index_file->static_context);
+			auto content = page_file->execute_with_options(index_file->static_context, true);
 			context["vnx.web.page.source"].assign((const char*)content->data.data(), content->data.size());
 			new_response->time_to_live_ms /= 2;
 		} else {

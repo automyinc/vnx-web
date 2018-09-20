@@ -17,6 +17,8 @@ class DynamicFile extends File {
 	
 	File* execute(Object context) const;
 	
+	File* execute_with_options(Object context, bool allow_nesting) const;
+	
 	static const int CODE_TEXT = 1;
 	static const int CODE_INSERT = 2;
 	

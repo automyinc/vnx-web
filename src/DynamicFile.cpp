@@ -144,6 +144,10 @@ void DynamicFile::parse() {
 }
 
 std::shared_ptr<const vnx::web::File> DynamicFile::execute(const ::vnx::Object& context) const {
+	return execute_with_options(context, false);
+}
+
+std::shared_ptr<const vnx::web::File> DynamicFile::execute_with_options(const ::vnx::Object& context, const ::vnx::bool_t& allow_nesting) const {
 	
 	auto file = File::create();
 	file->name = name;
@@ -169,6 +173,10 @@ std::shared_ptr<const vnx::web::File> DynamicFile::execute(const ::vnx::Object& 
 						iter = static_context.field.find(key);
 						if(iter != static_context.field.end()) {
 							result << iter->second.to<std::string>();
+						} else {
+							if(allow_nesting) {
+								result << "{{" << key << "}}";
+							}
 						}
 					}
 				}

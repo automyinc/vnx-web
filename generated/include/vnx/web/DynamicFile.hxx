@@ -32,6 +32,7 @@ public:
 	
 	virtual void parse();
 	virtual ::std::shared_ptr<const ::vnx::web::File> execute(const ::vnx::Object& context) const;
+	virtual ::std::shared_ptr<const ::vnx::web::File> execute_with_options(const ::vnx::Object& context, const ::vnx::bool_t& allow_nesting) const;
 	
 	static std::shared_ptr<DynamicFile> create();
 	std::shared_ptr<vnx::Value> clone() const;

@@ -14,7 +14,7 @@ module ViewProcessor {
 	
 	int max_input_queue_ms = 100;		// incoming request queue length
 	
-	int render_interval_ms = 3000;		// how often to update view's resources
+	int render_interval_ms = 1000;		// how often to update view's resources
 	
 	int update_interval_ms = 500;		// how often to publish provider info
 	
