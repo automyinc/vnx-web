@@ -15,7 +15,7 @@ namespace web {
 
 
 const vnx::Hash64 PageView::VNX_TYPE_HASH(0x8997e93f9bf0ab56ull);
-const vnx::Hash64 PageView::VNX_CODE_HASH(0x61f578970241338aull);
+const vnx::Hash64 PageView::VNX_CODE_HASH(0x9af9d396ed9422a0ull);
 
 vnx::Hash64 PageView::get_type_hash() const {
 	return VNX_TYPE_HASH;
@@ -46,9 +46,8 @@ void PageView::accept(vnx::Visitor& _visitor) const {
 	_visitor.type_begin(*_type_code);
 	_visitor.type_field(_type_code->fields[0], 0); vnx::accept(_visitor, path);
 	_visitor.type_field(_type_code->fields[1], 1); vnx::accept(_visitor, resource);
-	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, domain_path);
-	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, source_path);
-	_visitor.type_field(_type_code->fields[4], 4); vnx::accept(_visitor, index_path);
+	_visitor.type_field(_type_code->fields[2], 2); vnx::accept(_visitor, source_path);
+	_visitor.type_field(_type_code->fields[3], 3); vnx::accept(_visitor, index_path);
 	_visitor.type_end(*_type_code);
 }
 
@@ -56,7 +55,6 @@ void PageView::write(std::ostream& _out) const {
 	_out << "{";
 	_out << "\"path\": "; vnx::write(_out, path);
 	_out << ", \"resource\": "; vnx::write(_out, resource);
-	_out << ", \"domain_path\": "; vnx::write(_out, domain_path);
 	_out << ", \"source_path\": "; vnx::write(_out, source_path);
 	_out << ", \"index_path\": "; vnx::write(_out, index_path);
 	_out << "}";
@@ -66,9 +64,7 @@ void PageView::read(std::istream& _in) {
 	std::map<std::string, std::string> _object;
 	vnx::read_object(_in, _object);
 	for(const auto& _entry : _object) {
-		if(_entry.first == "domain_path") {
-			vnx::from_string(_entry.second, domain_path);
-		} else if(_entry.first == "index_path") {
+		if(_entry.first == "index_path") {
 			vnx::from_string(_entry.second, index_path);
 		} else if(_entry.first == "path") {
 			vnx::from_string(_entry.second, path);
@@ -84,7 +80,6 @@ vnx::Object PageView::to_object() const {
 	vnx::Object _object;
 	_object["path"] = path;
 	_object["resource"] = resource;
-	_object["domain_path"] = domain_path;
 	_object["source_path"] = source_path;
 	_object["index_path"] = index_path;
 	return _object;
@@ -92,9 +87,7 @@ vnx::Object PageView::to_object() const {
 
 void PageView::from_object(const vnx::Object& _object) {
 	for(const auto& _entry : _object.field) {
-		if(_entry.first == "domain_path") {
-			_entry.second.to(domain_path);
-		} else if(_entry.first == "index_path") {
+		if(_entry.first == "index_path") {
 			_entry.second.to(index_path);
 		} else if(_entry.first == "path") {
 			_entry.second.to(path);
@@ -128,12 +121,12 @@ std::shared_ptr<vnx::TypeCode> PageView::create_type_code() {
 	std::shared_ptr<vnx::TypeCode> type_code = std::make_shared<vnx::TypeCode>(true);
 	type_code->name = "vnx.web.PageView";
 	type_code->type_hash = vnx::Hash64(0x8997e93f9bf0ab56ull);
-	type_code->code_hash = vnx::Hash64(0x61f578970241338aull);
+	type_code->code_hash = vnx::Hash64(0x9af9d396ed9422a0ull);
 	type_code->is_class = true;
 	type_code->parents.resize(1);
 	type_code->parents[0] = ::vnx::web::View::get_type_code();
 	type_code->create_value = []() -> std::shared_ptr<vnx::Value> { return std::make_shared<PageView>(); };
-	type_code->fields.resize(5);
+	type_code->fields.resize(4);
 	{
 		vnx::TypeField& field = type_code->fields[0];
 		field.is_extended = true;
@@ -149,19 +142,12 @@ std::shared_ptr<vnx::TypeCode> PageView::create_type_code() {
 	{
 		vnx::TypeField& field = type_code->fields[2];
 		field.is_extended = true;
-		field.name = "domain_path";
-		field.value = vnx::to_string("/page/");
-		field.code = {12, 5};
-	}
-	{
-		vnx::TypeField& field = type_code->fields[3];
-		field.is_extended = true;
 		field.name = "source_path";
 		field.value = vnx::to_string("/dynamic/file/");
 		field.code = {12, 5};
 	}
 	{
-		vnx::TypeField& field = type_code->fields[4];
+		vnx::TypeField& field = type_code->fields[3];
 		field.is_extended = true;
 		field.name = "index_path";
 		field.value = vnx::to_string("index.html");
@@ -194,9 +180,8 @@ void read(TypeInput& in, ::vnx::web::PageView& value, const TypeCode* type_code,
 		switch(_field->native_index) {
 			case 0: vnx::read(in, value.path, type_code, _field->code.data()); break;
 			case 1: vnx::read(in, value.resource, type_code, _field->code.data()); break;
-			case 2: vnx::read(in, value.domain_path, type_code, _field->code.data()); break;
-			case 3: vnx::read(in, value.source_path, type_code, _field->code.data()); break;
-			case 4: vnx::read(in, value.index_path, type_code, _field->code.data()); break;
+			case 2: vnx::read(in, value.source_path, type_code, _field->code.data()); break;
+			case 3: vnx::read(in, value.index_path, type_code, _field->code.data()); break;
 			default: vnx::skip(in, type_code, _field->code.data());
 		}
 	}
@@ -212,9 +197,8 @@ void write(TypeOutput& out, const ::vnx::web::PageView& value, const TypeCode* t
 	}
 	vnx::write(out, value.path, type_code, type_code->fields[0].code.data());
 	vnx::write(out, value.resource, type_code, type_code->fields[1].code.data());
-	vnx::write(out, value.domain_path, type_code, type_code->fields[2].code.data());
-	vnx::write(out, value.source_path, type_code, type_code->fields[3].code.data());
-	vnx::write(out, value.index_path, type_code, type_code->fields[4].code.data());
+	vnx::write(out, value.source_path, type_code, type_code->fields[2].code.data());
+	vnx::write(out, value.index_path, type_code, type_code->fields[3].code.data());
 }
 
 void read(std::istream& in, ::vnx::web::PageView& value) {

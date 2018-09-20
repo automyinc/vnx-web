@@ -4,8 +4,6 @@ import vnx.TopicPtr;
 
 class PageView extends View {
 	
-	Path domain_path = "/page/";
-	
 	Path source_path = "/dynamic/file/";
 	
 	Path index_path = "index.html";

@@ -18,7 +18,6 @@ namespace web {
 class PageView : public ::vnx::web::View {
 public:
 	
-	::vnx::web::Path domain_path = "/page/";
 	::vnx::web::Path source_path = "/dynamic/file/";
 	::vnx::web::Path index_path = "index.html";
 	
