@@ -515,7 +515,8 @@ void Frontend::PollLoop::loop() {
 		publish(stream_events, frontend->output);
 	}
 	
-	const int num_events = ::epoll_wait(epoll_sock, new_events.data(), new_events.size(), 100);
+	const int timeout_ms = write_set.empty() ? 100 : 0;
+	const int num_events = ::epoll_wait(epoll_sock, new_events.data(), new_events.size(), timeout_ms);
 	if(num_events < 0) {
 		if(errno != EINTR) {
 			log_error().out << "Frontend: epoll_wait() failed with " << errno;
