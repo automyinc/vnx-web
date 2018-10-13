@@ -77,11 +77,13 @@ void DatabaseBase::from_object(const vnx::Object& _object) {
 	}
 }
 
+/// \private
 std::ostream& operator<<(std::ostream& _out, const DatabaseBase& _value) {
 	_value.write(_out);
 	return _out;
 }
 
+/// \private
 std::istream& operator>>(std::istream& _in, DatabaseBase& _value) {
 	_value.read(_in);
 	return _in;
