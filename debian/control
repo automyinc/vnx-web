@@ -1,8 +1,8 @@
 Package: vnx-web
 Section: base
 Priority: optional
-Depends:
-Maintainer: Max Wittal <automyinc@gmail.com>
+Depends: vnx-base
+Maintainer: Max Wittal <max.wittal@automyinc.com>
 Description: VNX Webserver Framework
 Architecture: all
 

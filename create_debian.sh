@@ -12,6 +12,8 @@ mkdir -p $ARCH
 echo "Version: $VERSION" >> $DST/DEBIAN/control
 cat debian/control >> $DST/DEBIAN/control
 
+./codegen.sh
+
 ./install.sh -DCMAKE_INSTALL_PREFIX:PATH=$PWD/$DST/usr
 
 dpkg-deb --build $DST
