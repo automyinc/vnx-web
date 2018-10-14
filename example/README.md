@@ -34,3 +34,22 @@ Default password is "password".
 If your Frontend is configured to run on port 80 then vnxwebserver needs to run as root.
 
 Alternatively iptables can be configured to forward port 80 to 8080.
+
+## Note on connection limit
+
+Consider increasing the maximum number of open files before starting the server:
+
+`$ ulimit -n 100000`
+
+This may require a system config change:
+
+See https://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/
+
+`$ sudo vim /etc/security/limits.conf`
+
+Add lines for your user:
+
+```
+username         hard    nofile      1000000
+username         soft    nofile      1000000
+```
