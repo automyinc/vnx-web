@@ -21,6 +21,7 @@ void FileSystem::main() {
 	mime_type_map[".png"] = "image/png";
 	mime_type_map[".jpg"] = "image/jpeg";
 	mime_type_map[".jpeg"] = "image/jpeg";
+	mime_type_map[".svg"] = "image/svg+xml";
 	mime_type_map[".ico"] = "image/x-icon";
 	mime_type_map[".txt"] = "text/plain";
 	mime_type_map[".sh"] = "text/plain";
