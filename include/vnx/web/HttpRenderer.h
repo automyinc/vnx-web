@@ -22,22 +22,7 @@ protected:
 	void handle(std::shared_ptr<const ::vnx::web::StreamEventArray> events) override;
 	
 private:
-	void render(vnx::OutputBuffer& out, const char str[]);
-	
-	void render(vnx::OutputBuffer& out, const std::string& str);
-	
-	void render(vnx::OutputBuffer& out, std::shared_ptr<const vnx::Value> result);
-	
-	void render(vnx::OutputBuffer& out, std::shared_ptr<const File> file);
-	
-	void render_header(vnx::OutputBuffer &out, const std::string &key, const std::string &value);
-	
-	void render_header(vnx::OutputBuffer &out, const std::pair<std::string, std::string> &field);
-	
-private:
 	std::unordered_map<Hash128, int64_t> state_map;
-	
-	bool is_head_response = false;
 	
 };
 

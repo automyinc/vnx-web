@@ -7,6 +7,8 @@ struct stream_event_t {
 	static const int EVENT_NEW = 1;				// notification of new stream
 	static const int EVENT_CLOSE = 3;			// close stream
 	static const int EVENT_EOF = 4;				// notification of closed stream
+	static const int EVENT_STALLED = 5;			// notification of write blocked stream
+	static const int EVENT_RESUME = 6;			// notification that writing can resume
 	
 	Hash128 stream;
 	

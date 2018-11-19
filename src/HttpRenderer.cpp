@@ -23,40 +23,15 @@ void HttpRenderer::main() {
 	Super::main();
 }
 
-void HttpRenderer::render(vnx::OutputBuffer& out, const char str[]) {
-	render(out, std::string(str));
+inline void render(vnx::OutputBuffer& out, const char str[]) {
+	out.write(str, ::strlen(str));
 }
 
-void HttpRenderer::render(vnx::OutputBuffer& out, const std::string& str) {
+inline void render(vnx::OutputBuffer& out, const std::string& str) {
 	out.write(str.c_str(), str.size());
 }
 
-void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const vnx::Value> result) {
-	{
-		auto value = std::dynamic_pointer_cast<const File>(result);
-		if(value) {
-			render(out, value);
-			return;
-		}
-	}
-	render_header(out, "Content-Length", "0");
-	render(out, "\r\n");
-}
-
-void HttpRenderer::render(vnx::OutputBuffer& out, std::shared_ptr<const File> file) {
-	render_header(out, "Content-Length", std::to_string(file->get_num_bytes()));
-	render_header(out, "Content-Type", file->mime_type);
-	render(out, "\r\n");
-	if(!is_head_response) {
-		out.write(file->data.data(), file->data.size());
-	}
-}
-
-void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::pair<std::string, std::string> &field) {
-	render_header(out, field.first, field.second);
-}
-
-void HttpRenderer::render_header(vnx::OutputBuffer &out, const std::string &key, const std::string &value) {
+inline void render_header(vnx::OutputBuffer &out, const std::string &key, const std::string &value) {
 	render(out, key);
 	render(out, ": ");
 	render(out, value);
@@ -84,25 +59,35 @@ void HttpRenderer::handle(std::shared_ptr<const ::vnx::web::HttpResponse> respon
 	}
 	state = response->sequence;
 	
-	is_head_response = response->is_head_response;
-	
 	MemoryOutputStream stream(&sample->data);
 	OutputBuffer out(&stream);
 	
 	render(out, "HTTP/1.1 ");
 	render(out, std::to_string(response->status));
 	render(out, " ");
-	switch(response->status) {
-		case 200: render(out, "OK"); break;
-		default: render(out, ErrorCode::get_error_string(response->status)); break;
-	}
+	render(out, ErrorCode::get_error_string(response->status));
 	render(out, "\r\n");
 	
 	for(const auto& field : response->header) {
-		render_header(out, field);
+		render_header(out, field.first, field.second);
 	}
 	
-	render(out, response->result);
+	// TODO: handle big files as chunks
+	
+	{
+		auto file = std::dynamic_pointer_cast<const File>(response->result);
+		if(file) {
+			render_header(out, "Content-Length", std::to_string(file->get_num_bytes()));
+			render_header(out, "Content-Type", file->mime_type);
+			render(out, "\r\n");
+			if(!response->is_head_response) {
+				out.write(file->data.data(), file->data.size());
+			}
+		} else {
+			render_header(out, "Content-Length", "0");
+			render(out, "\r\n");
+		}
+	}
 	
 	out.flush();
 	

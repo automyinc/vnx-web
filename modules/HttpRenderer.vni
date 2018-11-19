@@ -8,6 +8,10 @@ module HttpRenderer {
 	
 	TopicPtr output;
 	
+	int interval_ms = 20;			// write interval for big files
+	
+	long chunk_size = 524288;		// chunk size for big files [bytes]
+	
 	
 	void handle(HttpResponse sample);
 	void handle(StreamEventArray sample);
