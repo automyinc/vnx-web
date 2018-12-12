@@ -7,6 +7,7 @@
 #include <vnx/Type.h>
 
 #include <vnx/package.hxx>
+#include <vnx/query/package.hxx>
 
 
 namespace vnx {
