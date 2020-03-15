@@ -82,7 +82,7 @@ private:
 	
 	void read_table(table_t &table);
 	
-	void read_object(vnx::File &file, size_t offset, Object &object) const;
+	void read_object(vnx::File &file, int64_t offset, Object &object) const;
 	
 	bool read_object(const Hash128 &key, Object &object) const;
 	

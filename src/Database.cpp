@@ -53,7 +53,7 @@ void Database::main() {
 	
 	stage_file.open(location + "stage.dat", "ab+");
 	stage_file.seek_begin();
-	size_t last_pos = 0;
+	int64_t last_pos = 0;
 	try {
 		while(true) {
 			std::shared_ptr<Value> value = vnx::read(stage_file.in);
@@ -410,7 +410,7 @@ void Database::read_table(table_t& table) {
 	file.close();
 }
 
-void Database::read_object(vnx::File& file, size_t offset, Object& object) const {
+void Database::read_object(vnx::File& file, int64_t offset, Object& object) const {
 	file.seek_to(offset);
 	file.in.fetch(1024);
 	uint16_t code;
@@ -471,7 +471,7 @@ void Database::write_new_block() {
 		header[entry.first] = -1;
 	}
 	vnx::write(file.out, uint16_t(CODE_DYNAMIC));
-	const size_t header_begin_pos = file.get_output_pos();
+	const auto header_begin_pos = file.get_output_pos();
 	vnx::write_dynamic(file.out, header);
 	
 	for(const auto& entry : stage) {
